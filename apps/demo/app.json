@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Quartz UI Demo",
+    "slug": "quartz-ui-demo",
+    "version": "1.0.0-dev.2025-02.1",
+    "orientation": "portrait",
+    "scheme": "quartzui",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.quartzui.demo"
+    },
+    "android": {
+      "package": "com.quartzui.demo"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

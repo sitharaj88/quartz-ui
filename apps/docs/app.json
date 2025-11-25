@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Quartz UI Documentation",
+    "slug": "quartz-ui-docs",
+    "version": "1.0.0-dev.2025-02.1",
+    "orientation": "portrait",
+    "scheme": "quartzui-docs",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "publicPath": "/quartz-ui/"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "baseUrl": "/quartz-ui"
+    },
+    "extra": {
+      "router": {
+        "basePath": "/quartz-ui"
+      }
+    }
+  }
+}
