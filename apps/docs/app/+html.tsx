@@ -32,6 +32,22 @@ export default function Root({ children }: PropsWithChildren) {
         />
 
         <ScrollViewStyleReset />
+        
+        {/* Re-enable browser pull-to-refresh and fix scroll behavior */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              html, body, #root {
+                overscroll-behavior-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+              }
+              /* Ensure the app container allows natural scrolling on web */
+              #root > div {
+                overscroll-behavior-y: auto !important;
+              }
+            `,
+          }}
+        />
       </head>
       <body>{children}</body>
     </html>

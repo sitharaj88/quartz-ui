@@ -1971,6 +1971,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
     borderTopWidth: 1,
+    zIndex: 99,
   },
   mobileNavItem: {
     alignItems: 'center',
