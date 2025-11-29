@@ -217,10 +217,25 @@ All components are built with accessibility in mind:
 ## 📱 Platform Support
 
 | Platform | Supported |
-|----------|-----------|
+|----------|-----------||
 | iOS      | ✅        |
 | Android  | ✅        |
-| Web      | ✅        |
+| Web      | 🚧 In Development |
+
+## 📝 Notes
+
+> **⚠️ Development Build Notice**
+> 
+> This is a dev build targeting release in **February 2025**. 
+> 
+> **Focus areas currently in progress:**
+> - Web platform interactions and scroll behaviors
+> - TODO follow-ups and bug fixes
+> - RTL (Right-to-Left) support validation
+> - Component stabilization for launch
+> - Performance optimizations
+> 
+> Some features may be incomplete or behave unexpectedly. Please report issues on our [GitHub Issues](https://github.com/sitharaj88/quartz-ui/issues) page.
 
 ## 🏗️ Project Structure
 
