@@ -364,7 +364,13 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: isMobile ? 20 : 24 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingHorizontal: isMobile ? 20 : 24,
+            paddingBottom: isMobile ? 120 : 40,
+          }
+        ]}
       >
         {/* HEADER - Mobile optimized */}
         <Animated.View entering={FadeInDown.springify().damping(15)} style={styles.header}>
@@ -483,36 +489,6 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
               </Text>
             </LinearGradient>
           </Surface>
-
-          {/* Theme Toggle */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.themeToggle,
-              {
-                backgroundColor: theme.colors.primaryContainer,
-                opacity: pressed ? 0.7 : 1,
-                minHeight: isMobile ? 56 : 48,
-              },
-            ]}
-          >
-            <LinearGradient
-              colors={['#667eea', '#764ba2']}
-              style={styles.themeToggleGradient}
-            >
-              <Ionicons name="moon" size={isMobile ? 24 : 22} color="#FFFFFF" />
-              <Text
-                variant="labelLarge"
-                style={{
-                  color: '#FFFFFF',
-                  fontWeight: '700',
-                  marginLeft: 10,
-                  fontSize: isMobile ? 16 : 14,
-                }}
-              >
-                Toggle Theme
-              </Text>
-            </LinearGradient>
-          </Pressable>
         </Animated.View>
       </ScrollView>
     </Surface>
@@ -521,7 +497,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { paddingBottom: 40, paddingTop: 24 },
+  scrollContent: { paddingTop: 24 },
   header: { marginBottom: 24 },
   headerTop: {
     flexDirection: 'row',
@@ -636,20 +612,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-  },
-  themeToggle: {
-    borderRadius: 14,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  themeToggleGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
   },
 });
