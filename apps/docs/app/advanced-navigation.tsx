@@ -18,68 +18,57 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const navigationDrawerProps: PropDefinition[] = [
   {
-    name: 'open',
-    type: 'boolean',
-    description: 'Whether the drawer is open',
+    name: 'sections',
+    type: 'DrawerSection[]',
+    required: true,
+    description: 'Sections of navigation items. Each section can have a title and items array',
   },
   {
-    name: 'onClose',
-    type: '() => void',
-    description: 'Callback when drawer should close',
-  },
-  {
-    name: 'items',
-    type: 'NavItem[]',
-    description: 'Array of navigation items',
-  },
-  {
-    name: 'activeKey',
+    name: 'selectedKey',
     type: 'string',
     description: 'Currently selected item key',
   },
   {
-    name: 'onItemPress',
+    name: 'onSelect',
     type: '(key: string) => void',
-    description: 'Callback when item is pressed',
+    description: 'Callback when an item is selected',
+  },
+  {
+    name: 'open',
+    type: 'boolean',
+    default: 'false',
+    description: 'Whether the drawer is open (for modal variant)',
+  },
+  {
+    name: 'onClose',
+    type: '() => void',
+    description: 'Callback when drawer should close (for modal variant)',
   },
   {
     name: 'variant',
     type: "'standard' | 'modal'",
-    default: "'standard'",
-    description: 'Drawer variant (standard = persistent, modal = overlay)',
-  },
-  {
-    name: 'position',
-    type: "'left' | 'right'",
-    default: "'left'",
-    description: 'Side from which drawer appears',
+    default: "'modal'",
+    description: 'Drawer variant - standard is always visible, modal overlays content',
   },
   {
     name: 'header',
-    type: 'ReactNode',
-    description: 'Custom header content',
+    type: 'React.ReactNode',
+    description: 'Custom header content rendered at the top of the drawer',
   },
   {
     name: 'footer',
-    type: 'ReactNode',
-    description: 'Custom footer content',
-  },
-  {
-    name: 'width',
-    type: 'number',
-    default: '360',
-    description: 'Drawer width in pixels',
-  },
-  {
-    name: 'showDividers',
-    type: 'boolean',
-    default: 'false',
-    description: 'Show dividers between sections',
+    type: 'React.ReactNode',
+    description: 'Custom footer content rendered at the bottom of the drawer',
   },
   {
     name: 'style',
     type: 'StyleProp<ViewStyle>',
-    description: 'Style override',
+    description: 'Style override for drawer container',
+  },
+  {
+    name: 'testID',
+    type: 'string',
+    description: 'Test identifier for automated testing',
   },
 ];
 
@@ -172,159 +161,360 @@ export default function AdvancedNavigationDocPage() {
         </Text>
       </Animated.View>
 
-      {/* Standard Drawer */}
+      {/* Standard Drawer - Using Real Component */}
       <Animated.View entering={FadeInDown.delay(200).springify()}>
         <CodePlayground
-          title="Standard Drawer"
-          description="Persistent side navigation"
-          code={`<NavigationDrawer
+          title="Standard Drawer (Always Visible)"
+          description="Persistent side navigation for desktop/tablet layouts"
+          code={`const drawerSections = [
+  {
+    items: [
+      {
+        key: 'inbox',
+        label: 'Inbox',
+        icon: <Ionicons name="mail-outline" size={24} />,
+        selectedIcon: <Ionicons name="mail" size={24} />,
+        badge: 12
+      },
+      {
+        key: 'outbox',
+        label: 'Outbox',
+        icon: <Ionicons name="send-outline" size={24} />,
+        selectedIcon: <Ionicons name="send" size={24} />
+      },
+      {
+        key: 'favorites',
+        label: 'Favorites',
+        icon: <Ionicons name="heart-outline" size={24} />,
+        selectedIcon: <Ionicons name="heart" size={24} />
+      },
+      {
+        key: 'trash',
+        label: 'Trash',
+        icon: <Ionicons name="trash-outline" size={24} />,
+        selectedIcon: <Ionicons name="trash" size={24} />
+      },
+    ],
+    showDivider: true
+  },
+  {
+    title: 'Labels',
+    items: [
+      {
+        key: 'work',
+        label: 'Work',
+        icon: <Ionicons name="briefcase-outline" size={24} />,
+        selectedIcon: <Ionicons name="briefcase" size={24} />
+      },
+      {
+        key: 'personal',
+        label: 'Personal',
+        icon: <Ionicons name="person-outline" size={24} />,
+        selectedIcon: <Ionicons name="person" size={24} />
+      },
+    ]
+  }
+];
+
+<NavigationDrawer
   variant="standard"
-  open={isOpen}
-  items={[
-    { key: 'inbox', label: 'Inbox', icon: <Ionicons name="mail" />, badge: 12 },
-    { key: 'outbox', label: 'Outbox', icon: <Ionicons name="send" /> },
-  ]}
-  activeKey={activeKey}
-  onItemPress={setActiveKey}
+  sections={drawerSections}
+  selectedKey={selectedKey}
+  onSelect={setSelectedKey}
+  header={
+    <View style={{ padding: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{
+          width: 40, height: 40, borderRadius: 20,
+          backgroundColor: '#667eea',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>JD</Text>
+        </View>
+        <View style={{ marginLeft: 12 }}>
+          <Text variant="titleSmall">John Doe</Text>
+          <Text variant="bodySmall">john@example.com</Text>
+        </View>
+      </View>
+    </View>
+  }
 />`}
           preview={
-          <View style={styles.drawerDemo}>
-            <Surface elevation={1} style={[styles.drawerPreview, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-              <View style={[styles.miniDrawer, { backgroundColor: theme.colors.surface, borderRightColor: theme.colors.outlineVariant }]}>
-                <View style={[styles.drawerHeader, { borderBottomColor: theme.colors.outlineVariant }]}>
-                  <View style={[styles.avatar, { backgroundColor: theme.colors.primaryContainer }]}>
-                    <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer }}>JD</Text>
-                  </View>
-                  <View style={styles.headerText}>
-                    <Text variant="titleSmall" style={{ color: theme.colors.onSurface }}>John Doe</Text>
-                    <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>john@example.com</Text>
-                  </View>
-                </View>
-                {navItems.map((item) => (
-                  <View
-                    key={item.key}
-                    style={[
-                      styles.drawerItem,
-                      activeNavItem === item.key && { backgroundColor: theme.colors.secondaryContainer }
-                    ]}
-                    onTouchEnd={() => setActiveNavItem(item.key)}
-                  >
-                    <Ionicons 
-                      name={item.icon as any} 
-                      size={20} 
-                      color={activeNavItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant} 
-                    />
-                    <Text 
-                      variant="bodyMedium" 
-                      style={{ 
-                        color: activeNavItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurface,
-                        flex: 1,
-                        marginLeft: 12
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                    {item.badge && (
-                      <View style={[styles.badge, { backgroundColor: theme.colors.primary }]}>
-                        <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>{item.badge}</Text>
+            <View style={styles.drawerDemo}>
+              <Surface elevation={2} style={[styles.drawerPreviewContainer, { backgroundColor: theme.colors.surfaceContainerLow }]}>
+                <NavigationDrawer
+                  variant="standard"
+                  sections={[
+                    {
+                      items: [
+                        {
+                          key: 'inbox',
+                          label: 'Inbox',
+                          icon: <Ionicons name="mail-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                          selectedIcon: <Ionicons name="mail" size={24} color={theme.colors.onSecondaryContainer} />,
+                          badge: 12
+                        },
+                        {
+                          key: 'outbox',
+                          label: 'Outbox',
+                          icon: <Ionicons name="send-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                          selectedIcon: <Ionicons name="send" size={24} color={theme.colors.onSecondaryContainer} />
+                        },
+                        {
+                          key: 'favorites',
+                          label: 'Favorites',
+                          icon: <Ionicons name="heart-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                          selectedIcon: <Ionicons name="heart" size={24} color={theme.colors.onSecondaryContainer} />
+                        },
+                        {
+                          key: 'trash',
+                          label: 'Trash',
+                          icon: <Ionicons name="trash-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                          selectedIcon: <Ionicons name="trash" size={24} color={theme.colors.onSecondaryContainer} />
+                        },
+                      ],
+                      showDivider: true
+                    },
+                    {
+                      title: 'Labels',
+                      items: [
+                        {
+                          key: 'work',
+                          label: 'Work',
+                          icon: <Ionicons name="briefcase-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                          selectedIcon: <Ionicons name="briefcase" size={24} color={theme.colors.onSecondaryContainer} />
+                        },
+                        {
+                          key: 'personal',
+                          label: 'Personal',
+                          icon: <Ionicons name="person-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                          selectedIcon: <Ionicons name="person" size={24} color={theme.colors.onSecondaryContainer} />
+                        },
+                      ]
+                    }
+                  ]}
+                  selectedKey={activeNavItem}
+                  onSelect={setActiveNavItem}
+                  header={
+                    <View style={{ padding: 16, paddingBottom: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={[styles.avatar, { backgroundColor: theme.colors.primaryContainer }]}>
+                          <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700' }}>JD</Text>
+                        </View>
+                        <View style={styles.headerText}>
+                          <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>John Doe</Text>
+                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>john@example.com</Text>
+                        </View>
                       </View>
-                    )}
-                  </View>
-                ))}
-              </View>
-              <View style={styles.contentArea}>
-                <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {activeNavItem.charAt(0).toUpperCase() + activeNavItem.slice(1)} Content
-                </Text>
-              </View>
-            </Surface>
-          </View>
+                    </View>
+                  }
+                  style={{ maxWidth: 280 }}
+                />
+                <View style={[styles.contentArea, { backgroundColor: theme.colors.background }]}>
+                  <Ionicons name={navItems.find(i => i.key === activeNavItem)?.icon as any || 'document-outline'} size={48} color={theme.colors.primary} />
+                  <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, marginTop: 16 }}>
+                    {activeNavItem.charAt(0).toUpperCase() + activeNavItem.slice(1)}
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8, textAlign: 'center' }}>
+                    Content for {activeNavItem} section goes here
+                  </Text>
+                </View>
+              </Surface>
+            </View>
           }
         />
       </Animated.View>
 
-      {/* Modal Drawer */}
+      {/* Modal Drawer - Using Real Component */}
       <Animated.View entering={FadeInDown.delay(300).springify()}>
         <CodePlayground
-          title="Modal Drawer"
-          description="Overlay navigation for mobile"
-          code={`<NavigationDrawer
+          title="Modal Drawer (Overlay)"
+          description="Overlay navigation for mobile devices - swipe or tap scrim to close"
+          code={`const [drawerOpen, setDrawerOpen] = useState(false);
+
+<Button
+  variant="filled"
+  onPress={() => setDrawerOpen(true)}
+  icon={<Ionicons name="menu" size={18} />}
+>
+  Open Drawer
+</Button>
+
+<NavigationDrawer
   variant="modal"
-  open={isOpen}
-  onClose={() => setIsOpen(false)}
-  items={navItems}
-  header={<ProfileHeader />}
+  open={drawerOpen}
+  onClose={() => setDrawerOpen(false)}
+  sections={drawerSections}
+  selectedKey={selectedKey}
+  onSelect={(key) => {
+    setSelectedKey(key);
+    setDrawerOpen(false);
+  }}
+  header={
+    <View style={{ padding: 16 }}>
+      <Text variant="titleLarge">Navigation</Text>
+      <Text variant="bodySmall">Choose a destination</Text>
+    </View>
+  }
+  footer={
+    <View style={{ padding: 16 }}>
+      <Button variant="outlined" onPress={() => {}}>
+        Settings
+      </Button>
+    </View>
+  }
 />`}
           preview={
-          <View style={styles.modalDemo}>
-            <Button 
-              variant="filled"
-              onPress={() => setModalDrawerOpen(true)}
-              icon={<Ionicons name="menu" size={18} color="white" />}
-            >
-              Open Modal Drawer
-            </Button>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-              Modal drawers overlay the content and are typically used on mobile devices
-            </Text>
-            
-            {modalDrawerOpen && (
-              <View style={[styles.modalOverlay]}>
-                <View 
-                  style={[styles.modalBackdrop, { backgroundColor: 'rgba(0,0,0,0.5)' }]}
-                  onTouchEnd={() => setModalDrawerOpen(false)}
-                />
-                <Animated.View 
-                  entering={FadeInDown.springify()}
-                  style={[styles.modalDrawer, { backgroundColor: theme.colors.surface }]}
-                >
-                  <View style={[styles.drawerHeader, { borderBottomColor: theme.colors.outlineVariant }]}>
-                    <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>Menu</Text>
-                    <IconButton 
-                      icon={<Ionicons name="close" size={20} />}
-                      onPress={() => setModalDrawerOpen(false)}
-                      accessibilityLabel="Close menu"
-                    />
-                  </View>
-                  {navItems.map((item) => (
-                    <View
-                      key={item.key}
-                      style={[
-                        styles.drawerItem,
-                        activeNavItem === item.key && { backgroundColor: theme.colors.secondaryContainer }
-                      ]}
-                      onTouchEnd={() => {
-                        setActiveNavItem(item.key);
-                        setModalDrawerOpen(false);
-                      }}
-                    >
-                      <Ionicons 
-                        name={item.icon as any} 
-                        size={20} 
-                        color={activeNavItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant} 
-                      />
-                      <Text 
-                        variant="bodyMedium" 
-                        style={{ 
-                          color: activeNavItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurface,
-                          marginLeft: 12
-                        }}
-                      >
-                        {item.label}
-                      </Text>
+            <View style={styles.modalDemo}>
+              <Button
+                variant="filled"
+                onPress={() => setModalDrawerOpen(true)}
+                icon={<Ionicons name="menu" size={18} color="white" />}
+              >
+                Open Modal Drawer
+              </Button>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12, lineHeight: 20 }}>
+                Tap the button to open the modal drawer. You can close it by swiping left, tapping the scrim, or selecting an item.
+              </Text>
+
+              <NavigationDrawer
+                variant="modal"
+                open={modalDrawerOpen}
+                onClose={() => setModalDrawerOpen(false)}
+                sections={[
+                  {
+                    items: [
+                      {
+                        key: 'inbox',
+                        label: 'Inbox',
+                        icon: <Ionicons name="mail-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                        selectedIcon: <Ionicons name="mail" size={24} color={theme.colors.onSecondaryContainer} />,
+                        badge: 12
+                      },
+                      {
+                        key: 'outbox',
+                        label: 'Outbox',
+                        icon: <Ionicons name="send-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                        selectedIcon: <Ionicons name="send" size={24} color={theme.colors.onSecondaryContainer} />
+                      },
+                      {
+                        key: 'favorites',
+                        label: 'Favorites',
+                        icon: <Ionicons name="heart-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                        selectedIcon: <Ionicons name="heart" size={24} color={theme.colors.onSecondaryContainer} />
+                      },
+                      {
+                        key: 'trash',
+                        label: 'Trash',
+                        icon: <Ionicons name="trash-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                        selectedIcon: <Ionicons name="trash" size={24} color={theme.colors.onSecondaryContainer} />
+                      },
+                    ],
+                    showDivider: true
+                  },
+                  {
+                    title: 'Labels',
+                    items: [
+                      {
+                        key: 'work',
+                        label: 'Work',
+                        icon: <Ionicons name="briefcase-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                        selectedIcon: <Ionicons name="briefcase" size={24} color={theme.colors.onSecondaryContainer} />
+                      },
+                      {
+                        key: 'personal',
+                        label: 'Personal',
+                        icon: <Ionicons name="person-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+                        selectedIcon: <Ionicons name="person" size={24} color={theme.colors.onSecondaryContainer} />
+                      },
+                    ]
+                  }
+                ]}
+                selectedKey={activeNavItem}
+                onSelect={(key) => {
+                  setActiveNavItem(key);
+                }}
+                header={
+                  <View style={{ padding: 20, paddingBottom: 12 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={[styles.avatar, { backgroundColor: theme.colors.primaryContainer }]}>
+                          <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700' }}>JD</Text>
+                        </View>
+                        <View style={{ marginLeft: 12 }}>
+                          <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>John Doe</Text>
+                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>john@example.com</Text>
+                        </View>
+                      </View>
                     </View>
-                  ))}
-                </Animated.View>
-              </View>
-            )}
-          </View>
+                  </View>
+                }
+                footer={
+                  <View style={{ padding: 16, paddingTop: 8 }}>
+                    <Button
+                      variant="outlined"
+                      onPress={() => {}}
+                      icon={<Ionicons name="settings-outline" size={20} color={theme.colors.primary} />}
+                    >
+                      Settings
+                    </Button>
+                  </View>
+                }
+              />
+            </View>
           }
         />
+      </Animated.View>
+
+      {/* Advanced Features */}
+      <Animated.View entering={FadeInDown.delay(400).springify()}>
+        <Text variant="headlineMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface, marginTop: 48 }]}>
+          Advanced Features
+        </Text>
+        <Text variant="bodyLarge" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
+          The NavigationDrawer supports additional features like badges, disabled items, and custom icons for selected state.
+        </Text>
+      </Animated.View>
+
+      {/* Type Definitions */}
+      <Animated.View entering={FadeInDown.delay(450).springify()}>
+        <Surface elevation={1} style={[styles.typeDefinitionCard, { backgroundColor: theme.colors.surfaceContainerLow }]}>
+          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 12, fontWeight: '700' }}>
+            Type Definitions
+          </Text>
+
+          <View style={[styles.codeBlock, { backgroundColor: theme.colors.surfaceVariant, marginBottom: 12 }]}>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', lineHeight: 20 }}>
+              {`interface DrawerSection {
+  title?: string;
+  items: DrawerItem[];
+  showDivider?: boolean;
+}
+
+interface DrawerItem {
+  key: string;
+  label: string;
+  icon?: React.ReactNode;
+  selectedIcon?: React.ReactNode;
+  badge?: number | string;
+  disabled?: boolean;
+  onPress?: () => void;
+}`}
+            </Text>
+          </View>
+
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, lineHeight: 22 }}>
+            • <Text style={{ fontWeight: '600' }}>badge</Text>: Display a number or text badge on the item
+            {'\n'}• <Text style={{ fontWeight: '600' }}>selectedIcon</Text>: Different icon to show when item is selected
+            {'\n'}• <Text style={{ fontWeight: '600' }}>disabled</Text>: Prevent interaction with the item
+            {'\n'}• <Text style={{ fontWeight: '600' }}>onPress</Text>: Custom handler overriding the onSelect callback
+          </Text>
+        </Surface>
       </Animated.View>
 
       {/* Drawer Props */}
-      <Animated.View entering={FadeInDown.delay(400).springify()}>
-        <PropsTable title="NavigationDrawer" props={navigationDrawerProps} />
+      <Animated.View entering={FadeInDown.delay(500).springify()}>
+        <PropsTable title="NavigationDrawer API" props={navigationDrawerProps} />
       </Animated.View>
 
       {/* Navigation Rail Section */}
@@ -536,6 +726,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     height: 300,
   },
+  drawerPreviewContainer: {
+    flexDirection: 'row',
+    borderRadius: 16,
+    overflow: 'hidden',
+    height: 400,
+    width: '100%',
+  },
   miniDrawer: {
     width: 200,
     borderRightWidth: 1,
@@ -667,5 +864,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  typeDefinitionCard: {
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 24,
+  },
+  codeBlock: {
+    padding: 16,
+    borderRadius: 12,
   },
 });

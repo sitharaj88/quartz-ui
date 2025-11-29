@@ -130,11 +130,53 @@ export default function ChipsDocPage() {
       {/* Chip Section */}
       <Animated.View entering={FadeInDown.delay(100).springify()}>
         <Text variant="headlineMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-          Chip
+          Chip Variants
         </Text>
         <Text variant="bodyLarge" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
           Chips help people enter information, make selections, filter content, or trigger actions.
         </Text>
+      </Animated.View>
+
+      {/* All Chip Variants */}
+      <Animated.View entering={FadeInDown.delay(150).springify()}>
+        <CodePlayground
+          title="All Chip Variants"
+          description="Four chip types for different use cases"
+          code={`<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+  <Chip variant="assist" label="Assist Chip"
+    leadingIcon={<Ionicons name="sparkles" />} />
+  <Chip variant="filter" label="Filter Chip" selected />
+  <Chip variant="input" label="Input Chip"
+    onClose={() => {}} />
+  <Chip variant="suggestion" label="Suggestion" />
+</View>`}
+          preview={
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <Chip
+                variant="assist"
+                label="Assist Chip"
+                leadingIcon={<Ionicons name="sparkles-outline" size={18} color={theme.colors.primary} />}
+                onPress={() => {}}
+              />
+              <Chip
+                variant="filter"
+                label="Filter Chip"
+                selected
+                onPress={() => {}}
+              />
+              <Chip
+                variant="input"
+                label="Input Chip"
+                onClose={() => {}}
+              />
+              <Chip
+                variant="suggestion"
+                label="Suggestion"
+                onPress={() => {}}
+              />
+            </View>
+          }
+        />
       </Animated.View>
 
       {/* Assist Chips */}

@@ -132,8 +132,40 @@ export default function InputsDocPage() {
       {/* Examples */}
       <View style={styles.section}>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 20 }}>
-          Examples
+          Input Variants
         </Text>
+
+        {/* Both Variants */}
+        <CodePlayground
+          title="All Variants"
+          description="Filled and outlined text input styles"
+          code={`<View style={{ gap: 16 }}>
+  <TextInput
+    variant="filled"
+    label="Filled Input"
+    placeholder="Enter text..."
+  />
+  <TextInput
+    variant="outlined"
+    label="Outlined Input"
+    placeholder="Enter text..."
+  />
+</View>`}
+          preview={
+            <View style={{ gap: 16, width: '100%' }}>
+              <TextInput
+                variant="filled"
+                label="Filled Input"
+                placeholder="Enter text..."
+              />
+              <TextInput
+                variant="outlined"
+                label="Outlined Input"
+                placeholder="Enter text..."
+              />
+            </View>
+          }
+        />
 
         {/* Filled Input */}
         <CodePlayground

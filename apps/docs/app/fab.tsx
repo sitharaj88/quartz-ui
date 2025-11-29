@@ -177,6 +177,79 @@ export default function FABDocPage() {
           FABs perform the primary action of a screen. They appear in front of all screen content, typically as a circular shape with an icon.
         </Text>
 
+        {/* All FAB Sizes */}
+        <CodePlayground
+          title="FAB Sizes"
+          description="Three sizes: small (40dp), regular (56dp), large (96dp)"
+          code={`<View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+  <FAB size="small" icon={<Ionicons name="add" />} />
+  <FAB size="regular" icon={<Ionicons name="add" />} />
+  <FAB size="large" icon={<Ionicons name="add" />} />
+</View>`}
+          preview={
+            <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+              <FAB
+                size="small"
+                icon={<Ionicons name="add" size={20} color={theme.colors.onPrimaryContainer} />}
+                onPress={() => {}}
+                accessibilityLabel="Add small"
+              />
+              <FAB
+                size="regular"
+                icon={<Ionicons name="add" size={24} color={theme.colors.onPrimaryContainer} />}
+                onPress={() => {}}
+                accessibilityLabel="Add regular"
+              />
+              <FAB
+                size="large"
+                icon={<Ionicons name="add" size={36} color={theme.colors.onPrimaryContainer} />}
+                onPress={() => {}}
+                accessibilityLabel="Add large"
+              />
+            </View>
+          }
+        />
+
+        {/* FAB Colors */}
+        <CodePlayground
+          title="FAB Colors"
+          description="Four color variants for different contexts"
+          code={`<View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
+  <FAB color="primary" icon={<Ionicons name="add" />} />
+  <FAB color="secondary" icon={<Ionicons name="edit" />} />
+  <FAB color="tertiary" icon={<Ionicons name="share" />} />
+  <FAB color="surface" icon={<Ionicons name="more" />} />
+</View>`}
+          preview={
+            <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
+              <FAB
+                color="primary"
+                icon={<Ionicons name="add" size={24} color={theme.colors.onPrimaryContainer} />}
+                onPress={() => {}}
+                accessibilityLabel="Primary action"
+              />
+              <FAB
+                color="secondary"
+                icon={<Ionicons name="edit-outline" size={24} color={theme.colors.onSecondaryContainer} />}
+                onPress={() => {}}
+                accessibilityLabel="Edit"
+              />
+              <FAB
+                color="tertiary"
+                icon={<Ionicons name="share-outline" size={24} color={theme.colors.onTertiaryContainer} />}
+                onPress={() => {}}
+                accessibilityLabel="Share"
+              />
+              <FAB
+                color="surface"
+                icon={<Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.primary} />}
+                onPress={() => {}}
+                accessibilityLabel="More options"
+              />
+            </View>
+          }
+        />
+
         {/* Regular FAB */}
         <CodePlayground
           title="Regular FAB"

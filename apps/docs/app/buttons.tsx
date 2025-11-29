@@ -126,8 +126,40 @@ export default function ButtonsDocPage() {
       {/* Examples */}
       <View style={styles.section}>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 20 }}>
-          Examples
+          Button Variants
         </Text>
+
+        {/* All Variants Showcase */}
+        <CodePlayground
+          title="All Variants"
+          description="Five button variants for different emphasis levels"
+          code={`<View style={{ gap: 12 }}>
+  <Button variant="filled">Filled Button</Button>
+  <Button variant="elevated">Elevated Button</Button>
+  <Button variant="tonal">Tonal Button</Button>
+  <Button variant="outlined">Outlined Button</Button>
+  <Button variant="text">Text Button</Button>
+</View>`}
+          preview={
+            <View style={{ gap: 12, alignItems: 'flex-start', width: '100%' }}>
+              <Button variant="filled" onPress={() => {}} style={{ minWidth: 200 }}>
+                Filled Button
+              </Button>
+              <Button variant="elevated" onPress={() => {}} style={{ minWidth: 200 }}>
+                Elevated Button
+              </Button>
+              <Button variant="tonal" onPress={() => {}} style={{ minWidth: 200 }}>
+                Tonal Button
+              </Button>
+              <Button variant="outlined" onPress={() => {}} style={{ minWidth: 200 }}>
+                Outlined Button
+              </Button>
+              <Button variant="text" onPress={() => {}} style={{ minWidth: 200 }}>
+                Text Button
+              </Button>
+            </View>
+          }
+        />
 
         {/* Filled Button */}
         <CodePlayground

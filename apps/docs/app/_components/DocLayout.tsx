@@ -30,122 +30,60 @@ interface DocLayoutProps {
   showSidebar?: boolean;
 }
 
-// Floating scroll-to-top button
-function ScrollToTopButton({ onPress, visible, theme }: { onPress: () => void; visible: boolean; theme: any }) {
-  const scale = useSharedValue(0);
+const LICENSE_URL = 'https://github.com/sitharaj88/quartz-ui/blob/main/LICENSE';
 
-  React.useEffect(() => {
-    scale.value = withSpring(visible ? 1 : 0, { damping: 15 });
-  }, [visible]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  if (!visible) return null;
-
-  return (
-    <Animated.View style={[styles.scrollToTopContainer, animatedStyle]}>
-      <Pressable onPress={onPress} style={styles.scrollToTopButton}>
-        <LinearGradient
-          colors={['#667eea', '#764ba2']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.scrollToTopGradient}
-        >
-          <Ionicons name="arrow-up" size={28} color="#FFFFFF" />
-        </LinearGradient>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-// Bottom navigation bar for mobile
+// Bottom navigation bar for mobile - matches main page design
 function MobileBottomNav({ router, theme, onShare }: { router: any; theme: any; onShare: () => void }) {
   const insets = useSafeAreaInsets();
 
   return (
-    <Animated.View
-      entering={FadeInDown.springify().damping(15)}
+    <View
       style={[
         styles.bottomNav,
         {
+          backgroundColor: theme.mode === 'dark' ? 'rgba(18, 18, 18, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+          borderTopColor: theme.colors.outlineVariant + '30',
           paddingBottom: insets.bottom + 8,
-          backgroundColor: theme.colors.surface + 'F5',
-          borderTopColor: theme.colors.outlineVariant + '40',
         },
       ]}
     >
-      <LinearGradient
-        colors={[theme.colors.surface + 'E6', theme.colors.surface + 'F5']}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <View style={styles.bottomNavContent}>
-        <Pressable
-          onPress={() => router.push('/' as any)}
-          style={({ pressed }) => [
-            styles.bottomNavItem,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-        >
-          <LinearGradient
-            colors={['#667eea', '#764ba2']}
-            style={styles.bottomNavIconBox}
-          >
-            <Ionicons name="home" size={24} color="#FFFFFF" />
-          </LinearGradient>
-          <Text variant="labelSmall" style={{ color: theme.colors.primary, fontWeight: '700', marginTop: 4 }}>
-            Home
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
-          style={({ pressed }) => [
-            styles.bottomNavItem,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-        >
-          <View style={[styles.bottomNavIconBox, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Ionicons name="logo-github" size={24} color={theme.colors.onSurfaceVariant} />
-          </View>
-          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600', marginTop: 4 }}>
-            GitHub
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => Linking.openURL('https://linkedin.com/in/sitharaj08')}
-          style={({ pressed }) => [
-            styles.bottomNavItem,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-        >
-          <View style={[styles.bottomNavIconBox, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Ionicons name="logo-linkedin" size={24} color={theme.colors.onSurfaceVariant} />
-          </View>
-          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600', marginTop: 4 }}>
-            LinkedIn
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.bottomNavItem,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-          onPress={onShare}
-        >
-          <View style={[styles.bottomNavIconBox, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Ionicons name="share-social" size={24} color={theme.colors.onSurfaceVariant} />
-          </View>
-          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600', marginTop: 4 }}>
-            Share
-          </Text>
-        </Pressable>
-      </View>
-    </Animated.View>
+      <Pressable
+        style={styles.bottomNavItem}
+        onPress={() => router.push('/' as any)}
+      >
+        <Ionicons name="home-outline" size={22} color={theme.colors.onSurfaceVariant} />
+        <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 10, marginTop: 2 }}>
+          Home
+        </Text>
+      </Pressable>
+      <Pressable
+        style={styles.bottomNavItem}
+        onPress={() => router.push('/docs/introduction' as any)}
+      >
+        <Ionicons name="book" size={22} color={theme.colors.primary} />
+        <Text variant="labelSmall" style={{ color: theme.colors.primary, fontSize: 10, marginTop: 2 }}>
+          Docs
+        </Text>
+      </Pressable>
+      <Pressable
+        style={styles.bottomNavItem}
+        onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
+      >
+        <Ionicons name="logo-github" size={22} color={theme.colors.onSurfaceVariant} />
+        <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 10, marginTop: 2 }}>
+          GitHub
+        </Text>
+      </Pressable>
+      <Pressable
+        style={styles.bottomNavItem}
+        onPress={onShare}
+      >
+        <Ionicons name="share-outline" size={22} color={theme.colors.onSurfaceVariant} />
+        <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 10, marginTop: 2 }}>
+          Share
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -155,7 +93,6 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollY = useSharedValue(0);
 
@@ -166,9 +103,9 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
   const handleShare = useCallback(async () => {
     try {
       await Share.share({
-        message: 'Check out Quartz UI – Material Design 3 for React Native: https://github.com/sitharaj88/quartz-ui',
-        url: 'https://github.com/sitharaj88/quartz-ui',
-        title: 'Quartz UI',
+        message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 33+ Material Design 3 components!\n\nhttps://sitharaj88.github.io/quartz-ui/',
+        url: 'https://sitharaj88.github.io/quartz-ui/',
+        title: 'Quartz UI - React Native Component Library',
       });
     } catch (err) {
       // no-op if share fails
@@ -197,14 +134,7 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
     }
   }, [scrollHandler, scrollY]);
 
-  const handleScroll = useCallback((event: any) => {
-    const offsetY = event.nativeEvent.contentOffset.y;
-    setShowScrollTop(offsetY > 400);
-  }, []);
 
-  const scrollToTop = useCallback(() => {
-    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-  }, []);
 
   // Gesture for swipe to close sidebar
   const panGesture = Gesture.Pan()
@@ -347,10 +277,7 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
             },
           ]}
           showsVerticalScrollIndicator={false}
-          onScroll={(e) => {
-            handleAnimatedScroll(e);
-            handleScroll(e);
-          }}
+          onScroll={handleAnimatedScroll}
           scrollEventThrottle={16}
         >
           {/* DRAMATIC PAGE HEADER - Mobile optimized */}
@@ -465,10 +392,181 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
 
             {children}
           </Animated.View>
-        </ScrollView>
 
-        {/* Scroll to Top Button */}
-        <ScrollToTopButton onPress={scrollToTop} visible={showScrollTop} theme={theme} />
+          {/* Footer - Modern & Clean */}
+          <View style={[styles.footer, { backgroundColor: theme.mode === 'dark' ? '#0a0a0f' : '#fafafa', marginTop: 64 }]}>
+            {/* Top gradient accent */}
+            <LinearGradient
+              colors={['#667eea', '#764ba2', '#a855f7']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ height: 3, width: '100%' }}
+            />
+
+            <View style={[styles.footerContent, { paddingHorizontal: isMobile ? 24 : 48, paddingVertical: isMobile ? 48 : 64 }]}>
+              {/* Main Footer Content */}
+              <View style={[styles.footerTop, { flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 48 : 64 }]}>
+                {/* Brand Section */}
+                <View style={[styles.footerBrand, { flex: isMobile ? undefined : 1.2, alignItems: isMobile ? 'center' : 'flex-start' }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                    <LinearGradient
+                      colors={['#667eea', '#764ba2']}
+                      style={styles.footerLogo}
+                    >
+                      <Ionicons name="layers" size={24} color="#fff" />
+                    </LinearGradient>
+                    <Text variant="titleLarge" style={{ color: theme.colors.onSurface, fontWeight: '800', fontSize: 22 }}>
+                      Quartz UI
+                    </Text>
+                  </View>
+                  <Text
+                    variant="bodyMedium"
+                    style={{
+                      color: theme.colors.onSurfaceVariant,
+                      marginTop: 16,
+                      lineHeight: 24,
+                      opacity: 0.8,
+                      fontSize: 14,
+                      textAlign: isMobile ? 'center' : 'left',
+                      maxWidth: 280
+                    }}
+                  >
+                    Beautiful Material Design 3 components for React Native & Expo applications.
+                  </Text>
+
+                  {/* Social Icons */}
+                  <View style={{ flexDirection: 'row', gap: 12, marginTop: 24 }}>
+                    <Pressable
+                      onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
+                      style={({ pressed }) => [
+                        styles.footerSocialIcon,
+                        {
+                          backgroundColor: theme.colors.surfaceContainerHigh || theme.colors.surfaceVariant,
+                          opacity: pressed ? 0.7 : 1,
+                        },
+                      ]}
+                    >
+                      <Ionicons name="logo-github" size={20} color={theme.colors.onSurfaceVariant} />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => Linking.openURL('https://x.com/sitharaj08/')}
+                      style={({ pressed }) => [
+                        styles.footerSocialIcon,
+                        {
+                          backgroundColor: theme.colors.surfaceContainerHigh || theme.colors.surfaceVariant,
+                          opacity: pressed ? 0.7 : 1,
+                        },
+                      ]}
+                    >
+                      <Ionicons name="logo-twitter" size={20} color={theme.colors.onSurfaceVariant} />
+                    </Pressable>
+                  </View>
+                </View>
+
+                {/* Links Grid */}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    flexWrap: isMobile ? 'wrap' : 'nowrap',
+                    gap: isMobile ? 20 : 56,
+                    flex: isMobile ? undefined : 2,
+                    justifyContent: isMobile ? 'space-between' : 'flex-start',
+                    width: '100%',
+                  }}
+                >
+                  {/* Docs Column */}
+                  <View style={{ alignItems: 'flex-start', minWidth: isMobile ? '48%' : 120 }}>
+                    <Text variant="labelLarge" style={{ color: theme.colors.onSurface, marginBottom: 16, fontWeight: '700', fontSize: 13, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                      Docs
+                    </Text>
+                    {[
+                      { label: 'Introduction', route: '/docs/introduction' },
+                      { label: 'Installation', route: '/docs/installation' },
+                      { label: 'Quick Start', route: '/docs/quick-start' },
+                      { label: 'Theming', route: '/docs/theming-guide' },
+                    ].map((item) => (
+                      <Pressable key={item.label} onPress={() => router.push(item.route as any)} style={({ pressed }) => ({ marginBottom: 10, opacity: pressed ? 0.6 : 1 })}>
+                        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontSize: 14 }}>
+                          {item.label}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  {/* Components Column */}
+                  <View style={{ alignItems: 'flex-start', minWidth: isMobile ? '48%' : 120 }}>
+                    <Text variant="labelLarge" style={{ color: theme.colors.onSurface, marginBottom: 16, fontWeight: '700', fontSize: 13, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                      Components
+                    </Text>
+                    {[
+                      { label: 'Buttons', route: '/buttons' },
+                      { label: 'Inputs', route: '/inputs' },
+                      { label: 'Cards', route: '/cards' },
+                      { label: 'Navigation', route: '/navigation' },
+                    ].map((item) => (
+                      <Pressable key={item.label} onPress={() => router.push(item.route as any)} style={({ pressed }) => ({ marginBottom: 10, opacity: pressed ? 0.6 : 1 })}>
+                        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontSize: 14 }}>
+                          {item.label}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  {/* Resources Column */}
+                  <View style={{ alignItems: 'flex-start', minWidth: isMobile ? '48%' : 120 }}>
+                    <Text variant="labelLarge" style={{ color: theme.colors.onSurface, marginBottom: 16, fontWeight: '700', fontSize: 13, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                      Resources
+                    </Text>
+                    {[
+                      { label: 'GitHub', url: 'https://github.com/sitharaj88/quartz-ui', icon: 'logo-github' as const },
+                      { label: 'Changelog', url: 'https://github.com/sitharaj88/quartz-ui/releases', icon: undefined },
+                      { label: 'License', url: LICENSE_URL, icon: undefined },
+                      { label: 'Material Design', url: 'https://m3.material.io', icon: undefined },
+                    ].map((item) => (
+                      <Pressable key={item.label} onPress={() => Linking.openURL(item.url)} style={({ pressed }) => ({ marginBottom: 10, opacity: pressed ? 0.6 : 1 })}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          {item.icon && <Ionicons name={item.icon} size={16} color={theme.colors.onSurfaceVariant} />}
+                          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontSize: 14 }}>
+                            {item.label}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
+              {/* Bottom Bar */}
+              <View
+                style={[
+                  styles.footerBottom,
+                  {
+                    borderTopWidth: 1,
+                    borderTopColor: theme.colors.outlineVariant + '20',
+                    marginTop: isMobile ? 40 : 48,
+                    paddingTop: isMobile ? 24 : 28,
+                    flexDirection: isMobile ? 'column' : 'row',
+                    gap: isMobile ? 12 : 0,
+                  },
+                ]}
+              >
+                <View style={{ flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', gap: 6 }}>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 13, opacity: 0.7, textAlign: isMobile ? 'center' : 'left' }}>
+                    © 2025 Quartz UI •
+                  </Text>
+                  <Pressable onPress={() => Linking.openURL(LICENSE_URL)}>
+                    <Text variant="bodySmall" style={{ color: theme.colors.primary, fontSize: 13, fontWeight: '700', textAlign: isMobile ? 'center' : 'left' }}>
+                      Apache 2.0 License
+                    </Text>
+                  </Pressable>
+                </View>
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 13, opacity: 0.5, textAlign: isMobile ? 'center' : 'right' }}>
+                  Made with ❤️ for React Native
+                </Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       </View>
 
       {/* Mobile Bottom Navigation */}
@@ -606,24 +704,43 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
   },
-  scrollToTopContainer: {
-    position: 'absolute',
-    bottom: 32,
-    right: 32,
-    zIndex: 100,
-  },
-  scrollToTopButton: {
-    borderRadius: 64,
+  // Footer - Modern & Clean
+  footer: {
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    elevation: 12,
+    marginHorizontal: -20,
   },
-  scrollToTopGradient: {
-    width: 64,
-    height: 64,
+  footerContent: {
+    width: '100%',
+    maxWidth: 900,
+    alignSelf: 'center',
+  },
+  footerTop: {
+    width: '100%',
+  },
+  footerBrand: {
+    width: '100%',
+  },
+  footerLogo: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#667eea',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  footerBottom: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  footerSocialIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -632,32 +749,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    zIndex: 99,
-    backdropFilter: 'blur(20px)',
-  },
-  bottomNavContent: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    zIndex: 99,
   },
   bottomNavItem: {
     alignItems: 'center',
-    minWidth: 72,
-    paddingVertical: 8,
-  },
-  bottomNavIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
     justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 16,
   },
 });

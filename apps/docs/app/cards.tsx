@@ -109,8 +109,52 @@ export default function CardsDocPage() {
       {/* Examples */}
       <View style={styles.section}>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 20 }}>
-          Examples
+          Card Variants
         </Text>
+
+        {/* All Variants Showcase */}
+        <CodePlayground
+          title="All Variants"
+          description="Three card variants for different emphasis levels and layouts"
+          code={`<View style={{ gap: 16 }}>
+  <Card variant="elevated">
+    <Text variant="titleMedium">Elevated Card</Text>
+    <Text variant="bodyMedium">With subtle shadow elevation</Text>
+  </Card>
+
+  <Card variant="filled">
+    <Text variant="titleMedium">Filled Card</Text>
+    <Text variant="bodyMedium">With container color background</Text>
+  </Card>
+
+  <Card variant="outlined">
+    <Text variant="titleMedium">Outlined Card</Text>
+    <Text variant="bodyMedium">With border outline</Text>
+  </Card>
+</View>`}
+          preview={
+            <View style={{ gap: 16, width: '100%' }}>
+              <Card variant="elevated">
+                <Text variant="titleMedium">Elevated Card</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
+                  With subtle shadow elevation
+                </Text>
+              </Card>
+              <Card variant="filled">
+                <Text variant="titleMedium">Filled Card</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
+                  With container color background
+                </Text>
+              </Card>
+              <Card variant="outlined">
+                <Text variant="titleMedium">Outlined Card</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
+                  With border outline
+                </Text>
+              </Card>
+            </View>
+          }
+        />
 
         {/* Elevated Card */}
         <CodePlayground

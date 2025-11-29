@@ -704,17 +704,6 @@ function CopyButton({
             size={isMobile ? 18 : 16}
             color={copied ? '#fff' : '#a0a0a0'}
           />
-          <Text
-            style={[
-              styles.copyButtonText,
-              {
-                color: copied ? '#fff' : '#a0a0a0',
-                fontSize: isMobile ? 14 : 12,
-              },
-            ]}
-          >
-            {copied ? 'Copied!' : 'Copy'}
-          </Text>
         </View>
       </Pressable>
     </Animated.View>
@@ -860,14 +849,8 @@ export function CodePlayground({
               exiting={FadeOutRight.duration(250).easing(Easing.in(Easing.cubic))}
               style={styles.codeContainer}
             >
-              {/* Terminal-style header */}
+              {/* Code header */}
               <View style={[styles.codeHeader, { backgroundColor: '#1a1a1a', paddingHorizontal: isMobile ? 16 : 20, paddingVertical: isMobile ? 14 : 12 }]}>
-                <View style={styles.terminalDots}>
-                  <View style={[styles.terminalDot, { backgroundColor: '#FF5F57', width: isMobile ? 14 : 12, height: isMobile ? 14 : 12 }]} />
-                  <View style={[styles.terminalDot, { backgroundColor: '#FFBD2E', width: isMobile ? 14 : 12, height: isMobile ? 14 : 12 }]} />
-                  <View style={[styles.terminalDot, { backgroundColor: '#28CA42', width: isMobile ? 14 : 12, height: isMobile ? 14 : 12 }]} />
-                </View>
-
                 <View style={styles.fileNameContainer}>
                   <Ionicons name="logo-react" size={isMobile ? 18 : 16} color="#61DAFB" />
                   <Text style={[styles.fileName, { fontSize: isMobile ? 15 : 13 }]}>{displayFileName}</Text>
@@ -887,35 +870,16 @@ export function CodePlayground({
                 style={styles.codeScrollHorizontal}
                 contentContainerStyle={styles.codeScrollHorizontalContent}
               >
-                <ScrollView 
-                  showsVerticalScrollIndicator={false} 
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
                   style={styles.codeScrollVertical}
                   contentContainerStyle={styles.codeScrollVerticalContent}
                 >
-                  <View style={[styles.codeBlock, { backgroundColor: '#1e1e1e', padding: isMobile ? 20 : 24 }]}>
+                  <View style={[styles.codeBlock, { backgroundColor: '#1e1e1e', padding: isMobile ? 16 : 20 }]}>
                     {highlightedCode}
                   </View>
                 </ScrollView>
               </ScrollView>
-
-              {/* Language Badge */}
-              <LinearGradient
-                colors={['#61DAFB', '#4FA3D1']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[
-                  styles.languageBadge,
-                  {
-                    top: isMobile ? 76 : 72,
-                    right: isMobile ? 16 : 20,
-                    paddingHorizontal: isMobile ? 14 : 12,
-                    paddingVertical: isMobile ? 8 : 6,
-                  },
-                ]}
-              >
-                <Ionicons name="logo-react" size={isMobile ? 16 : 14} color="#FFFFFF" />
-                <Text style={[styles.languageText, { fontSize: isMobile ? 13 : 11 }]}>{language.toUpperCase()}</Text>
-              </LinearGradient>
             </Animated.View>
           )}
         </View>
@@ -1015,8 +979,32 @@ const styles = StyleSheet.create({
   },
   boldToken: { fontWeight: '600' },
   italicToken: { fontStyle: 'italic' },
-  languageBadge: { position: 'absolute', flexDirection: 'row', alignItems: 'center', borderRadius: 12, gap: 6, shadowColor: '#61DAFB', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.4, shadowRadius: 6, elevation: 4 },
-  languageText: { color: '#FFFFFF', fontWeight: '900', letterSpacing: 0.5 },
+  codeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  codeDots: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  codeDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  codeLangTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    backgroundColor: '#2a2a2a',
+  },
+  codeLangText: {
+    color: '#9CDCFE',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    fontSize: 12,
+  },
   infoBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   infoLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   infoRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },

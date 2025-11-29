@@ -18,6 +18,7 @@ import {
   NativeSyntheticEvent,
   TextInputFocusEventData,
   I18nManager,
+  Platform,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -310,6 +311,11 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
               fontSize: 16,
               lineHeight: 24,
             },
+            // Remove default browser outline on web
+            Platform.OS === 'web' && ({
+              outlineStyle: 'none',
+              outlineWidth: 0,
+            } as unknown as TextStyle),
             inputStyle,
           ]}
           // MD3: Placeholder only shows when label is floating (focused or has value)

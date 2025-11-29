@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, Pressable, StatusBar, ScrollView, Platform, NativeSyntheticEvent, NativeScrollEvent, useWindowDimensions, Linking } from 'react-native';
+import { View, StyleSheet, Pressable, StatusBar, ScrollView, Platform, NativeSyntheticEvent, NativeScrollEvent, useWindowDimensions, Linking, Share } from 'react-native';
 import { Text, Surface, Button, useTheme } from 'quartz-ui';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,6 +25,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type IconName = keyof typeof Ionicons.glyphMap;
+
+const DOCS_URL = 'https://sitharaj88.github.io/quartz-ui/';
+const GITHUB_URL = 'https://github.com/sitharaj88/quartz-ui';
 
 interface Feature {
   icon: IconName;
@@ -397,7 +400,7 @@ export default function HomeScreen() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 60 }}
+        contentContainerStyle={{ paddingBottom: isMobile ? insets.bottom + 100 : insets.bottom + 60 }}
       >
         {/* Dev build note */}
         <Animated.View entering={FadeIn.delay(150)} style={{ paddingHorizontal: isMobile ? 20 : 32, paddingTop: isMobile ? 16 : 24 }}>
@@ -978,20 +981,6 @@ export default function HomeScreen() {
                     <Ionicons name="logo-github" size={20} color={theme.colors.onSurfaceVariant} />
                   </Pressable>
                   <Pressable
-                    onPress={() => Linking.openURL('https://linkedin.com/in/sitharaj08')}
-                    style={({ pressed }) => [
-                      styles.footerSocialIcon,
-                      {
-                        backgroundColor: theme.colors.surfaceContainerHigh,
-                        width: 40,
-                        height: 40,
-                        opacity: pressed ? 0.7 : 1,
-                      },
-                    ]}
-                  >
-                    <Ionicons name="logo-linkedin" size={20} color={theme.colors.onSurfaceVariant} />
-                  </Pressable>
-                  <Pressable
                     onPress={() => Linking.openURL('https://x.com/sitharaj08/')}
                     style={({ pressed }) => [
                       styles.footerSocialIcon,
@@ -1112,6 +1101,67 @@ export default function HomeScreen() {
           </View>
         </View>
       </Animated.ScrollView>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <View
+          style={[
+            styles.mobileBottomNav,
+            {
+              backgroundColor: theme.mode === 'dark' ? 'rgba(18, 18, 18, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+              borderTopColor: theme.colors.outlineVariant + '30',
+              paddingBottom: insets.bottom + 8,
+            },
+          ]}
+        >
+          <Pressable
+            style={styles.mobileNavItem}
+            onPress={() => {}}
+          >
+            <Ionicons name="home" size={22} color={theme.colors.primary} />
+            <Text variant="labelSmall" style={{ color: theme.colors.primary, fontSize: 10, marginTop: 2 }}>
+              Home
+            </Text>
+          </Pressable>
+          <Pressable
+            style={styles.mobileNavItem}
+            onPress={() => router.push('/docs/introduction' as any)}
+          >
+            <Ionicons name="book-outline" size={22} color={theme.colors.onSurfaceVariant} />
+            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 10, marginTop: 2 }}>
+              Docs
+            </Text>
+          </Pressable>
+          <Pressable
+            style={styles.mobileNavItem}
+            onPress={() => Linking.openURL(GITHUB_URL)}
+          >
+            <Ionicons name="logo-github" size={22} color={theme.colors.onSurfaceVariant} />
+            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 10, marginTop: 2 }}>
+              GitHub
+            </Text>
+          </Pressable>
+          <Pressable
+            style={styles.mobileNavItem}
+            onPress={async () => {
+              try {
+                await Share.share({
+                  message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 33+ Material Design 3 components!\n\n' + DOCS_URL,
+                  url: DOCS_URL,
+                  title: 'Quartz UI - React Native Component Library',
+                });
+              } catch (error) {
+                console.log('Error sharing:', error);
+              }
+            }}
+          >
+            <Ionicons name="share-outline" size={22} color={theme.colors.onSurfaceVariant} />
+            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontSize: 10, marginTop: 2 }}>
+              Share
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -1908,5 +1958,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  // Mobile Bottom Navigation
+  mobileBottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  mobileNavItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 16,
   },
 });
