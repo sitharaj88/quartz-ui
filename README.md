@@ -110,6 +110,20 @@ function MyScreen() {
 - **Card** - Elevated, filled, and outlined cards
 - **Divider** - Horizontal and vertical dividers
 
+### Media & Display
+- **Avatar** - Image, initials, or icon with badge and group support
+- **Skeleton** - Loading placeholders with shimmer animation
+- **Gradient** - Linear gradients with presets and variants
+
+### Communication
+- **Toast** - Notification system with swipe-to-dismiss
+- **Dialog** - Modal dialogs with actions
+- **Snackbar** - Brief messages with actions
+
+### Animation
+- **AnimatedView** - 14 animation presets (fadeIn, scaleIn, slideIn, etc.)
+- **Stagger** - Staggered child animations
+
 ### Typography
 - **Text** - All type scale variants
 - Display: Large, Medium, Small

@@ -4,3 +4,5 @@
 
 export * from './accessibility';
 export * from './rtl';
+export * from './Variant';
+

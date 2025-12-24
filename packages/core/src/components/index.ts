@@ -45,6 +45,7 @@ export * from './Banner';
 export * from './Dialog';
 export * from './Snackbar';
 export * from './Tooltip';
+export * from './Toast';
 
 // Progress
 export * from './ProgressIndicator';
@@ -54,3 +55,12 @@ export * from './Carousel';
 
 // Typography
 export * from './Text';
+
+// Media & Display
+export * from './Avatar';
+export * from './Skeleton';
+export * from './Gradient';
+
+// Animation
+export * from './AnimatedView';
+
