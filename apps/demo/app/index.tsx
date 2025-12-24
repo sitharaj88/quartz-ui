@@ -65,6 +65,46 @@ const components: ComponentItem[] = [
     count: 12,
   },
   {
+    title: 'Avatar',
+    description: 'Images, initials, badges & groups',
+    route: '/avatars',
+    icon: 'person-circle',
+    gradient: ['#6366f1', '#8b5cf6'],
+    count: 6,
+  },
+  {
+    title: 'Skeleton',
+    description: 'Loading placeholders with shimmer',
+    route: '/skeleton',
+    icon: 'scan',
+    gradient: ['#64748b', '#94a3b8'],
+    count: 4,
+  },
+  {
+    title: 'Toast',
+    description: 'Notifications with swipe dismiss',
+    route: '/toasts',
+    icon: 'notifications',
+    gradient: ['#22c55e', '#16a34a'],
+    count: 4,
+  },
+  {
+    title: 'Animation',
+    description: 'Entry animations & transitions',
+    route: '/animations',
+    icon: 'sparkles',
+    gradient: ['#f59e0b', '#d97706'],
+    count: 14,
+  },
+  {
+    title: 'Gradient',
+    description: 'Linear gradients with presets',
+    route: '/gradients',
+    icon: 'color-fill',
+    gradient: ['#ec4899', '#f43f5e'],
+    count: 12,
+  },
+  {
     title: 'FAB',
     description: 'Floating action buttons',
     route: '/fab',
@@ -284,19 +324,19 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar barStyle="light-content" />
-      
+
       {/* Fixed Status Bar Background */}
-      <Animated.View 
+      <Animated.View
         style={[
-          styles.statusBarBackground, 
-          { 
-            height: insets.top, 
-            backgroundColor: theme.colors.primary 
+          styles.statusBarBackground,
+          {
+            height: insets.top,
+            backgroundColor: theme.colors.primary
           },
           statusBarStyle
-        ]} 
+        ]}
       />
-      
+
       <Animated.ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
