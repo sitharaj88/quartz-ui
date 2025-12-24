@@ -351,26 +351,63 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.heroGradient}
           >
+            {/* Decorative Elements */}
+            <View style={styles.heroDecor1} />
+            <View style={styles.heroDecor2} />
+            <View style={styles.heroDecor3} />
+
             <View style={styles.heroContent}>
-              <View style={styles.logoContainer}>
-                <View style={styles.logoInner}>
-                  <Ionicons name="layers" size={48} color="#fff" />
+              <View style={styles.logoGlow}>
+                <View style={styles.logoContainer}>
+                  <View style={styles.logoInner}>
+                    <Ionicons name="layers" size={48} color="#fff" />
+                  </View>
                 </View>
               </View>
               <Text variant="headlineLarge" style={styles.heroTitle}>
                 Quartz UI
               </Text>
               <Text variant="titleMedium" style={styles.heroSubtitle}>
-                Modern UI for React Native
+                Premium UI Components for React Native
               </Text>
               <View style={styles.versionBadge}>
-                <Ionicons name="sparkles" size={12} color="#fff" style={{ marginRight: 4 }} />
+                <Ionicons name="sparkles" size={14} color="#fff" />
                 <Text variant="labelMedium" style={styles.versionText}>
-                  v1.0.0-dev.2025-02 • Expo SDK 54
+                  v1.0.0 • MD3 • Expo SDK 54
                 </Text>
               </View>
             </View>
           </LinearGradient>
+        </Animated.View>
+
+        {/* Feature Highlights */}
+        <Animated.View entering={FadeInRight.delay(100).springify()} style={styles.featuresSection}>
+          <View style={[styles.featureCard, { backgroundColor: theme.colors.surfaceContainerLow }]}>
+            <View style={[styles.featureIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Ionicons name="flash" size={20} color={theme.colors.onPrimaryContainer} />
+            </View>
+            <View style={styles.featureText}>
+              <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+                60 FPS Animations
+              </Text>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                Reanimated powered
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.featureCard, { backgroundColor: theme.colors.surfaceContainerLow }]}>
+            <View style={[styles.featureIcon, { backgroundColor: theme.colors.secondaryContainer }]}>
+              <Ionicons name="moon" size={20} color={theme.colors.onSecondaryContainer} />
+            </View>
+            <View style={styles.featureText}>
+              <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+                Dark Mode
+              </Text>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                Auto detection
+              </Text>
+            </View>
+          </View>
         </Animated.View>
 
         {/* Stats Section */}
@@ -505,9 +542,42 @@ const styles = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  heroDecor1: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  heroDecor2: {
+    position: 'absolute',
+    bottom: -30,
+    left: -25,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  heroDecor3: {
+    position: 'absolute',
+    top: 50,
+    left: 70,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  logoGlow: {
+    padding: 6,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    marginBottom: 16,
   },
   heroTitle: {
     color: '#fff',
@@ -518,6 +588,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.95)',
     marginTop: 8,
     fontWeight: '500',
+    textAlign: 'center',
   },
   versionBadge: {
     marginTop: 16,
@@ -527,10 +598,36 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
   },
   versionText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  featuresSection: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 16,
+    gap: 10,
+  },
+  featureCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 16,
+    gap: 10,
+  },
+  featureIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureText: {
+    flex: 1,
+    gap: 2,
   },
   statsSection: {
     flexDirection: 'row',
