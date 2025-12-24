@@ -278,7 +278,7 @@ export const AvatarGroup = forwardRef<View, AvatarGroupProps>(function AvatarGro
                     <View
                         key={index}
                         style={{
-                            marginLeft: index === 0 ? 0 : spacing,
+                            marginStart: index === 0 ? 0 : spacing,
                             zIndex: visibleChildren.length - index,
                             borderWidth: 2,
                             borderColor: theme.colors.surface,
@@ -294,7 +294,7 @@ export const AvatarGroup = forwardRef<View, AvatarGroupProps>(function AvatarGro
             {hiddenCount > 0 && (
                 <View
                     style={{
-                        marginLeft: spacing,
+                        marginStart: spacing,
                         width: sizeValue,
                         height: sizeValue,
                         borderRadius: sizeValue / 2,

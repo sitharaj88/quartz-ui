@@ -41,31 +41,31 @@ export function Button({
   // Content
   children,
   label,
-  
+
   // Variants
   variant = 'filled',
   size = 'medium',
-  
+
   // Icons
   icon,
   iconPosition = 'left',
-  
+
   // State
   loading = false,
   disabled = false,
-  
+
   // Layout
   fullWidth = false,
-  
+
   // Custom colors
   color,
   textColor,
-  
+
   // Style overrides
   style,
   labelStyle,
   contentStyle,
-  
+
   // Events
   onPress,
   onPressIn,
@@ -73,25 +73,25 @@ export function Button({
   onLongPress,
   onFocus,
   onBlur,
-  
+
   // Accessibility
   accessibilityLabel,
   accessibilityHint,
   testID,
-  
+
   ...pressableProps
 }: ButtonProps): React.ReactElement {
   const theme = useTheme();
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  
+
   // Animation values
   const scale = useSharedValue(1);
-  
+
   // Compute if button is effectively disabled
   const isDisabled = disabled || loading;
-  
+
   // Get button styles
   const styles = useMemo(() => {
     return createButtonStyles(variant, size, theme, {
@@ -104,46 +104,46 @@ export function Button({
       iconPosition,
     });
   }, [variant, size, theme, isDisabled, isPressed, isHovered, isFocused, fullWidth, icon, iconPosition, loading]);
-  
+
   // Animated styles for scale
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ scale: scale.value }],
     };
   });
-  
+
   // Handle press in
   const handlePressIn = useCallback((event: GestureResponderEvent) => {
     setIsPressed(true);
     scale.value = withSpring(0.98, springConfig.stiff);
-    
+
     // Haptic feedback
     if (theme.accessibility.hapticFeedback && !isDisabled && Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    
+
     onPressIn?.(event);
   }, [theme.accessibility.hapticFeedback, isDisabled, onPressIn, scale]);
-  
+
   // Handle press out
   const handlePressOut = useCallback((event: GestureResponderEvent) => {
     setIsPressed(false);
     scale.value = withSpring(1, springConfig.gentle);
     onPressOut?.(event);
   }, [onPressOut, scale]);
-  
+
   // Handle press
   const handlePress = useCallback((event: GestureResponderEvent) => {
     if (!isDisabled) {
       onPress?.(event);
     }
   }, [isDisabled, onPress]);
-  
+
   // Handle hover (web)
   const handleHoverIn = useCallback(() => {
     setIsHovered(true);
   }, []);
-  
+
   const handleHoverOut = useCallback(() => {
     setIsHovered(false);
   }, []);
@@ -158,16 +158,16 @@ export function Button({
     setIsFocused(false);
     onBlur?.(event);
   }, [onBlur]);
-  
+
   // Get button content
   const buttonContent = label ?? children;
-  
+
   // Determine text color (with custom override)
   const finalTextColor = textColor ?? styles.label.color;
-  
+
   // Loading indicator color
-  const loadingColor = variant === 'filled' 
-    ? theme.colors.onPrimary 
+  const loadingColor = variant === 'filled'
+    ? theme.colors.onPrimary
     : theme.colors.primary;
 
   return (
@@ -198,30 +198,30 @@ export function Button({
     >
       {/* State layer for ripple effect */}
       <View style={styles.stateLayer} />
-      
+
       {/* Content container */}
       <View style={[styles.content, contentStyle]}>
         {/* Loading indicator */}
         {loading && (
-          <ActivityIndicator 
-            size="small" 
+          <ActivityIndicator
+            size="small"
             color={loadingColor}
-            style={[styles.icon, { marginRight: 4 }]}
+            style={[styles.icon, { marginEnd: 4 }]}
           />
         )}
-        
+
         {/* Icon (if not loading) */}
         {!loading && icon && (
           <View style={styles.icon}>
             {icon}
           </View>
         )}
-        
+
         {/* Label text */}
         {buttonContent && typeof buttonContent === 'string' ? (
-          <Text 
+          <Text
             style={[
-              styles.label, 
+              styles.label,
               finalTextColor ? { color: finalTextColor } : undefined,
               labelStyle,
             ]}

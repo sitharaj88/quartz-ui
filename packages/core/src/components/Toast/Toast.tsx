@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 12,
+        marginEnd: 12,
     },
     icon: {
         fontSize: 16,
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     actionButton: {
-        marginLeft: 12,
+        marginStart: 12,
         paddingVertical: 6,
         paddingHorizontal: 12,
     },
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     closeButton: {
-        marginLeft: 8,
+        marginStart: 8,
         padding: 4,
     },
     closeIcon: {

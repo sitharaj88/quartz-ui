@@ -36,37 +36,37 @@ export type TextInputVariant = 'filled' | 'outlined';
 export interface TextInputProps extends Omit<RNTextInputProps, 'style'> {
   // Variant
   variant?: TextInputVariant;
-  
+
   // Label text (floating label)
   label?: string;
-  
+
   // Helper/support text
   helperText?: string;
-  
+
   // Error state
   error?: boolean;
   errorText?: string;
-  
+
   // Leading icon
   leadingIcon?: React.ReactNode;
-  
+
   // Trailing icon (or clear button)
   trailingIcon?: React.ReactNode;
-  
+
   // Character counter
   maxLength?: number;
   showCounter?: boolean;
-  
+
   // Disabled state
   disabled?: boolean;
-  
+
   // Full width
   fullWidth?: boolean;
-  
+
   // Style overrides
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
-  
+
   // Accessibility
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -108,11 +108,11 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
   const theme = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState(value ?? defaultValue ?? '');
-  
+
   // Calculate initial label position based on whether there's a value
   const initialValue = value ?? defaultValue ?? '';
   const labelPosition = useSharedValue(initialValue.length > 0 ? 1 : 0);
-  
+
   const hasValue = (value ?? inputValue).length > 0;
   const showError = error || !!errorText;
   const supportText = showError ? errorText : helperText;
@@ -126,14 +126,14 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
       labelPosition.value = withTiming(0, { duration: duration.short4 });
     }
   }, [value, inputValue, isFocused, labelPosition]);
-  
+
   // Handle focus
   const handleFocus = useCallback((e: any) => {
     setIsFocused(true);
     labelPosition.value = withTiming(1, { duration: duration.short4 });
     onFocus?.(e);
   }, [labelPosition, onFocus]);
-  
+
   // Handle blur
   const handleBlur = useCallback((e: any) => {
     setIsFocused(false);
@@ -142,22 +142,22 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     }
     onBlur?.(e);
   }, [hasValue, labelPosition, onBlur]);
-  
+
   // Handle text change
   const handleChangeText = useCallback((text: string) => {
     setInputValue(text);
     onChangeText?.(text);
-    
+
     if (text.length > 0 && !isFocused) {
       labelPosition.value = withTiming(1, { duration: duration.short4 });
     }
   }, [isFocused, labelPosition, onChangeText]);
-  
+
   // Get colors
   const getColors = () => {
     if (disabled) {
       return {
-        container: variant === 'filled' 
+        container: variant === 'filled'
           ? theme.colors.onSurface + '0A' // 4%
           : 'transparent',
         border: theme.colors.onSurface + '61', // 38%
@@ -167,7 +167,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
         indicator: theme.colors.onSurface + '61',
       };
     }
-    
+
     if (showError) {
       return {
         container: variant === 'filled'
@@ -180,7 +180,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
         indicator: theme.colors.error,
       };
     }
-    
+
     return {
       container: variant === 'filled'
         ? theme.colors.surfaceContainerHighest
@@ -192,9 +192,9 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
       indicator: theme.colors.primary,
     };
   };
-  
+
   const colors = getColors();
-  
+
   // Animated label styles
   const animatedLabelStyle = useAnimatedStyle(() => {
     // MD3 specs: 
@@ -202,20 +202,20 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     // - Outlined: resting label at center, focused/filled outside the border (with background)
     const restingTop = 18; // Vertically centered in 56dp container
     const floatingTop = variant === 'filled' ? 8 : -8;
-    
+
     const top = interpolate(labelPosition.value, [0, 1], [restingTop, floatingTop]);
     const fontSize = interpolate(labelPosition.value, [0, 1], [16, 12]);
     const lineHeight = interpolate(labelPosition.value, [0, 1], [24, 16]);
-    
+
     // For outlined, add horizontal padding and background when floating
     const paddingHorizontal = variant === 'outlined' && labelPosition.value > 0.5 ? 4 : 0;
-    const backgroundColor = variant === 'outlined' && labelPosition.value > 0.5 
-      ? theme.colors.surface 
+    const backgroundColor = variant === 'outlined' && labelPosition.value > 0.5
+      ? theme.colors.surface
       : 'transparent';
-    
+
     // RTL support: use start/end instead of left/right
     const startPosition = leadingIcon ? 48 : 16;
-    
+
     return {
       position: 'absolute',
       ...(I18nManager.isRTL ? { right: startPosition } : { left: startPosition }),
@@ -227,14 +227,14 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
       zIndex: 10,
     };
   });
-  
+
   // Container styles
   const containerStyles: ViewStyle = {
     width: fullWidth ? '100%' : undefined,
     opacity: disabled ? 0.38 : 1,
     ...containerStyle,
   };
-  
+
   // Input container styles
   const inputContainerStyles: ViewStyle = {
     flexDirection: 'row',
@@ -254,7 +254,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
       borderRadius: 4,
     }),
   };
-  
+
   // Active indicator for filled variant
   const indicatorStyles: ViewStyle = {
     position: 'absolute',
@@ -283,14 +283,14 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
             {label}
           </AnimatedText>
         )}
-        
+
         {/* Leading icon */}
         {leadingIcon && (
-          <View style={{ marginRight: 12, width: 24, height: 24 }}>
+          <View style={{ marginEnd: 12, width: 24, height: 24 }}>
             {leadingIcon}
           </View>
         )}
-        
+
         {/* Text input */}
         <RNTextInput
           ref={ref}
@@ -330,22 +330,22 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
           accessibilityHint={accessibilityHint}
           accessibilityState={{ disabled }}
         />
-        
+
         {/* Trailing icon */}
         {trailingIcon && (
-          <View style={{ marginLeft: 12, width: 24, height: 24 }}>
+          <View style={{ marginStart: 12, width: 24, height: 24 }}>
             {trailingIcon}
           </View>
         )}
-        
+
         {/* Active indicator for filled variant */}
         {variant === 'filled' && <View style={indicatorStyles} />}
       </View>
-      
+
       {/* Supporting text row */}
       {(supportText || showCounter) && (
-        <View style={{ 
-          flexDirection: 'row', 
+        <View style={{
+          flexDirection: 'row',
           justifyContent: 'space-between',
           paddingHorizontal: 16,
           paddingTop: 4,
@@ -357,7 +357,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
           }}>
             {supportText}
           </Text>
-          
+
           {showCounter && maxLength && (
             <Text style={{
               ...theme.typography.bodySmall,
