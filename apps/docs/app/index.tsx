@@ -226,33 +226,45 @@ function FeatureCard({ feature, index, isMobile }: { feature: Feature; index: nu
 
   return (
     <Animated.View
-      entering={FadeInUp.delay(100 + index * 80).springify().damping(14)}
+      entering={FadeInUp.delay(40 * index).duration(260)}
       style={[styles.featureCard, { width: isMobile ? '100%' : 340 }]}
     >
-      <Pressable style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.98 : 1 }], opacity: pressed ? 0.9 : 1 }]}>
-        <Surface style={[styles.featureSurface, { backgroundColor: theme.colors.surface }]} elevation={2}>
-          <LinearGradient
-            colors={feature.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.featureIconBox}
-          >
-            <Ionicons name={feature.icon} size={28} color="#fff" />
-          </LinearGradient>
-          <Text variant="titleLarge" style={[styles.featureTitle, { color: theme.colors.onSurface }]}>
-            {feature.title}
-          </Text>
-          <Text variant="bodyMedium" style={[styles.featureDescription, { color: theme.colors.onSurfaceVariant }]}>
-            {feature.description}
-          </Text>
-          <LinearGradient
-            colors={feature.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.featureAccent}
-          />
-        </Surface>
-      </Pressable>
+      <View
+        style={[
+          styles.featureCardClean,
+          { borderColor: theme.colors.outlineVariant + '60' },
+        ]}
+      >
+        <View
+          style={[
+            styles.featureIconClean,
+            { backgroundColor: theme.colors.primaryContainer },
+          ]}
+        >
+          <Ionicons name={feature.icon} size={20} color={theme.colors.onPrimaryContainer} />
+        </View>
+        <Text
+          style={{
+            color: theme.colors.onSurface,
+            fontWeight: '700',
+            fontSize: 17,
+            marginTop: 16,
+            letterSpacing: -0.2,
+          }}
+        >
+          {feature.title}
+        </Text>
+        <Text
+          style={{
+            color: theme.colors.onSurfaceVariant,
+            fontSize: 14,
+            marginTop: 6,
+            lineHeight: 22,
+          }}
+        >
+          {feature.description}
+        </Text>
+      </View>
     </Animated.View>
   );
 }
@@ -435,36 +447,6 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: isMobile ? insets.bottom + 100 : insets.bottom + 60 }}
       >
-        {/* Dev build note */}
-        <Animated.View entering={FadeIn.delay(150)} style={{ paddingHorizontal: isMobile ? 20 : 32, paddingTop: isMobile ? 16 : 24 }}>
-          <Surface
-            style={[
-              styles.noteCard,
-              {
-                backgroundColor: theme.colors.surfaceVariant,
-                borderColor: theme.colors.outlineVariant + '60',
-              },
-            ]}
-            elevation={0}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <Ionicons name="information-circle" size={isMobile ? 18 : 20} color={theme.colors.primary} />
-              <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
-                Note
-              </Text>
-            </View>
-            <Text
-              variant="bodyMedium"
-              style={{
-                color: theme.colors.onSurfaceVariant,
-                lineHeight: 22,
-              }}
-            >
-              This is a dev build targeting release in Feb 2025. Focus areas: like interactions, TODO follow-ups, RTL support validation, and other in-progress items stabilizing for launch.
-            </Text>
-          </Surface>
-        </Animated.View>
-
         {/* Hero — calm, modern, restrained */}
         <View style={[styles.hero, { minHeight: isMobile ? height * 0.85 : height * 0.78, backgroundColor: theme.colors.background }]}>
           {/* One subtle gradient wash at the top, no animated orbs */}
@@ -621,17 +603,19 @@ export default function HomeScreen() {
 
         {/* Features Section */}
         <View style={[styles.section, { paddingHorizontal: isMobile ? 20 : 40, maxWidth: 1200, alignSelf: 'center', width: '100%' }]}>
-          <Animated.View entering={FadeInUp.delay(100).springify().damping(14)} style={styles.sectionHeader}>
-            <Text style={[styles.sectionLabel, { color: theme.colors.primary }]}>FEATURES</Text>
-            <Text variant="displaySmall" style={[styles.sectionTitle, { color: theme.colors.onSurface, fontSize: isMobile ? 32 : 48 }]}>
-              Everything you need to build beautiful apps
+          <Animated.View entering={FadeInUp.duration(280)} style={[styles.sectionHeader, { alignItems: 'flex-start' }]}>
+            <Text style={{ color: theme.colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>
+              Why Quartz
             </Text>
-            <Text variant="bodyLarge" style={[styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-              Quartz UI provides a complete set of components, theming, and utilities to create stunning mobile experiences.
+            <Text style={{ color: theme.colors.onSurface, fontSize: isMobile ? 28 : 36, fontWeight: '700', letterSpacing: -0.8, lineHeight: isMobile ? 34 : 44, marginTop: 8 }}>
+              Modern foundations, no compromises.
+            </Text>
+            <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: isMobile ? 15 : 17, marginTop: 12, lineHeight: isMobile ? 24 : 28, maxWidth: 640 }}>
+              Six things every component delivers — out of the box, with zero theming required.
             </Text>
           </Animated.View>
 
-          <View style={[styles.featuresGrid, { gap: isMobile ? 16 : 24 }]}>
+          <View style={[styles.featuresGrid, { gap: isMobile ? 16 : 20 }]}>
             {features.map((feature, index) => (
               <FeatureCard key={feature.title} feature={feature} index={index} isMobile={isMobile} />
             ))}
@@ -640,417 +624,304 @@ export default function HomeScreen() {
 
         {/* Code Preview Section */}
         <View style={[styles.section, { paddingHorizontal: isMobile ? 20 : 40, maxWidth: 1200, alignSelf: 'center', width: '100%' }]}>
-          <Animated.View entering={FadeInUp.delay(100).springify().damping(14)} style={styles.sectionHeader}>
-            <Text style={[styles.sectionLabel, { color: theme.colors.primary }]}>DEVELOPER EXPERIENCE</Text>
-            <Text variant="displaySmall" style={[styles.sectionTitle, { color: theme.colors.onSurface, fontSize: isMobile ? 32 : 48 }]}>
-              Simple, intuitive API
+          <Animated.View entering={FadeInUp.duration(280)} style={[styles.sectionHeader, { alignItems: 'flex-start' }]}>
+            <Text style={{ color: theme.colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>
+              Developer experience
             </Text>
-            <Text variant="bodyLarge" style={[styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-              Import components and start building. Full TypeScript support with excellent documentation.
+            <Text style={{ color: theme.colors.onSurface, fontSize: isMobile ? 28 : 36, fontWeight: '700', letterSpacing: -0.8, lineHeight: isMobile ? 34 : 44, marginTop: 8 }}>
+              Simple, intuitive API.
+            </Text>
+            <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: isMobile ? 15 : 17, marginTop: 12, lineHeight: isMobile ? 24 : 28, maxWidth: 640 }}>
+              Import a component, pass props, ship. Strict TypeScript types and JSDoc on every prop.
             </Text>
           </Animated.View>
 
           <CodePreview theme={theme} isMobile={isMobile} />
         </View>
 
-        {/* Components Section - Grid Design */}
-        <View style={[styles.section, { paddingHorizontal: isMobile ? 20 : 40, maxWidth: 1400, alignSelf: 'center', width: '100%' }]}>
-          {/* Header */}
-          <Animated.View entering={FadeInUp.delay(100).springify().damping(14)} style={styles.componentsGridHeader}>
-            {/* Badge */}
-            <LinearGradient
-              colors={['rgba(102, 126, 234, 0.12)', 'rgba(118, 75, 162, 0.12)']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[styles.componentsGridBadge, { paddingHorizontal: isMobile ? 18 : 16, paddingVertical: isMobile ? 9 : 8 }]}
+        {/* Components Section */}
+        <View style={[styles.section, { paddingHorizontal: isMobile ? 20 : 40, maxWidth: 1200, alignSelf: 'center', width: '100%' }]}>
+          <Animated.View entering={FadeInUp.duration(280)} style={[styles.componentsGridHeader, { alignItems: 'flex-start' }]}>
+            <Text
+              style={{
+                color: theme.colors.primary,
+                fontSize: 12,
+                fontWeight: '700',
+                letterSpacing: 1.2,
+                textTransform: 'uppercase',
+              }}
             >
-              <View style={[styles.componentsGridBadgeDot, { backgroundColor: theme.colors.primary }]} />
-              <Text style={[styles.componentsGridBadgeText, { color: theme.colors.primary, fontSize: isMobile ? 13 : 12 }]}>
-                COMPONENT LIBRARY
-              </Text>
-            </LinearGradient>
-
-            {/* Title */}
-            <Text style={[styles.componentsGridTitle, { color: theme.colors.onSurface, fontSize: isMobile ? 32 : 48, marginTop: 20 }]}>
-              38 Production-Ready{'\n'}
-              <Text style={{ color: theme.colors.primary }}>Components</Text>
+              Components
             </Text>
-
-            {/* Subtitle */}
-            <Text variant="bodyLarge" style={[styles.componentsGridSubtitle, { color: theme.colors.onSurfaceVariant, fontSize: isMobile ? 16 : 18, marginTop: 16 }]}>
-              Everything you need to build beautiful, accessible mobile apps. From simple buttons to complex navigation patterns.
+            <Text
+              style={{
+                color: theme.colors.onSurface,
+                fontSize: isMobile ? 28 : 36,
+                fontWeight: '700',
+                letterSpacing: -0.8,
+                lineHeight: isMobile ? 34 : 44,
+                marginTop: 8,
+              }}
+            >
+              38 production-ready primitives.
+            </Text>
+            <Text
+              style={{
+                color: theme.colors.onSurfaceVariant,
+                fontSize: isMobile ? 15 : 17,
+                marginTop: 12,
+                lineHeight: isMobile ? 24 : 28,
+                maxWidth: 640,
+              }}
+            >
+              Everything from buttons to bottom sheets, organized by usage. Each component is fully typed, fully tested, and accessible by default.
             </Text>
           </Animated.View>
 
-          {/* Grid */}
-          <View style={[styles.componentsGrid, { marginTop: isMobile ? 40 : 56 }]}>
-            {componentCategories.map((category, index) => (
-              <Animated.View
-                key={category.name}
-                entering={FadeInUp.delay(100 + index * 80).springify().damping(14)}
-                style={[
-                  styles.componentsGridCard,
-                  {
-                    width: isMobile ? '100%' : isTablet ? (width - 80 - 24) / 2 : (width > 1400 ? 1400 - 80 - 48 : width - 80 - 48) / 3,
-                  }
-                ]}
-              >
-                <Pressable
-                  onPress={() => router.push(category.route as any)}
-                  style={({ pressed }) => [
-                    { transform: [{ scale: pressed ? 0.98 : 1 }], opacity: pressed ? 0.95 : 1 }
-                  ]}
+          {/* Grid — clean cards, single accent color from theme */}
+          <View style={[styles.componentsGrid, { marginTop: isMobile ? 40 : 48 }]}>
+            {componentCategories.map((category, index) => {
+              const cardWidth = isMobile
+                ? '100%'
+                : isTablet
+                  ? (width - 80 - 24) / 2
+                  : (width > 1400 ? 1400 - 80 - 48 : width - 80 - 48) / 3;
+              return (
+                <Animated.View
+                  key={category.name}
+                  entering={FadeInUp.delay(40 * index).duration(260)}
+                  style={[styles.componentsGridCard, { width: cardWidth as never }]}
                 >
-                  <Surface
-                    style={[
-                      styles.componentsGridCardInner,
+                  <Pressable
+                    onPress={() => router.push(category.route as never)}
+                    style={({ pressed, hovered }) => [
+                      styles.cleanCard,
                       {
                         backgroundColor: theme.colors.surface,
-                        borderWidth: 1,
-                        borderColor: theme.colors.outlineVariant + '30',
-                      }
+                        borderColor: (hovered as boolean)
+                          ? theme.colors.primary
+                          : theme.colors.outlineVariant + '70',
+                        transform: [{ scale: pressed ? 0.99 : 1 }],
+                      },
                     ]}
-                    elevation={1}
                   >
-                    {/* Gradient overlay */}
-                    <LinearGradient
-                      colors={[category.gradient[0] + '08', category.gradient[1] + '08', category.gradient[0] + '00', category.gradient[1] + '00'] as const}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={StyleSheet.absoluteFill}
-                    />
-
-                    {/* Icon */}
-                    <LinearGradient
-                      colors={category.gradient}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={[styles.componentsGridIcon, { width: isMobile ? 56 : 64, height: isMobile ? 56 : 64 }]}
-                    >
-                      <Ionicons name={category.icon} size={isMobile ? 28 : 32} color="#fff" />
-                    </LinearGradient>
-
-                    {/* Content */}
-                    <View style={styles.componentsGridCardContent}>
-                      {/* Title & Badge */}
-                      <View style={styles.componentsGridCardHeader}>
-                        <Text variant="titleLarge" style={[styles.componentsGridCardTitle, { color: theme.colors.onSurface, fontSize: isMobile ? 18 : 20 }]}>
-                          {category.name}
-                        </Text>
-                        <View style={[styles.componentsGridCardBadge, { backgroundColor: category.gradient[0] + '20' }]}>
-                          <Text style={[styles.componentsGridCardBadgeText, { color: category.gradient[0], fontSize: isMobile ? 12 : 13 }]}>
-                            {category.count}
-                          </Text>
-                        </View>
+                    <View style={styles.cleanCardHeader}>
+                      <View
+                        style={[
+                          styles.cleanCardIcon,
+                          { backgroundColor: theme.colors.primaryContainer },
+                        ]}
+                      >
+                        <Ionicons
+                          name={category.icon}
+                          size={20}
+                          color={theme.colors.onPrimaryContainer}
+                        />
                       </View>
-
-                      {/* Items List */}
-                      <View style={[styles.componentsGridCardItems, { marginTop: isMobile ? 12 : 16 }]}>
-                        {category.items.slice(0, 3).map((item) => (
-                          <View key={item} style={styles.componentsGridCardItem}>
-                            <View style={[styles.componentsGridCardItemDot, { backgroundColor: category.gradient[0] }]} />
-                            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontSize: isMobile ? 14 : 15 }}>
-                              {item}
-                            </Text>
-                          </View>
-                        ))}
-                        {category.items.length > 3 && (
-                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, opacity: 0.7, marginTop: 8, fontSize: isMobile ? 13 : 14 }}>
-                            +{category.items.length - 3} more
-                          </Text>
-                        )}
-                      </View>
-
-                      {/* Footer */}
-                      <View style={[styles.componentsGridCardFooter, { marginTop: isMobile ? 16 : 20 }]}>
-                        <Text variant="labelLarge" style={{ color: category.gradient[0], fontWeight: '700', fontSize: isMobile ? 14 : 15 }}>
-                          Explore
+                      <View
+                        style={[
+                          styles.cleanCardCount,
+                          { backgroundColor: theme.colors.surfaceVariant },
+                        ]}
+                      >
+                        <Text
+                          style={{
+                            color: theme.colors.onSurfaceVariant,
+                            fontSize: 12,
+                            fontWeight: '700',
+                          }}
+                        >
+                          {category.count}
                         </Text>
-                        <Ionicons name="arrow-forward" size={isMobile ? 18 : 20} color={category.gradient[0]} />
                       </View>
                     </View>
 
-                    {/* Accent Line */}
-                    <LinearGradient
-                      colors={category.gradient}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.componentsGridCardAccent}
-                    />
-                  </Surface>
-                </Pressable>
-              </Animated.View>
-            ))}
+                    <Text
+                      style={{
+                        color: theme.colors.onSurface,
+                        fontSize: 18,
+                        fontWeight: '700',
+                        letterSpacing: -0.2,
+                        marginTop: 16,
+                      }}
+                    >
+                      {category.name}
+                    </Text>
+
+                    <Text
+                      style={{
+                        color: theme.colors.onSurfaceVariant,
+                        fontSize: 14,
+                        marginTop: 6,
+                        lineHeight: 22,
+                      }}
+                    >
+                      {category.items.slice(0, 4).join(' · ')}
+                      {category.items.length > 4 ? ` · +${category.items.length - 4}` : ''}
+                    </Text>
+
+                    <View style={styles.cleanCardFooter}>
+                      <Text style={{ color: theme.colors.primary, fontSize: 13, fontWeight: '600' }}>
+                        Explore
+                      </Text>
+                      <Ionicons name="arrow-forward" size={14} color={theme.colors.primary} />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              );
+            })}
           </View>
         </View>
 
-        {/* CTA Section - Ultra Modern */}
-        <View style={[styles.section, { paddingHorizontal: isMobile ? 0 : 40, maxWidth: isMobile ? undefined : 1200, alignSelf: isMobile ? 'stretch' : 'center', width: '100%', marginTop: 120 }]}>
-          <Animated.View entering={FadeInUp.delay(100).springify().damping(14)} style={styles.ctaSection}>
-            {/* Light Material Background */}
-            <View style={StyleSheet.absoluteFill}>
-              <LinearGradient
-                colors={[
-                  theme.colors.primaryContainer + '20',
-                  theme.colors.secondaryContainer + '15',
-                  theme.colors.tertiaryContainer + '10',
-                  theme.colors.primaryContainer + '20'
-                ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
+        {/* Closing CTA — restrained, single accent */}
+        <View style={[styles.closingCtaWrap, { paddingHorizontal: isMobile ? 20 : 40, maxWidth: 1100, alignSelf: 'center', width: '100%', marginTop: isMobile ? 80 : 120 }]}>
+          <Animated.View
+            entering={FadeInUp.duration(280)}
+            style={[
+              styles.closingCta,
+              {
+                backgroundColor: theme.colors.surfaceVariant + '50',
+                borderColor: theme.colors.outlineVariant + '60',
+                padding: isMobile ? 32 : 56,
+              },
+            ]}
+          >
+            <Text
+              style={{
+                color: theme.colors.onSurface,
+                fontSize: isMobile ? 26 : 36,
+                fontWeight: '700',
+                letterSpacing: -0.5,
+                lineHeight: isMobile ? 32 : 44,
+                maxWidth: 640,
+              }}
+            >
+              Install in 30 seconds. Build for hours.
+            </Text>
+            <Text
+              style={{
+                color: theme.colors.onSurfaceVariant,
+                fontSize: isMobile ? 15 : 17,
+                marginTop: 12,
+                lineHeight: isMobile ? 22 : 26,
+                maxWidth: 580,
+              }}
+            >
+              Drop into any Expo or React Native app. Zero theming required to look great. Customize when you're ready.
+            </Text>
 
-              {/* Subtle floating orbs */}
-              <Animated.View style={[styles.ctaOrb1, { opacity: 0.3 }]}>
-                <LinearGradient
-                  colors={[theme.colors.primary + '40', theme.colors.primary + '20']}
-                  style={styles.ctaOrbGradient}
-                />
-              </Animated.View>
-              <Animated.View style={[styles.ctaOrb2, { opacity: 0.2 }]}>
-                <LinearGradient
-                  colors={[theme.colors.secondary + '40', theme.colors.secondary + '20']}
-                  style={styles.ctaOrbGradient}
-                />
-              </Animated.View>
-              <Animated.View style={[styles.ctaOrb3, { opacity: 0.25 }]}>
-                <LinearGradient
-                  colors={[theme.colors.tertiary + '40', theme.colors.tertiary + '20']}
-                  style={styles.ctaOrbGradient}
-                />
-              </Animated.View>
+            {/* Install command */}
+            <View
+              style={[
+                styles.installCommand,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.outlineVariant,
+                  marginTop: isMobile ? 20 : 28,
+                  width: isMobile ? '100%' : undefined,
+                  alignSelf: 'flex-start',
+                },
+              ]}
+            >
+              <Text style={{ color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', fontSize: 14 }}>$</Text>
+              <Text style={{ color: theme.colors.onSurface, fontFamily: 'monospace', fontSize: 14, flex: 1, marginLeft: 8 }}>
+                npm install quartz-ui
+              </Text>
             </View>
 
-            {/* Light Material Card */}
-            <View style={[styles.ctaGlassCard, {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.outlineVariant + '40',
-              shadowColor: theme.colors.shadow,
-              shadowOpacity: 0.1,
-              elevation: 4,
-              margin: isMobile ? 0 : 16,
-              borderRadius: isMobile ? 0 : 24,
-              padding: isMobile ? 24 : 32
-            }]}>
-              {/* Subtle inner gradient */}
-              <LinearGradient
-                colors={[
-                  theme.colors.surface,
-                  theme.colors.surfaceContainerLowest + '80',
-                  theme.colors.surface
+            {/* CTAs */}
+            <View
+              style={[
+                styles.closingCtaRow,
+                {
+                  flexDirection: isMobile ? 'column' : 'row',
+                  marginTop: isMobile ? 20 : 28,
+                },
+              ]}
+            >
+              <Pressable
+                onPress={() => router.push('/docs/quick-start' as any)}
+                style={({ pressed, hovered }) => [
+                  styles.ctaPrimaryModern,
+                  {
+                    backgroundColor: theme.colors.primary,
+                    transform: [{ scale: pressed ? 0.97 : 1 }],
+                    opacity: (hovered as boolean) ? 0.92 : 1,
+                    width: isMobile ? '100%' : undefined,
+                  },
                 ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
-
-              {/* Icon with glow effect */}
-              <Animated.View entering={FadeInUp.delay(200).springify().damping(12)} style={styles.ctaIconContainer}>
-                <View style={[styles.ctaIconGlow, { shadowColor: theme.colors.primary }]}>
-                  <LinearGradient
-                    colors={[theme.colors.primary, theme.colors.secondary, theme.colors.tertiary]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.ctaIconBadge}
-                  >
-                    <Ionicons name="sparkles" size={isMobile ? 28 : 36} color={theme.colors.onPrimary} />
-                  </LinearGradient>
-                </View>
-              </Animated.View>
-
-              {/* Title with modern typography */}
-              <Animated.View entering={FadeInUp.delay(300).springify().damping(12)}>
-                <Text style={[styles.ctaTitle, {
-                  fontSize: isMobile ? 32 : 48,
-                  lineHeight: isMobile ? 40 : 56,
-                  color: theme.colors.onSurface
-                }]}>
-                  Ready to build{'\n'}something{' '}
-                  <Text style={[styles.ctaTitleHighlight, {
-                    backgroundColor: theme.colors.primaryContainer,
-                    color: theme.colors.onPrimaryContainer
-                  }]}>
-                    amazing
-                  </Text>?
+              >
+                <Text style={{ color: theme.colors.onPrimary, fontWeight: '600', fontSize: 15 }}>
+                  Quick start
                 </Text>
-              </Animated.View>
+                <Ionicons name="arrow-forward" size={16} color={theme.colors.onPrimary} />
+              </Pressable>
 
-              {/* Enhanced subtitle */}
-              <Animated.View entering={FadeInUp.delay(400).springify().damping(12)}>
-                <Text style={[styles.ctaSubtitle, {
-                  fontSize: isMobile ? 16 : 18,
-                  lineHeight: isMobile ? 24 : 28,
-                  color: theme.colors.onSurfaceVariant
-                }]}>
-                  Join thousands of developers creating beautiful, accessible apps with Quartz UI.{'\n'}
-                  Start your journey today.
-                </Text>
-              </Animated.View>
-
-              {/* Modern button group */}
-              <Animated.View entering={FadeInUp.delay(500).springify().damping(12)} style={[styles.ctaButtonGroup, {
-                flexDirection: isMobile ? 'column' : 'row',
-                gap: isMobile ? 12 : 16,
-                marginBottom: isMobile ? 40 : 64,
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-                maxWidth: isMobile ? 440 : undefined,
-                alignSelf: 'center'
-              }]}>
-                <Pressable
-                  onPress={() => router.push('/docs/installation' as any)}
-                  style={({ pressed }) => [styles.ctaPrimaryBtn, {
-                    transform: [{ scale: pressed ? 0.96 : 1 }],
-                    shadowColor: theme.colors.primary,
-                    shadowOpacity: pressed ? 0.2 : 0.15,
-                    alignSelf: 'center',
-                    width: isMobile ? '100%' : 'auto'
-                  }]}
-                >
-                  <LinearGradient
-                    colors={[theme.colors.primary, theme.colors.primaryContainer]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.ctaPrimaryGradient}
-                  >
-                    <Ionicons name="rocket" size={isMobile ? 18 : 20} color={theme.colors.onPrimary} />
-                    <Text style={[styles.ctaPrimaryText, { color: theme.colors.onPrimary, fontSize: isMobile ? 16 : 18 }]}>
-                      Get Started Free
-                    </Text>
-                    <Ionicons name="arrow-forward" size={isMobile ? 16 : 18} color={theme.colors.onPrimary} />
-                  </LinearGradient>
-                </Pressable>
-
-                <Pressable
-                  onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
-                  style={({ pressed }) => [styles.ctaSecondaryBtn, {
-                    transform: [{ scale: pressed ? 0.96 : 1 }],
-                    backgroundColor: theme.colors.surfaceVariant,
+              <Pressable
+                onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
+                style={({ pressed, hovered }) => [
+                  styles.ctaSecondaryModern,
+                  {
                     borderColor: theme.colors.outline,
-                    alignSelf: 'center',
-                    width: isMobile ? '100%' : 'auto'
-                  }]}
-                >
-                  <View style={styles.ctaSecondaryContent}>
-                    <Ionicons name="logo-github" size={isMobile ? 18 : 20} color={theme.colors.onSurfaceVariant} />
-                    <Text style={[styles.ctaSecondaryText, {
-                      color: theme.colors.onSurfaceVariant,
-                      fontSize: isMobile ? 14 : 16
-                    }]}>
-                      View Source
-                    </Text>
-                  </View>
-                </Pressable>
-              </Animated.View>
-
-              {/* Enhanced stats with icons */}
-              <Animated.View entering={FadeInUp.delay(600).springify().damping(12)} style={[styles.ctaStatsGrid, {
-                flexDirection: isMobile ? 'column' : 'row',
-                gap: isMobile ? 24 : 40,
-                alignItems: 'center'
-              }]}>
-                <View style={styles.ctaStatItem}>
-                  <View style={[styles.ctaStatIcon, {
-                    backgroundColor: theme.colors.primaryContainer,
-                    shadowColor: theme.colors.primary
-                  }]}>
-                    <Ionicons name="cube" size={isMobile ? 18 : 20} color={theme.colors.onPrimaryContainer} />
-                  </View>
-                  <View>
-                    <Text style={[styles.ctaStatValue, {
-                      color: theme.colors.onSurface,
-                      fontSize: isMobile ? 20 : 24
-                    }]}>38</Text>
-                    <Text style={[styles.ctaStatLabel, {
-                      color: theme.colors.onSurfaceVariant,
-                      fontSize: isMobile ? 12 : 14
-                    }]}>Components</Text>
-                  </View>
-                </View>
-
-                <View style={styles.ctaStatItem}>
-                  <View style={[styles.ctaStatIcon, {
-                    backgroundColor: theme.colors.secondaryContainer,
-                    shadowColor: theme.colors.secondary
-                  }]}>
-                    <Ionicons name="color-palette" size={isMobile ? 18 : 20} color={theme.colors.onSecondaryContainer} />
-                  </View>
-                  <View>
-                    <Text style={[styles.ctaStatValue, {
-                      color: theme.colors.onSurface,
-                      fontSize: isMobile ? 20 : 24
-                    }]}>100%</Text>
-                    <Text style={[styles.ctaStatLabel, {
-                      color: theme.colors.onSurfaceVariant,
-                      fontSize: isMobile ? 12 : 14
-                    }]}>Customizable</Text>
-                  </View>
-                </View>
-
-                <View style={styles.ctaStatItem}>
-                  <View style={[styles.ctaStatIcon, {
-                    backgroundColor: theme.colors.tertiaryContainer,
-                    shadowColor: theme.colors.tertiary
-                  }]}>
-                    <Ionicons name="shield-checkmark" size={isMobile ? 18 : 20} color={theme.colors.onTertiaryContainer} />
-                  </View>
-                  <View>
-                    <Text style={[styles.ctaStatValue, {
-                      color: theme.colors.onSurface,
-                      fontSize: isMobile ? 20 : 24
-                    }]}>MD3</Text>
-                    <Text style={[styles.ctaStatLabel, {
-                      color: theme.colors.onSurfaceVariant,
-                      fontSize: isMobile ? 12 : 14
-                    }]}>Material Design</Text>
-                  </View>
-                </View>
-              </Animated.View>
+                    backgroundColor: (hovered as boolean) ? theme.colors.surfaceVariant + '40' : 'transparent',
+                    transform: [{ scale: pressed ? 0.97 : 1 }],
+                    width: isMobile ? '100%' : undefined,
+                  },
+                ]}
+              >
+                <Ionicons name="logo-github" size={16} color={theme.colors.onSurface} />
+                <Text style={{ color: theme.colors.onSurface, fontWeight: '600', fontSize: 15 }}>
+                  GitHub
+                </Text>
+              </Pressable>
             </View>
           </Animated.View>
         </View>
 
-        {/* Footer - Modern & Clean */}
-        <View style={[styles.footer, { backgroundColor: theme.mode === 'dark' ? '#0a0a0f' : '#fafafa' }]}>
-          {/* Top gradient accent */}
-          <LinearGradient
-            colors={['#667eea', '#764ba2', '#a855f7']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ height: 3, width: '100%' }}
-          />
-
-          <View style={[styles.footerContent, { paddingHorizontal: isMobile ? 24 : 48, paddingVertical: isMobile ? 48 : 64, maxWidth: 1200, alignSelf: 'center', width: '100%' }]}>
-            {/* Main Footer Content */}
-            <View style={[styles.footerTop, { flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 48 : 64 }]}>
+        {/* Footer */}
+        <View
+          style={[
+            styles.footer,
+            {
+              backgroundColor: theme.colors.surface,
+              borderTopWidth: 1,
+              borderTopColor: theme.colors.outlineVariant + '60',
+              marginTop: 80,
+            },
+          ]}
+        >
+          <View style={[styles.footerContent, { paddingHorizontal: isMobile ? 24 : 48, paddingVertical: isMobile ? 48 : 56, maxWidth: 1200, alignSelf: 'center', width: '100%' }]}>
+            <View style={[styles.footerTop, { flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 40 : 64 }]}>
               {/* Brand Section */}
               <View style={[styles.footerBrand, { flex: isMobile ? undefined : 1.2, alignItems: isMobile ? 'center' : 'flex-start' }]}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-                  <LinearGradient
-                    colors={['#667eea', '#764ba2']}
-                    style={[styles.footerLogo, { width: 48, height: 48, borderRadius: 14 }]}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <View
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: theme.colors.primary,
+                    }}
                   >
-                    <Ionicons name="layers" size={24} color="#fff" />
-                  </LinearGradient>
-                  <Text variant="titleLarge" style={{ color: theme.colors.onSurface, fontWeight: '800', fontSize: 22 }}>
+                    <Ionicons name="layers" size={18} color={theme.colors.onPrimary} />
+                  </View>
+                  <Text variant="titleLarge" style={{ color: theme.colors.onSurface, fontWeight: '700', fontSize: 18 }}>
                     Quartz UI
                   </Text>
                 </View>
                 <Text
-                  variant="bodyMedium"
                   style={{
                     color: theme.colors.onSurfaceVariant,
-                    marginTop: 16,
-                    lineHeight: 24,
-                    opacity: 0.8,
+                    marginTop: 12,
+                    lineHeight: 22,
                     fontSize: 14,
                     textAlign: isMobile ? 'center' : 'left',
-                    maxWidth: 280
+                    maxWidth: 320,
                   }}
                 >
-                  Beautiful Material Design 3 components for React Native & Expo applications.
+                  38 production-ready Material Design 3 components for React Native & Expo. Apache 2.0.
                 </Text>
 
                 {/* Social Icons */}
@@ -1363,6 +1234,68 @@ const styles = StyleSheet.create({
     flexBasis: '25%',
     minWidth: 110,
   },
+  closingCtaWrap: {},
+  closingCta: {
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  cleanCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 24,
+    minHeight: 180,
+  },
+  cleanCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cleanCardIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cleanCardCount: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    minWidth: 32,
+    alignItems: 'center',
+  },
+  cleanCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 20,
+  },
+  featureCardClean: {
+    padding: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    minHeight: 160,
+  },
+  featureIconClean: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  installCommand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    minWidth: 320,
+  },
+  closingCtaRow: {
+    gap: 12,
+    flexWrap: 'wrap',
+  },
   versionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1615,9 +1548,6 @@ const styles = StyleSheet.create({
     color: '#d4d4d4',
     fontSize: 13,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-  },
-  installCommand: {
-    alignItems: 'center',
   },
   installSurface: {
     paddingHorizontal: 24,
