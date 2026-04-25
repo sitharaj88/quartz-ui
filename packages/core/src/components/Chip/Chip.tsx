@@ -1,162 +1,191 @@
 /**
- * Quartz UI - Chip Component
- * 
- * Chips:
- * - Assist: Help initiate actions
- * - Filter: Select options
- * - Input: User input tags
- * - Suggestion: Dynamic suggestions
+ * Quartz UI - Chip
+ *
+ * Material 3 chip with four flavors: assist, filter, input, suggestion.
+ * Filter chips behave as toggle buttons (role=togglebutton + selected state).
+ * Input chips can have an avatar/leading + a close button.
  */
 
-import React, { useState, useCallback, ReactNode } from 'react';
+import React, {
+  ReactNode,
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import {
-  View,
-  Pressable,
-  Text,
-  ViewStyle,
-  StyleProp,
   GestureResponderEvent,
-  AccessibilityRole,
   Platform,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useTheme } from '../../theme/ThemeProvider';
-import { springConfig } from '../../tokens/motion';
+import { useInteractiveState } from '../../hooks/useInteractiveState';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { duration, springConfig } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
 
 export type ChipVariant = 'assist' | 'filter' | 'input' | 'suggestion';
 
+export interface ChipHandle {
+  focus(): void;
+  blur(): void;
+}
+
 export interface ChipProps {
-  // Chip label
   label: string;
-  
-  // Variant
   variant?: ChipVariant;
-  
-  // Selected state (for filter chips)
+  /** Selected state. For `filter` chips this also makes role=togglebutton. */
   selected?: boolean;
-  
-  // Leading icon
   leadingIcon?: ReactNode;
-  
-  // Trailing icon (or close button)
   trailingIcon?: ReactNode;
-  
-  // Avatar (for input chips)
   avatar?: ReactNode;
-  
-  // Elevated style
+  /** Render as elevated (filled background) instead of outlined. */
   elevated?: boolean;
-  
-  // Press handler
-  onPress?: (event: GestureResponderEvent) => void;
-  
-  // Close handler (for input chips)
+  onPress?: (e: GestureResponderEvent) => void;
+  /** Show a close button (input chips). */
   onClose?: () => void;
-  
-  // Disabled state
   disabled?: boolean;
-  
-  // Style override
+  enableHaptics?: boolean;
   style?: StyleProp<ViewStyle>;
-  
-  // Accessibility
   accessibilityLabel?: string;
   accessibilityHint?: string;
   testID?: string;
+  ref?: React.Ref<ChipHandle>;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-/**
- * Chip Component
- */
-export function Chip({
-  label,
-  variant = 'assist',
-  selected = false,
-  leadingIcon,
-  trailingIcon,
-  avatar,
-  elevated = false,
-  onPress,
-  onClose,
-  disabled = false,
-  style,
-  accessibilityLabel,
-  accessibilityHint,
-  testID,
-}: ChipProps): React.ReactElement {
+const ChipImpl = forwardRef<ChipHandle, ChipProps>(function Chip(
+  {
+    label,
+    variant = 'assist',
+    selected,
+    leadingIcon,
+    trailingIcon,
+    avatar,
+    elevated = false,
+    onPress,
+    onClose,
+    disabled = false,
+    enableHaptics,
+    style,
+    accessibilityLabel,
+    accessibilityHint,
+    testID,
+  },
+  ref
+): React.ReactElement {
   const theme = useTheme();
-  const [isPressed, setIsPressed] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const viewRef = useRef<View>(null);
+  const isToggle = variant === 'filter' && selected !== undefined;
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus() {
+        const node = viewRef.current as (View & { focus?: () => void }) | null;
+        node?.focus?.();
+      },
+      blur() {
+        const node = viewRef.current as (View & { blur?: () => void }) | null;
+        node?.blur?.();
+      },
+    }),
+    []
+  );
+
+  const interactive = useInteractiveState({ disabled });
+  const { pressed, hovered, focused, focusVisible, handlers } = interactive;
+
   const scale = useSharedValue(1);
-  
-  // Get colors based on variant and state
-  const getColors = () => {
-    if (disabled) {
-      return {
-        container: theme.colors.onSurface + '1F', // 12%
-        outline: theme.colors.onSurface + '1F',
-        label: theme.colors.onSurface + '61', // 38%
-        icon: theme.colors.onSurface + '61',
-      };
-    }
-    
-    if (selected) {
-      return {
-        container: theme.colors.secondaryContainer,
-        outline: 'transparent',
-        label: theme.colors.onSecondaryContainer,
-        icon: theme.colors.onSecondaryContainer,
-      };
-    }
-    
-    return {
-      container: elevated ? theme.colors.surfaceContainerLow : 'transparent',
-      outline: theme.colors.outline,
-      label: theme.colors.onSurfaceVariant,
-      icon: theme.colors.primary,
-    };
-  };
-  
-  const colors = getColors();
-  
-  // Animated styles
-  const animatedStyle = useAnimatedStyle(() => ({
+  const stateLayerProgress = useSharedValue(0);
+
+  useEffect(() => {
+    const target = pressed || focused || hovered ? 1 : 0;
+    stateLayerProgress.value = reduceMotion
+      ? target
+      : withTiming(target, { duration: duration.short3 });
+  }, [pressed, focused, hovered, reduceMotion, stateLayerProgress]);
+
+  const colors = disabled
+    ? {
+        container: withAlpha(theme.colors.onSurface, 0.12),
+        outline: withAlpha(theme.colors.onSurface, 0.12),
+        label: withAlpha(theme.colors.onSurface, 0.38),
+        stateLayer: theme.colors.onSurface,
+      }
+    : selected
+      ? {
+          container: theme.colors.secondaryContainer,
+          outline: 'transparent',
+          label: theme.colors.onSecondaryContainer,
+          stateLayer: theme.colors.onSecondaryContainer,
+        }
+      : {
+          container: elevated ? theme.colors.surfaceContainerLow : 'transparent',
+          outline: theme.colors.outline,
+          label: theme.colors.onSurfaceVariant,
+          stateLayer: theme.colors.onSurfaceVariant,
+        };
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
-  
-  // Handle press events
-  const handlePressIn = useCallback(() => {
-    setIsPressed(true);
-    scale.value = withSpring(0.95, springConfig.stiff);
-    if (theme.accessibility.hapticFeedback && !disabled && Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  }, [disabled, scale, theme.accessibility.hapticFeedback]);
-  
-  const handlePressOut = useCallback(() => {
-    setIsPressed(false);
-    scale.value = withSpring(1, springConfig.gentle);
-  }, [scale]);
-  
-  // Handle close
-  const handleClose = useCallback((e: GestureResponderEvent) => {
-    e.stopPropagation?.();
-    if (!disabled) {
-      onClose?.();
-    }
-  }, [disabled, onClose]);
-  
-  // Chip styles - RTL aware using Start/End
+
+  const stateLayerOpacity = pressed || focused ? 0.12 : hovered ? 0.08 : 0;
+  const stateLayerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: stateLayerProgress.value * stateLayerOpacity,
+  }));
+
+  const handlePressIn = useCallback(
+    (e: GestureResponderEvent) => {
+      handlers.onPressIn(e);
+      if (!reduceMotion) scale.value = withSpring(0.95, springConfig.stiff);
+      const hapticsOn = enableHaptics ?? theme.accessibility.hapticFeedback;
+      if (hapticsOn && !disabled && Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      }
+    },
+    [handlers, reduceMotion, scale, enableHaptics, theme.accessibility.hapticFeedback, disabled]
+  );
+
+  const handlePressOut = useCallback(
+    (e: GestureResponderEvent) => {
+      handlers.onPressOut(e);
+      if (!reduceMotion) scale.value = withSpring(1, springConfig.gentle);
+      else scale.value = 1;
+    },
+    [handlers, reduceMotion, scale]
+  );
+
+  const handleClose = useCallback(
+    (e: GestureResponderEvent) => {
+      e?.stopPropagation?.();
+      if (!disabled) onClose?.();
+    },
+    [disabled, onClose]
+  );
+
+  // RTL-aware paddings.
   const paddingStart = avatar ? 4 : leadingIcon ? 8 : 16;
   const paddingEnd = trailingIcon || onClose ? 8 : 16;
-  
+
   const chipStyles: StyleProp<ViewStyle> = [
     {
       flexDirection: 'row',
@@ -172,92 +201,109 @@ export function Chip({
     },
     style,
   ];
-  
-  // State layer
-  const stateLayerStyle: ViewStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+
+  const stateLayerBaseStyle: ViewStyle = {
+    ...StyleSheet.absoluteFillObject,
     borderRadius: 8,
-    backgroundColor: isPressed
-      ? theme.colors.onSecondaryContainer + '1F'
-      : 'transparent',
+    backgroundColor: colors.stateLayer,
   };
 
+  const focusRingStyle: ViewStyle = {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  };
+
+  const webHoverProps =
+    Platform.OS === 'web'
+      ? ({
+          onMouseEnter: handlers.onHoverIn,
+          onMouseLeave: handlers.onHoverOut,
+        } as unknown as object)
+      : {};
+
   return (
-    <AnimatedPressable
-      style={[chipStyles, animatedStyle]}
-      onPress={disabled ? undefined : onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={disabled}
-      accessible={true}
-      accessibilityRole={'button' as AccessibilityRole}
-      accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled, selected }}
-      testID={testID}
-    >
-      <View style={stateLayerStyle} pointerEvents="none" />
-      
-      {/* Avatar */}
-      {avatar && (
-        <View style={{ 
-          width: 24, 
-          height: 24, 
-          borderRadius: 12,
-          overflow: 'hidden',
-        }}>
-          {avatar}
-        </View>
-      )}
-      
-      {/* Leading icon */}
-      {!avatar && leadingIcon && (
-        <View style={{ width: 18, height: 18 }}>
-          {leadingIcon}
-        </View>
-      )}
-      
-      {/* Label */}
-      <Text
-        style={{
-          ...theme.typography.labelLarge,
-          color: colors.label,
-        }}
-        numberOfLines={1}
+    <View>
+      <AnimatedPressable
+        ref={viewRef as React.Ref<View>}
+        {...webHoverProps}
+        style={[chipStyles, containerAnimatedStyle]}
+        onPress={disabled ? undefined : onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onFocus={handlers.onFocus}
+        onBlur={handlers.onBlur}
+        disabled={disabled}
+        accessible
+        accessibilityRole={isToggle ? 'togglebutton' : 'button'}
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled, ...(selected !== undefined ? { selected } : null) }}
+        focusable={!disabled}
+        testID={testID}
       >
-        {label}
-      </Text>
-      
-      {/* Trailing icon or close button */}
-      {(trailingIcon || (variant === 'input' && onClose)) && (
-        <Pressable
-          onPress={onClose ? handleClose : undefined}
-          style={{ width: 18, height: 18 }}
-          accessible={!!onClose}
-          accessibilityRole="button"
-          accessibilityLabel={`Remove ${label}`}
+        <Animated.View style={[stateLayerBaseStyle, stateLayerAnimatedStyle]} pointerEvents="none" />
+
+        {avatar && (
+          <View
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 12,
+              overflow: 'hidden',
+            }}
+          >
+            {avatar}
+          </View>
+        )}
+
+        {!avatar && leadingIcon && <View style={{ width: 18, height: 18 }}>{leadingIcon}</View>}
+
+        <Text
+          style={{ ...theme.typography.labelLarge, color: colors.label }}
+          numberOfLines={1}
         >
-          {trailingIcon || (
-            // Default close icon (X)
-            <View style={{
-              width: 18,
-              height: 18,
-              borderRadius: 9,
-              backgroundColor: theme.colors.onSurfaceVariant,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Text style={{ color: theme.colors.surface, fontSize: 12 }}>×</Text>
-            </View>
-          )}
-        </Pressable>
-      )}
-    </AnimatedPressable>
+          {label}
+        </Text>
+
+        {(trailingIcon || (variant === 'input' && onClose)) && (
+          <Pressable
+            onPress={onClose ? handleClose : undefined}
+            style={{ width: 18, height: 18 }}
+            accessible={!!onClose}
+            accessibilityRole="button"
+            accessibilityLabel={`Remove ${label}`}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            {trailingIcon || (
+              <View
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  backgroundColor: theme.colors.onSurfaceVariant,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ color: theme.colors.surface, fontSize: 12 }}>×</Text>
+              </View>
+            )}
+          </Pressable>
+        )}
+      </AnimatedPressable>
+      {focusVisible && <View style={focusRingStyle} pointerEvents="none" accessibilityElementsHidden />}
+    </View>
   );
-}
+});
+
+ChipImpl.displayName = 'Chip';
+
+export const Chip = memo(ChipImpl);
 
 export default Chip;

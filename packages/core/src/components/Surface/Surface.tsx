@@ -4,7 +4,7 @@
  * Base surface container with elevation and theming
  */
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, forwardRef, memo } from 'react';
 import { View, ViewProps, ViewStyle, StyleProp } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { ElevationLevel } from '../../tokens/elevation';
@@ -29,18 +29,18 @@ export interface SurfaceProps extends ViewProps {
   children?: ReactNode;
 }
 
-/**
- * Surface Component
- */
-export function Surface({
-  elevation = 0,
-  background = 'surface',
-  radius = 'none',
-  padding = 'none',
-  style,
-  children,
-  ...viewProps
-}: SurfaceProps): React.ReactElement {
+const SurfaceImpl = forwardRef<View, SurfaceProps>(function Surface(
+  {
+    elevation = 0,
+    background = 'surface',
+    radius = 'none',
+    padding = 'none',
+    style,
+    children,
+    ...viewProps
+  },
+  ref
+): React.ReactElement {
   const theme = useTheme();
   
   // Get background color
@@ -124,10 +124,14 @@ export function Surface({
   ];
 
   return (
-    <View {...viewProps} style={composedStyle}>
+    <View ref={ref} {...viewProps} style={composedStyle}>
       {children}
     </View>
   );
-}
+});
+
+SurfaceImpl.displayName = 'Surface';
+
+export const Surface = memo(SurfaceImpl);
 
 export default Surface;

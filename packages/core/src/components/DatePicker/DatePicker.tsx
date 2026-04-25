@@ -19,7 +19,7 @@
  * 12. Divider
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -324,7 +324,7 @@ function DateInputView({
 /**
  * Date Picker Component
  */
-export function DatePicker({
+function DatePickerImpl({
   visible,
   value,
   onChange,
@@ -582,6 +582,10 @@ export function DatePicker({
     </Modal>
   );
 }
+
+DatePickerImpl.displayName = 'DatePicker';
+
+export const DatePicker = memo(DatePickerImpl);
 
 const styles = StyleSheet.create({
   overlay: {

@@ -5,7 +5,7 @@
  * with optional actions at the top of the screen
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import {
   View,
   StyleSheet,
@@ -59,7 +59,7 @@ const ANIMATION_DURATION = 250;
  * Banners display a prominent message and optional related actions.
  * They appear at the top of the screen, below a top app bar.
  */
-export function Banner({
+function BannerImpl({
   visible,
   message,
   icon,
@@ -184,6 +184,10 @@ export function Banner({
     </Animated.View>
   );
 }
+
+BannerImpl.displayName = 'Banner';
+
+export const Banner = memo(BannerImpl);
 
 const styles = StyleSheet.create({
   container: {

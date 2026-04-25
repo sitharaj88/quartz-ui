@@ -1,74 +1,69 @@
 /**
- * Quartz UI - Typography Text Component
- * 
- * Typography with all type scales
+ * Quartz UI - Typography
+ *
+ * Theme-driven Text component covering the Material 3 type scale (display,
+ * headline, title, body, label — each in large/medium/small). Convenience
+ * components are provided for every variant.
+ *
+ * forwardRef forwards to the underlying RN Text so consumers can call
+ * `measureInWindow`, etc.
  */
 
-import React from 'react';
-import { Text as RNText, TextProps as RNTextProps, TextStyle, StyleProp } from 'react-native';
+import React, { forwardRef, memo } from 'react';
+import {
+  Text as RNText,
+  TextProps as RNTextProps,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
+
 import { useTheme } from '../../theme/ThemeProvider';
 import { TypeScale } from '../../tokens/typography';
 
-// Type scale variants
 export type TextVariant = keyof TypeScale;
 
 export interface TextProps extends RNTextProps {
-  // Typography variant from type scale
+  /** Type-scale variant (defaults to `bodyMedium`). */
   variant?: TextVariant;
-  
-  // Color (defaults to onSurface)
+  /** Override color. Defaults to theme.colors.onSurface. */
   color?: string;
-  
-  // Custom font weight override
+  /** Override font weight. */
   weight?: TextStyle['fontWeight'];
-  
-  // Text alignment with RTL support
-  align?: 'left' | 'center' | 'right' | 'auto';
-  
-  // Custom line height
+  /** Text alignment. RN respects `auto` for RTL flipping. */
+  align?: TextStyle['textAlign'];
+  /** Override line height. */
   lineHeight?: number;
-  
-  // Italic style
   italic?: boolean;
-  
-  // Uppercase transform
   uppercase?: boolean;
-  
-  // Style override
   style?: StyleProp<TextStyle>;
-  
-  // Children
   children?: React.ReactNode;
 }
 
-/**
- * Text Component with Typography
- */
-export function Text({
-  variant = 'bodyMedium',
-  color,
-  weight,
-  align = 'auto',
-  lineHeight,
-  italic = false,
-  uppercase = false,
-  style,
-  children,
-  ...textProps
-}: TextProps): React.ReactElement {
+const TextImpl = forwardRef<RNText, TextProps>(function Text(
+  {
+    variant = 'bodyMedium',
+    color,
+    weight,
+    align = 'auto',
+    lineHeight,
+    italic = false,
+    uppercase = false,
+    style,
+    children,
+    ...rest
+  },
+  ref
+) {
   const theme = useTheme();
-  
-  // Get typography style for the variant
-  const typographyStyle = theme.typography[variant];
-  
-  // Compose final style
+  const tStyle = theme.typography[variant];
+
   const composedStyle: StyleProp<TextStyle> = [
     {
-      fontFamily: typographyStyle.fontFamily,
-      fontSize: typographyStyle.fontSize,
-      fontWeight: weight ?? typographyStyle.fontWeight,
-      lineHeight: lineHeight ?? typographyStyle.lineHeight,
-      letterSpacing: typographyStyle.letterSpacing,
+      fontFamily: tStyle.fontFamily,
+      fontSize: tStyle.fontSize,
+      fontWeight: weight ?? tStyle.fontWeight,
+      lineHeight: lineHeight ?? tStyle.lineHeight,
+      letterSpacing: tStyle.letterSpacing,
       color: color ?? theme.colors.onSurface,
       textAlign: align,
       fontStyle: italic ? 'italic' : 'normal',
@@ -80,75 +75,44 @@ export function Text({
 
   return (
     <RNText
-      {...textProps}
-      style={composedStyle}
-      accessible={true}
+      ref={ref}
+      accessible
       accessibilityRole="text"
+      {...rest}
+      style={composedStyle}
     >
       {children}
     </RNText>
   );
-}
+});
 
-// Convenience components for common variants
-export function DisplayLarge(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="displayLarge" {...props} />;
-}
+TextImpl.displayName = 'Text';
 
-export function DisplayMedium(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="displayMedium" {...props} />;
-}
+export const Text = memo(TextImpl);
 
-export function DisplaySmall(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="displaySmall" {...props} />;
-}
+// ─── Convenience components for every type-scale variant ────────────────
+const variantComponent = (v: TextVariant, displayName: string) => {
+  const C = memo(function Variant(props: Omit<TextProps, 'variant'>) {
+    return <Text variant={v} {...props} />;
+  });
+  C.displayName = displayName;
+  return C;
+};
 
-export function HeadlineLarge(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="headlineLarge" {...props} />;
-}
-
-export function HeadlineMedium(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="headlineMedium" {...props} />;
-}
-
-export function HeadlineSmall(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="headlineSmall" {...props} />;
-}
-
-export function TitleLarge(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="titleLarge" {...props} />;
-}
-
-export function TitleMedium(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="titleMedium" {...props} />;
-}
-
-export function TitleSmall(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="titleSmall" {...props} />;
-}
-
-export function BodyLarge(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="bodyLarge" {...props} />;
-}
-
-export function BodyMedium(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="bodyMedium" {...props} />;
-}
-
-export function BodySmall(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="bodySmall" {...props} />;
-}
-
-export function LabelLarge(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="labelLarge" {...props} />;
-}
-
-export function LabelMedium(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="labelMedium" {...props} />;
-}
-
-export function LabelSmall(props: Omit<TextProps, 'variant'>) {
-  return <Text variant="labelSmall" {...props} />;
-}
+export const DisplayLarge = variantComponent('displayLarge', 'DisplayLarge');
+export const DisplayMedium = variantComponent('displayMedium', 'DisplayMedium');
+export const DisplaySmall = variantComponent('displaySmall', 'DisplaySmall');
+export const HeadlineLarge = variantComponent('headlineLarge', 'HeadlineLarge');
+export const HeadlineMedium = variantComponent('headlineMedium', 'HeadlineMedium');
+export const HeadlineSmall = variantComponent('headlineSmall', 'HeadlineSmall');
+export const TitleLarge = variantComponent('titleLarge', 'TitleLarge');
+export const TitleMedium = variantComponent('titleMedium', 'TitleMedium');
+export const TitleSmall = variantComponent('titleSmall', 'TitleSmall');
+export const BodyLarge = variantComponent('bodyLarge', 'BodyLarge');
+export const BodyMedium = variantComponent('bodyMedium', 'BodyMedium');
+export const BodySmall = variantComponent('bodySmall', 'BodySmall');
+export const LabelLarge = variantComponent('labelLarge', 'LabelLarge');
+export const LabelMedium = variantComponent('labelMedium', 'LabelMedium');
+export const LabelSmall = variantComponent('labelSmall', 'LabelSmall');
 
 export default Text;

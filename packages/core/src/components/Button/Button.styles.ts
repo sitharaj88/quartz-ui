@@ -1,30 +1,32 @@
 /**
  * Quartz UI - Button Styles
+ *
+ * Material 3 button styling. State layer opacities and color math go through
+ * `withAlpha` so non-hex inputs (rgb / rgba / named colors / theme overrides)
+ * are handled correctly.
  */
 
 import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { QuartzTheme } from '../../theme/types';
+import { QuartzTheme, Size } from '../../theme/types';
+import { withAlpha, pickForeground } from '../../utils/color';
 import { ButtonVariant, ButtonStyleConfig } from './Button.types';
-import { Size } from '../../theme/types';
 
 /**
- * MD3 Button Size Specifications
- * Standard button height: 40dp
- * Icon size: 18dp
- * Corner radius: height/2 for stadium shape
- * Horizontal padding: 24dp (no icon) or 16dp/24dp (with icon)
+ * MD3 sizing. Heights are content heights — the touch target hit-slop is added
+ * separately so visual density and a11y are decoupled.
  */
 const sizeConfig = {
   small: {
     height: 34,
-    minWidth: 48, // Minimum touch target
+    minWidth: 48,
     paddingHorizontal: 16,
     paddingWithIconStart: 12,
     paddingWithIconEnd: 16,
+    paddingIconOnly: 8,
     fontSize: 13,
     iconSize: 16,
     iconGap: 6,
-    borderRadius: 17, // height / 2
+    borderRadius: 17,
   },
   medium: {
     height: 40,
@@ -32,10 +34,11 @@ const sizeConfig = {
     paddingHorizontal: 24,
     paddingWithIconStart: 16,
     paddingWithIconEnd: 24,
+    paddingIconOnly: 10,
     fontSize: 14,
     iconSize: 18,
     iconGap: 8,
-    borderRadius: 20, // height / 2 (stadium shape)
+    borderRadius: 20,
   },
   large: {
     height: 48,
@@ -43,29 +46,42 @@ const sizeConfig = {
     paddingHorizontal: 28,
     paddingWithIconStart: 20,
     paddingWithIconEnd: 28,
+    paddingIconOnly: 14,
     fontSize: 15,
     iconSize: 20,
     iconGap: 10,
-    borderRadius: 24, // height / 2
+    borderRadius: 24,
   },
-};
+} as const;
 
-// Get variant-specific colors
+/**
+ * Variant colors. When `containerOverride` is provided, the foreground is
+ * auto-picked for AA contrast (unless the consumer also passes `textColor`).
+ */
 function getVariantColors(
   variant: ButtonVariant,
   theme: QuartzTheme,
-  disabled: boolean = false
+  disabled: boolean,
+  containerOverride?: string
 ) {
   const { colors } = theme;
 
   if (disabled) {
-    // MD3: Disabled container is 12% onSurface, text/icon is 38% onSurface
     return {
-      backgroundColor: variant === 'text' || variant === 'outlined' 
-        ? 'transparent' 
-        : colors.onSurface + '1F', // 12% opacity
-      textColor: colors.onSurface + '61', // 38% opacity
-      borderColor: variant === 'outlined' ? colors.onSurface + '1F' : 'transparent',
+      backgroundColor:
+        variant === 'text' || variant === 'outlined'
+          ? 'transparent'
+          : withAlpha(colors.onSurface, 0.12),
+      textColor: withAlpha(colors.onSurface, 0.38),
+      borderColor: variant === 'outlined' ? withAlpha(colors.onSurface, 0.12) : 'transparent',
+    };
+  }
+
+  if (containerOverride) {
+    return {
+      backgroundColor: containerOverride,
+      textColor: pickForeground(containerOverride, '#FFFFFF', '#000000'),
+      borderColor: 'transparent',
     };
   }
 
@@ -100,55 +116,41 @@ function getVariantColors(
         textColor: colors.onSecondaryContainer,
         borderColor: 'transparent',
       };
-    default:
-      return {
-        backgroundColor: colors.primary,
-        textColor: colors.onPrimary,
-        borderColor: 'transparent',
-      };
   }
 }
 
 /**
- * MD3 State Layer Opacities:
- * - Hover: 8% (0x14)
- * - Focus: 10% (0x1A)
- * - Pressed: 10% (0x1A)
- * - Dragged: 16% (0x29)
+ * MD3 state layer opacities:
+ *   hover 8% · focus 10% · pressed 10% · dragged 16%
+ * Returned as `{ color, opacity }` so the consumer can drive opacity with a
+ * shared value while keeping the color stable (avoids mid-animation re-renders).
  */
-function getStateLayerColor(
+function getStateLayer(
   variant: ButtonVariant,
   theme: QuartzTheme,
   pressed: boolean,
   hovered: boolean,
-  focused: boolean = false
-): string {
+  focused: boolean,
+  containerOverride?: string,
+  textColorOverride?: string
+): { color: string; opacity: number } {
   const { colors } = theme;
-  
-  // State layer uses the content color with opacity
-  let baseColor = colors.primary;
-  if (variant === 'filled') {
-    baseColor = colors.onPrimary;
-  } else if (variant === 'tonal') {
-    baseColor = colors.onSecondaryContainer;
-  }
+  let color: string = colors.primary;
+  if (variant === 'filled') color = colors.onPrimary;
+  else if (variant === 'tonal') color = colors.onSecondaryContainer;
 
-  // MD3 specifies 10% for pressed state (not 12%)
-  if (pressed) {
-    return baseColor + '1A'; // 10% opacity
-  }
-  if (focused) {
-    return baseColor + '1A'; // 10% opacity
-  }
-  if (hovered) {
-    return baseColor + '14'; // 8% opacity
-  }
-  return 'transparent';
+  if (textColorOverride) color = textColorOverride;
+  else if (containerOverride) color = pickForeground(containerOverride, '#FFFFFF', '#000000');
+
+  let opacity = 0;
+  if (pressed) opacity = 0.1;
+  else if (focused) opacity = 0.1;
+  else if (hovered) opacity = 0.08;
+
+  return { color, opacity };
 }
 
-/**
- * Create button styles following MD3 specifications
- */
+/** Style payload for the button. `stateLayer.opacity` is overwritten at runtime by the animated value. */
 export function createButtonStyles(
   variant: ButtonVariant,
   size: Size,
@@ -161,31 +163,45 @@ export function createButtonStyles(
     fullWidth?: boolean;
     hasIcon?: boolean;
     iconPosition?: 'left' | 'right';
+    iconOnly?: boolean;
+    containerOverride?: string;
+    textColorOverride?: string;
   } = {}
-): ButtonStyleConfig {
-  const { 
-    disabled = false, 
-    pressed = false, 
-    hovered = false, 
+): ButtonStyleConfig & { stateLayerColor: string; stateLayerOpacity: number } {
+  const {
+    disabled = false,
+    pressed = false,
+    hovered = false,
     focused = false,
-    fullWidth = false, 
-    hasIcon = false, 
-    iconPosition = 'left' 
+    fullWidth = false,
+    hasIcon = false,
+    iconPosition = 'left',
+    iconOnly = false,
+    containerOverride,
+    textColorOverride,
   } = options;
-  
-  const sizeStyles = sizeConfig[size];
-  const variantColors = getVariantColors(variant, theme, disabled);
-  const stateLayerColor = getStateLayerColor(variant, theme, pressed, hovered, focused);
 
-  // MD3: Elevated buttons get elevation 1 at rest, 2 when hovered/focused
-  const elevationLevel = variant === 'elevated' 
-    ? (pressed || hovered || focused ? 2 : 1) 
-    : 0;
+  const sizeStyles = sizeConfig[size];
+  const variantColors = getVariantColors(variant, theme, disabled, containerOverride);
+  const stateLayer = getStateLayer(
+    variant,
+    theme,
+    pressed,
+    hovered,
+    focused,
+    containerOverride,
+    textColorOverride
+  );
+
+  // Elevated buttons: rest = 1, hover/focus/press = 2 (MD3).
+  const elevationLevel: 0 | 1 | 2 =
+    variant === 'elevated' ? (pressed || hovered || focused ? 2 : 1) : 0;
 
   const container: ViewStyle = {
-    height: sizeStyles.height,
-    minWidth: sizeStyles.minWidth,
-    borderRadius: sizeStyles.borderRadius,
+    height: iconOnly ? sizeStyles.height : sizeStyles.height,
+    minWidth: iconOnly ? sizeStyles.height : sizeStyles.minWidth,
+    width: iconOnly ? sizeStyles.height : undefined,
+    borderRadius: iconOnly ? sizeStyles.height / 2 : sizeStyles.borderRadius,
     backgroundColor: variantColors.backgroundColor,
     borderWidth: variant === 'outlined' ? 1 : 0,
     borderColor: variantColors.borderColor,
@@ -194,10 +210,10 @@ export function createButtonStyles(
     ...(variant === 'elevated' ? theme.elevation(elevationLevel) : {}),
   };
 
-  // MD3: Asymmetric padding when icon is present
-  // Icon side gets less padding (16dp), label side gets more (24dp)
-  // Using paddingStart/End for RTL support
-  const getPadding = () => {
+  const getPadding = (): ViewStyle => {
+    if (iconOnly) {
+      return { paddingHorizontal: sizeStyles.paddingIconOnly };
+    }
     if (!hasIcon) {
       return { paddingHorizontal: sizeStyles.paddingHorizontal };
     }
@@ -219,16 +235,15 @@ export function createButtonStyles(
     justifyContent: 'center',
     ...getPadding(),
     height: '100%',
-    gap: hasIcon ? sizeStyles.iconGap : 0,
+    gap: hasIcon && !iconOnly ? sizeStyles.iconGap : 0,
   };
 
-  // MD3: Use labelLarge typography for button text
   const label: TextStyle = {
     ...theme.typography.labelLarge,
     fontSize: sizeStyles.fontSize,
-    fontWeight: '500', // MD3 labelLarge uses medium weight
-    letterSpacing: 0.1, // MD3 labelLarge letter spacing
-    color: variantColors.textColor,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+    color: textColorOverride ?? variantColors.textColor,
     textAlign: 'center',
   };
 
@@ -239,9 +254,23 @@ export function createButtonStyles(
     justifyContent: 'center',
   };
 
-  const stateLayer: ViewStyle = {
+  const stateLayerStyle: ViewStyle = {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: stateLayerColor,
+    backgroundColor: stateLayer.color,
+    opacity: stateLayer.opacity,
+  };
+
+  // Focus ring: 2dp outline at 3dp offset, in primary. Only rendered when
+  // focus arrived via keyboard (`focus-visible`).
+  const focusRing: ViewStyle = {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: (iconOnly ? sizeStyles.height / 2 : sizeStyles.borderRadius) + 3,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
   };
 
   return {
@@ -249,6 +278,9 @@ export function createButtonStyles(
     content,
     label,
     icon,
-    stateLayer,
+    stateLayer: stateLayerStyle,
+    focusRing,
+    stateLayerColor: stateLayer.color,
+    stateLayerOpacity: stateLayer.opacity,
   };
 }

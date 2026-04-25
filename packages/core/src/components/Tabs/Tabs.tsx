@@ -7,7 +7,7 @@
  * - Scrollable tabs
  */
 
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Pressable,
@@ -57,15 +57,18 @@ export interface TabsProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function Tabs({
-  tabs,
-  selectedKey,
-  onSelect,
-  variant = 'primary',
-  scrollable = false,
-  style,
-  testID,
-}: TabsProps) {
+const TabsImpl = forwardRef<View, TabsProps>(function Tabs(
+  {
+    tabs,
+    selectedKey,
+    onSelect,
+    variant = 'primary',
+    scrollable = false,
+    style,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const tabWidths = useRef<{ [key: string]: { x: number; width: number } }>({});
@@ -132,6 +135,7 @@ export function Tabs({
   
   return (
     <View
+      ref={ref}
       style={[
         styles.container,
         {
@@ -158,7 +162,11 @@ export function Tabs({
       )}
     </View>
   );
-}
+});
+
+TabsImpl.displayName = 'Tabs';
+
+export const Tabs = memo(TabsImpl);
 
 interface TabItemComponentProps {
   tab: TabItem;

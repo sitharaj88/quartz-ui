@@ -5,7 +5,7 @@
  * Supports modal and standard (docked) variants
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -67,7 +67,7 @@ export interface SideSheetProps {
 /**
  * Side Sheet Component
  */
-export function SideSheet({
+function SideSheetImpl({
   open = false,
   onClose,
   children,
@@ -297,6 +297,10 @@ export function SideSheet({
     </View>
   );
 }
+
+SideSheetImpl.displayName = 'SideSheet';
+
+export const SideSheet = memo(SideSheetImpl);
 
 const styles = StyleSheet.create({
   standardSheet: {

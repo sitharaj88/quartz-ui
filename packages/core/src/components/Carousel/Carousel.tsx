@@ -10,7 +10,7 @@
  * - Uncontained: Items extend to screen edges
  */
 
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -121,7 +121,7 @@ function IndicatorDot({
 /**
  * Carousel Component
  */
-export function Carousel({
+function CarouselImpl({
   items,
   layout = 'hero',
   autoPlayInterval = 0,
@@ -358,6 +358,10 @@ export function Carousel({
     </View>
   );
 }
+
+CarouselImpl.displayName = 'Carousel';
+
+export const Carousel = memo(CarouselImpl);
 
 const styles = StyleSheet.create({
   container: {

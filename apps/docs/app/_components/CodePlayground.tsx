@@ -31,7 +31,8 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 interface CodePlaygroundProps {
   code: string;
-  preview: React.ReactNode;
+  /** Optional. When omitted, only the code panel is shown (no preview tab). */
+  preview?: React.ReactNode;
   title?: string;
   description?: string;
   language?: 'tsx' | 'jsx' | 'typescript' | 'javascript';
@@ -720,7 +721,8 @@ export function CodePlayground({
 }: CodePlaygroundProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
-  const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
+  const hasPreview = preview !== undefined;
+  const [activeTab, setActiveTab] = useState<'preview' | 'code'>(hasPreview ? 'preview' : 'code');
   const [copied, setCopied] = useState(false);
 
   const isMobile = width < 768;
@@ -812,14 +814,16 @@ export function CodePlayground({
           ]}
         >
           <View style={styles.tabsLeft}>
-            <TabButton
-              icon="eye"
-              label="Preview"
-              isActive={activeTab === 'preview'}
-              onPress={() => setActiveTab('preview')}
-              theme={theme}
-              isMobile={isMobile}
-            />
+            {hasPreview && (
+              <TabButton
+                icon="eye"
+                label="Preview"
+                isActive={activeTab === 'preview'}
+                onPress={() => setActiveTab('preview')}
+                theme={theme}
+                isMobile={isMobile}
+              />
+            )}
             <TabButton
               icon="code-slash"
               label="Code"
@@ -833,10 +837,10 @@ export function CodePlayground({
 
         {/* Content area */}
         <View style={[styles.content, { backgroundColor: theme.colors.surfaceContainer, overflow: 'hidden' }]}>
-          {activeTab === 'preview' ? (
-            <Animated.View 
+          {hasPreview && activeTab === 'preview' ? (
+            <Animated.View
               key="preview"
-              entering={FadeInLeft.duration(350).easing(Easing.out(Easing.cubic))} 
+              entering={FadeInLeft.duration(350).easing(Easing.out(Easing.cubic))}
               exiting={FadeOutLeft.duration(250).easing(Easing.in(Easing.cubic))}
               style={[styles.preview, { padding: isMobile ? 32 : 40 }]}
             >

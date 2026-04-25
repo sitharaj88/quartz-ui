@@ -1,165 +1,256 @@
 /**
- * Quartz UI - Radio Button Component
- * 
- * Radio Button for single selection within a group
+ * Quartz UI - RadioButton + RadioGroup
+ *
+ * Single-selection within a group. Pressing a selected radio is a no-op
+ * (selection is exclusive). RadioGroup manages selection across children.
  */
 
-import React, { useCallback, useEffect } from 'react';
-import { Pressable, View, StyleSheet, ViewStyle, StyleProp, Platform } from 'react-native';
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
+import {
+  Platform,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
   interpolate,
   interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
-import { springConfig } from '../../tokens/motion';
+import { useInteractiveState } from '../../hooks/useInteractiveState';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { duration, springConfig } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
+
+export type RadioButtonSize = 'small' | 'medium' | 'large';
+
+export interface RadioButtonHandle {
+  focus(): void;
+  blur(): void;
+}
 
 export interface RadioButtonProps {
-  /** Whether the radio button is selected */
   selected?: boolean;
-  /** Whether the radio button is disabled */
   disabled?: boolean;
-  /** Callback when radio button is pressed */
   onPress?: () => void;
-  /** Value associated with this radio button */
+  /** Identifier used by RadioGroup to track selection. */
   value?: string;
-  /** Custom color for selected state */
   color?: string;
-  /** Size of the radio button */
-  size?: 'small' | 'medium' | 'large';
-  /** Style override */
+  size?: RadioButtonSize;
+  enableHaptics?: boolean;
   style?: StyleProp<ViewStyle>;
-  /** Accessibility label */
   accessibilityLabel?: string;
-  /** Test ID */
+  accessibilityHint?: string;
   testID?: string;
+  ref?: React.Ref<RadioButtonHandle>;
 }
 
 const SIZES = {
   small: { outer: 16, inner: 8, borderWidth: 1.5 },
   medium: { outer: 20, inner: 10, borderWidth: 2 },
   large: { outer: 24, inner: 12, borderWidth: 2 },
-};
+} as const;
+
+const MIN_TOUCH_TARGET = 48;
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function RadioButton({
-  selected = false,
-  disabled = false,
-  onPress,
-  value,
-  color,
-  size = 'medium',
-  style,
-  accessibilityLabel,
-  testID,
-}: RadioButtonProps) {
+const RadioButtonImpl = forwardRef<RadioButtonHandle, RadioButtonProps>(function RadioButton(
+  {
+    selected = false,
+    disabled = false,
+    onPress,
+    value,
+    color,
+    size = 'medium',
+    enableHaptics,
+    style,
+    accessibilityLabel,
+    accessibilityHint,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
+  const reduceMotion = useReducedMotion();
   const sizeConfig = SIZES[size];
-  
+  const viewRef = useRef<View>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus() {
+        const node = viewRef.current as (View & { focus?: () => void }) | null;
+        node?.focus?.();
+      },
+      blur() {
+        const node = viewRef.current as (View & { blur?: () => void }) | null;
+        node?.blur?.();
+      },
+    }),
+    []
+  );
+
+  const interactive = useInteractiveState({ disabled });
+  const { focusVisible, handlers } = interactive;
+
   const progress = useSharedValue(selected ? 1 : 0);
   const scale = useSharedValue(1);
-  
+
   const activeColor = color ?? theme.colors.primary;
-  const disabledColor = theme.colors.onSurface + '61'; // 38%
-  
+  const disabledColor = withAlpha(theme.colors.onSurface, 0.38);
+
   useEffect(() => {
-    progress.value = withSpring(selected ? 1 : 0, springConfig.gentle);
-  }, [selected, progress]);
-  
+    const target = selected ? 1 : 0;
+    progress.value = reduceMotion
+      ? target
+      : withTiming(target, { duration: duration.short3 });
+  }, [selected, progress, reduceMotion]);
+
   const handlePress = useCallback(() => {
     if (disabled || selected) return;
-    
-    scale.value = withSpring(0.9, springConfig.stiff);
-    setTimeout(() => {
-      scale.value = withSpring(1, springConfig.gentle);
-    }, 100);
-    
-    if (theme.accessibility.hapticFeedback && Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (!reduceMotion) {
+      scale.value = withSpring(0.9, springConfig.stiff, () => {
+        scale.value = withSpring(1, springConfig.gentle);
+      });
     }
-    
+    const hapticsOn = enableHaptics ?? theme.accessibility.hapticFeedback;
+    if (hapticsOn && Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
     onPress?.();
-  }, [disabled, selected, onPress, scale, theme.accessibility.hapticFeedback]);
-  
+  }, [
+    disabled,
+    selected,
+    reduceMotion,
+    scale,
+    enableHaptics,
+    theme.accessibility.hapticFeedback,
+    onPress,
+  ]);
+
   const containerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
-  
+
   const outerStyle = useAnimatedStyle(() => {
     const borderColor = interpolateColor(
       progress.value,
       [0, 1],
-      [disabled ? disabledColor : theme.colors.onSurfaceVariant, disabled ? disabledColor : activeColor]
+      [
+        disabled ? disabledColor : theme.colors.onSurfaceVariant,
+        disabled ? disabledColor : activeColor,
+      ]
     );
-    
     return { borderColor };
   });
-  
+
   const innerStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
     transform: [{ scale: interpolate(progress.value, [0, 1], [0, 1]) }],
     backgroundColor: disabled ? disabledColor : activeColor,
   }));
-  
+
+  const padded = sizeConfig.outer + 8;
+  const hitSlopExpand = Math.max(0, (MIN_TOUCH_TARGET - padded) / 2);
+  const hitSlop =
+    hitSlopExpand > 0
+      ? { top: hitSlopExpand, bottom: hitSlopExpand, left: hitSlopExpand, right: hitSlopExpand }
+      : undefined;
+
+  const focusRingStyle: ViewStyle = {
+    position: 'absolute',
+    top: -4,
+    left: -4,
+    right: -4,
+    bottom: -4,
+    borderRadius: sizeConfig.outer / 2 + 4,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  };
+
   return (
-    <Pressable
-      onPress={handlePress}
-      disabled={disabled}
-      accessible={true}
-      accessibilityRole="radio"
-      accessibilityState={{ checked: selected, disabled }}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityValue={{ text: value }}
-      testID={testID}
-      style={[styles.pressable, style]}
-    >
-      <AnimatedView style={containerStyle}>
-        <AnimatedView
-          style={[
-            styles.outer,
-            {
-              width: sizeConfig.outer,
-              height: sizeConfig.outer,
-              borderRadius: sizeConfig.outer / 2,
-              borderWidth: sizeConfig.borderWidth,
-            },
-            outerStyle,
-          ]}
-        >
+    <View>
+      <Pressable
+        ref={viewRef as React.Ref<View>}
+        onPress={handlePress}
+        onPressIn={handlers.onPressIn}
+        onPressOut={handlers.onPressOut}
+        onFocus={handlers.onFocus}
+        onBlur={handlers.onBlur}
+        disabled={disabled}
+        hitSlop={hitSlop}
+        accessible
+        accessibilityRole="radio"
+        accessibilityState={{ checked: selected, disabled }}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityValue={value ? { text: value } : undefined}
+        focusable={!disabled}
+        testID={testID}
+        style={[styles.pressable, style]}
+      >
+        <AnimatedView style={containerStyle}>
           <AnimatedView
             style={[
-              styles.inner,
+              styles.outer,
               {
-                width: sizeConfig.inner,
-                height: sizeConfig.inner,
-                borderRadius: sizeConfig.inner / 2,
+                width: sizeConfig.outer,
+                height: sizeConfig.outer,
+                borderRadius: sizeConfig.outer / 2,
+                borderWidth: sizeConfig.borderWidth,
               },
-              innerStyle,
+              outerStyle,
             ]}
-          />
+          >
+            <AnimatedView
+              style={[
+                styles.inner,
+                {
+                  width: sizeConfig.inner,
+                  height: sizeConfig.inner,
+                  borderRadius: sizeConfig.inner / 2,
+                },
+                innerStyle,
+              ]}
+            />
+          </AnimatedView>
         </AnimatedView>
-      </AnimatedView>
-    </Pressable>
+      </Pressable>
+      {focusVisible && <View style={focusRingStyle} pointerEvents="none" accessibilityElementsHidden />}
+    </View>
   );
-}
+});
 
-/** Radio Group for managing multiple radio buttons */
+RadioButtonImpl.displayName = 'RadioButton';
+
+export const RadioButton = memo(RadioButtonImpl);
+
+// ─── RadioGroup ───────────────────────────────────────────────────────────────
+
 export interface RadioGroupProps {
-  /** Currently selected value */
+  /** Currently selected value (controlled). */
   value?: string;
-  /** Callback when selection changes */
   onValueChange?: (value: string) => void;
-  /** Children radio buttons */
   children: React.ReactNode;
-  /** Layout direction */
   direction?: 'horizontal' | 'vertical';
-  /** Style override */
   style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
 }
 
 export function RadioGroup({
@@ -168,6 +259,7 @@ export function RadioGroup({
   children,
   direction = 'vertical',
   style,
+  accessibilityLabel,
 }: RadioGroupProps) {
   return (
     <View
@@ -177,15 +269,14 @@ export function RadioGroup({
         style,
       ]}
       accessibilityRole="radiogroup"
+      accessibilityLabel={accessibilityLabel}
     >
       {React.Children.map(children, (child) => {
         if (React.isValidElement<RadioButtonProps>(child)) {
           return React.cloneElement(child, {
             selected: child.props.value === value,
             onPress: () => {
-              if (child.props.value) {
-                onValueChange?.(child.props.value);
-              }
+              if (child.props.value) onValueChange?.(child.props.value);
               child.props.onPress?.();
             },
           });

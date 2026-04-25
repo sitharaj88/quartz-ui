@@ -4,7 +4,7 @@
  * Divider for separating content
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View, ViewStyle, StyleProp } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 
@@ -25,10 +25,7 @@ export interface DividerProps {
   testID?: string;
 }
 
-/**
- * Divider Component
- */
-export function Divider({
+function DividerImpl({
   orientation = 'horizontal',
   inset = 'none',
   insetValue = 16,
@@ -74,5 +71,9 @@ export function Divider({
     />
   );
 }
+
+DividerImpl.displayName = 'Divider';
+
+export const Divider = memo(DividerImpl);
 
 export default Divider;

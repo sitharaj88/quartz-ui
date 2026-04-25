@@ -1,73 +1,68 @@
 /**
- * Quartz UI - Text Input (TextField)
- * 
- * Text Field with two variants:
- * - Filled: Filled container background
- * - Outlined: Border outline
+ * Quartz UI - TextInput (Material 3 TextField)
+ *
+ * Two variants × full a11y. Floating label, helper/error text, leading/trailing
+ * icons, character counter, error state with screen-reader live announcement.
+ *
+ * forwardRef → underlying React Native TextInput (so consumers can call
+ * focus(), blur(), clear(), isFocused() imperatively).
  */
 
-import React, { useState, useRef, useCallback, forwardRef, useEffect } from 'react';
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
-  View,
-  TextInput as RNTextInput,
-  TextInputProps as RNTextInputProps,
-  Text,
-  Pressable,
-  ViewStyle,
-  TextStyle,
-  NativeSyntheticEvent,
-  TextInputFocusEventData,
   I18nManager,
+  NativeSyntheticEvent,
   Platform,
+  Text,
+  TextInput as RNTextInput,
+  TextInputFocusEventData,
+  TextInputProps as RNTextInputProps,
+  TextStyle,
+  View,
+  ViewStyle,
 } from 'react-native';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
   interpolate,
-  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { duration } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
 
 export type TextInputVariant = 'filled' | 'outlined';
 
 export interface TextInputProps extends Omit<RNTextInputProps, 'style'> {
-  // Variant
   variant?: TextInputVariant;
-
-  // Label text (floating label)
+  /** Floating label. Becomes the implicit `accessibilityLabel`. */
   label?: string;
-
-  // Helper/support text
+  /** Helper text shown below the field. Hidden when `errorText` is set. */
   helperText?: string;
-
-  // Error state
+  /** Error state. Triggers error styling and announces `errorText` to screen readers. */
   error?: boolean;
+  /** Error message (also forces `error` true). */
   errorText?: string;
-
-  // Leading icon
   leadingIcon?: React.ReactNode;
-
-  // Trailing icon (or clear button)
   trailingIcon?: React.ReactNode;
-
-  // Character counter
   maxLength?: number;
+  /** Show "current/max" counter below the field. Requires `maxLength`. */
   showCounter?: boolean;
-
-  // Disabled state
   disabled?: boolean;
-
-  // Full width
+  /** Mark the field as required (sets `accessibilityState.required` for SR users). */
+  required?: boolean;
   fullWidth?: boolean;
-
-  // Style overrides
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
-
-  // Accessibility
   accessibilityLabel?: string;
   accessibilityHint?: string;
   testID?: string;
@@ -75,10 +70,7 @@ export interface TextInputProps extends Omit<RNTextInputProps, 'style'> {
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
-/**
- * TextInput Component
- */
-export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextInput(
+const TextInputImpl = forwardRef<RNTextInput, TextInputProps>(function TextInput(
   {
     variant = 'filled',
     label,
@@ -90,6 +82,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     maxLength,
     showCounter = false,
     disabled = false,
+    required = false,
     fullWidth = true,
     containerStyle,
     inputStyle,
@@ -106,116 +99,106 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
   ref
 ): React.ReactElement {
   const theme = useTheme();
+  const reduceMotion = useReducedMotion();
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState(value ?? defaultValue ?? '');
 
-  // Calculate initial label position based on whether there's a value
   const initialValue = value ?? defaultValue ?? '';
   const labelPosition = useSharedValue(initialValue.length > 0 ? 1 : 0);
 
-  const hasValue = (value ?? inputValue).length > 0;
+  const currentValue = value ?? inputValue;
+  const hasValue = currentValue.length > 0;
   const showError = error || !!errorText;
   const supportText = showError ? errorText : helperText;
 
-  // Sync label position when controlled value changes
+  const animateLabel = useCallback(
+    (target: 0 | 1) => {
+      labelPosition.value = reduceMotion
+        ? target
+        : withTiming(target, { duration: duration.short4 });
+    },
+    [labelPosition, reduceMotion]
+  );
+
+  // Sync label position when controlled value changes.
   useEffect(() => {
-    const currentValue = value ?? inputValue;
     if (currentValue.length > 0 && labelPosition.value === 0) {
-      labelPosition.value = withTiming(1, { duration: duration.short4 });
+      animateLabel(1);
     } else if (currentValue.length === 0 && !isFocused && labelPosition.value === 1) {
-      labelPosition.value = withTiming(0, { duration: duration.short4 });
+      animateLabel(0);
     }
-  }, [value, inputValue, isFocused, labelPosition]);
+  }, [currentValue, isFocused, labelPosition, animateLabel]);
 
-  // Handle focus
-  const handleFocus = useCallback((e: any) => {
-    setIsFocused(true);
-    labelPosition.value = withTiming(1, { duration: duration.short4 });
-    onFocus?.(e);
-  }, [labelPosition, onFocus]);
+  const handleFocus = useCallback(
+    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      setIsFocused(true);
+      animateLabel(1);
+      onFocus?.(e as never);
+    },
+    [animateLabel, onFocus]
+  );
 
-  // Handle blur
-  const handleBlur = useCallback((e: any) => {
-    setIsFocused(false);
-    if (!hasValue) {
-      labelPosition.value = withTiming(0, { duration: duration.short4 });
-    }
-    onBlur?.(e);
-  }, [hasValue, labelPosition, onBlur]);
+  const handleBlur = useCallback(
+    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      setIsFocused(false);
+      if (!hasValue) animateLabel(0);
+      onBlur?.(e as never);
+    },
+    [hasValue, animateLabel, onBlur]
+  );
 
-  // Handle text change
-  const handleChangeText = useCallback((text: string) => {
-    setInputValue(text);
-    onChangeText?.(text);
+  const handleChangeText = useCallback(
+    (text: string) => {
+      setInputValue(text);
+      onChangeText?.(text);
+      if (text.length > 0 && labelPosition.value === 0) animateLabel(1);
+    },
+    [animateLabel, labelPosition, onChangeText]
+  );
 
-    if (text.length > 0 && !isFocused) {
-      labelPosition.value = withTiming(1, { duration: duration.short4 });
-    }
-  }, [isFocused, labelPosition, onChangeText]);
-
-  // Get colors
-  const getColors = () => {
+  // Resolve colors. Disabled overrides everything; error overrides default.
+  const colors = (() => {
     if (disabled) {
       return {
-        container: variant === 'filled'
-          ? theme.colors.onSurface + '0A' // 4%
-          : 'transparent',
-        border: theme.colors.onSurface + '61', // 38%
-        label: theme.colors.onSurface + '61',
-        input: theme.colors.onSurface + '61',
-        support: theme.colors.onSurface + '61',
-        indicator: theme.colors.onSurface + '61',
+        container: variant === 'filled' ? withAlpha(theme.colors.onSurface, 0.04) : 'transparent',
+        border: withAlpha(theme.colors.onSurface, 0.38),
+        label: withAlpha(theme.colors.onSurface, 0.38),
+        input: withAlpha(theme.colors.onSurface, 0.38),
+        support: withAlpha(theme.colors.onSurface, 0.38),
+        indicator: withAlpha(theme.colors.onSurface, 0.38),
       };
     }
-
     if (showError) {
       return {
-        container: variant === 'filled'
-          ? theme.colors.surfaceContainerHighest
-          : 'transparent',
+        container: variant === 'filled' ? theme.colors.surfaceContainerHighest : 'transparent',
         border: theme.colors.error,
-        label: isFocused ? theme.colors.error : theme.colors.error,
+        label: theme.colors.error,
         input: theme.colors.onSurface,
         support: theme.colors.error,
         indicator: theme.colors.error,
       };
     }
-
     return {
-      container: variant === 'filled'
-        ? theme.colors.surfaceContainerHighest
-        : 'transparent',
+      container: variant === 'filled' ? theme.colors.surfaceContainerHighest : 'transparent',
       border: isFocused ? theme.colors.primary : theme.colors.outline,
       label: isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant,
       input: theme.colors.onSurface,
       support: theme.colors.onSurfaceVariant,
       indicator: theme.colors.primary,
     };
-  };
+  })();
 
-  const colors = getColors();
-
-  // Animated label styles
   const animatedLabelStyle = useAnimatedStyle(() => {
-    // MD3 specs: 
-    // - Filled: resting label at center (vertically centered), focused/filled at top (8dp from top)
-    // - Outlined: resting label at center, focused/filled outside the border (with background)
-    const restingTop = 18; // Vertically centered in 56dp container
+    const restingTop = 18;
     const floatingTop = variant === 'filled' ? 8 : -8;
-
     const top = interpolate(labelPosition.value, [0, 1], [restingTop, floatingTop]);
     const fontSize = interpolate(labelPosition.value, [0, 1], [16, 12]);
     const lineHeight = interpolate(labelPosition.value, [0, 1], [24, 16]);
-
-    // For outlined, add horizontal padding and background when floating
-    const paddingHorizontal = variant === 'outlined' && labelPosition.value > 0.5 ? 4 : 0;
-    const backgroundColor = variant === 'outlined' && labelPosition.value > 0.5
-      ? theme.colors.surface
-      : 'transparent';
-
-    // RTL support: use start/end instead of left/right
+    const paddingHorizontal =
+      variant === 'outlined' && labelPosition.value > 0.5 ? 4 : 0;
+    const backgroundColor =
+      variant === 'outlined' && labelPosition.value > 0.5 ? theme.colors.surface : 'transparent';
     const startPosition = leadingIcon ? 48 : 16;
-
     return {
       position: 'absolute',
       ...(I18nManager.isRTL ? { right: startPosition } : { left: startPosition }),
@@ -228,18 +211,16 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     };
   });
 
-  // Container styles
   const containerStyles: ViewStyle = {
     width: fullWidth ? '100%' : undefined,
-    opacity: disabled ? 0.38 : 1,
+    opacity: disabled ? 0.6 : 1,
     ...containerStyle,
   };
 
-  // Input container styles
   const inputContainerStyles: ViewStyle = {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 56, // MD3 standard height
+    minHeight: 56,
     paddingHorizontal: 16,
     backgroundColor: colors.container,
     ...(variant === 'filled' && {
@@ -255,7 +236,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     }),
   };
 
-  // Active indicator for filled variant
   const indicatorStyles: ViewStyle = {
     position: 'absolute',
     bottom: 0,
@@ -265,33 +245,31 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     backgroundColor: isFocused ? colors.indicator : colors.border,
   };
 
+  // Build the label that screen readers will read. Append "required" hint.
+  const a11yLabel = accessibilityLabel ?? label;
+  const a11yHint = accessibilityHint;
+
   return (
     <View style={containerStyles} testID={testID}>
-      {/* Input container */}
       <View style={inputContainerStyles}>
-        {/* Floating label */}
         {label && (
           <AnimatedText
             style={[
               animatedLabelStyle,
-              {
-                color: colors.label,
-                fontFamily: theme.typography.bodySmall.fontFamily,
-              },
+              { color: colors.label, fontFamily: theme.typography.bodySmall.fontFamily },
             ]}
+            // The floating label visual duplicates the input's a11y label;
+            // hide from AT to avoid double-announcement.
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
           >
             {label}
+            {required ? ' *' : ''}
           </AnimatedText>
         )}
 
-        {/* Leading icon */}
-        {leadingIcon && (
-          <View style={{ marginEnd: 12, width: 24, height: 24 }}>
-            {leadingIcon}
-          </View>
-        )}
+        {leadingIcon && <View style={{ marginEnd: 12, width: 24, height: 24 }}>{leadingIcon}</View>}
 
-        {/* Text input */}
         <RNTextInput
           ref={ref}
           {...inputProps}
@@ -302,68 +280,56 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
           style={[
             {
               flex: 1,
-              // MD3: When label is present, push input down to make room for floating label
-              // Filled: label floats at top=8, needs ~24dp space, so input starts at ~24dp
-              // Outlined: label floats outside, less padding needed
               paddingTop: label ? (variant === 'filled' ? 24 : 16) : 16,
               paddingBottom: label ? 8 : 16,
               color: colors.input,
               fontSize: 16,
               lineHeight: 24,
             },
-            // Remove default browser outline on web
-            Platform.OS === 'web' && ({
-              outlineStyle: 'none',
-              outlineWidth: 0,
-            } as unknown as TextStyle),
+            Platform.OS === 'web'
+              ? ({ outlineStyle: 'none', outlineWidth: 0 } as unknown as TextStyle)
+              : null,
             inputStyle,
           ]}
-          // MD3: Placeholder only shows when label is floating (focused or has value)
-          // When inactive and empty, only the resting label is visible
           placeholder={isFocused || hasValue ? inputProps.placeholder : ''}
           placeholderTextColor={theme.colors.onSurfaceVariant}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          onFocus={handleFocus as unknown as RNTextInputProps['onFocus']}
+          onBlur={handleBlur as unknown as RNTextInputProps['onBlur']}
           onChangeText={handleChangeText}
-          accessible={true}
-          accessibilityLabel={accessibilityLabel ?? label}
-          accessibilityHint={accessibilityHint}
-          accessibilityState={{ disabled }}
+          accessible
+          accessibilityLabel={a11yLabel}
+          accessibilityHint={a11yHint}
+          accessibilityState={{ disabled, ...(showError ? { invalid: true } : null) }}
+          {...(required ? { 'aria-required': true } : null)}
         />
 
-        {/* Trailing icon */}
         {trailingIcon && (
-          <View style={{ marginStart: 12, width: 24, height: 24 }}>
-            {trailingIcon}
-          </View>
+          <View style={{ marginStart: 12, width: 24, height: 24 }}>{trailingIcon}</View>
         )}
 
-        {/* Active indicator for filled variant */}
         {variant === 'filled' && <View style={indicatorStyles} />}
       </View>
 
-      {/* Supporting text row */}
       {(supportText || showCounter) && (
-        <View style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          paddingTop: 4,
-        }}>
-          <Text style={{
-            ...theme.typography.bodySmall,
-            color: colors.support,
-            flex: 1,
-          }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingTop: 4,
+          }}
+        >
+          {/* Error text gets a polite live region so SR users hear it land. */}
+          <Text
+            style={{ ...theme.typography.bodySmall, color: colors.support, flex: 1 }}
+            accessibilityLiveRegion={showError ? 'polite' : 'none'}
+            accessibilityRole={showError ? 'alert' : undefined}
+          >
             {supportText}
           </Text>
-
           {showCounter && maxLength && (
-            <Text style={{
-              ...theme.typography.bodySmall,
-              color: colors.support,
-            }}>
-              {(value ?? inputValue).length}/{maxLength}
+            <Text style={{ ...theme.typography.bodySmall, color: colors.support }}>
+              {currentValue.length}/{maxLength}
             </Text>
           )}
         </View>
@@ -371,5 +337,9 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
     </View>
   );
 });
+
+TextInputImpl.displayName = 'TextInput';
+
+export const TextInput = memo(TextInputImpl);
 
 export default TextInput;

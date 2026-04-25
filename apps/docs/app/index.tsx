@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, Pressable, StatusBar, ScrollView, Platform, NativeSyntheticEvent, NativeScrollEvent, useWindowDimensions, Linking, Share } from 'react-native';
-import { Text, Surface, Button, useTheme } from 'quartz-ui';
+import { Text, Surface, Button, useTheme, useQuartzTheme } from 'quartz-ui';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -37,12 +37,12 @@ interface Feature {
 }
 
 const features: Feature[] = [
-  { icon: 'cube', title: '33 Components', description: 'Production-ready UI components built for React Native & Expo', gradient: ['#667eea', '#764ba2'] as const },
-  { icon: 'color-palette', title: 'Material Design 3', description: 'Following the latest Material You design guidelines', gradient: ['#f093fb', '#f5576c'] as const },
-  { icon: 'moon', title: 'Dark Mode Ready', description: 'Beautiful themes with automatic dark mode support', gradient: ['#4facfe', '#00f2fe'] as const },
-  { icon: 'accessibility', title: 'Fully Accessible', description: 'WCAG compliant with full screen reader support', gradient: ['#43e97b', '#38f9d7'] as const },
-  { icon: 'flash', title: '60fps Animations', description: 'Buttery smooth animations powered by Reanimated 3', gradient: ['#fa709a', '#fee140'] as const },
-  { icon: 'code-slash', title: 'TypeScript First', description: 'Full type safety with excellent IntelliSense support', gradient: ['#a18cd1', '#fbc2eb'] as const },
+  { icon: 'cube', title: '38 Components', description: 'Every Material 3 primitive — forms, navigation, overlays, feedback, layout', gradient: ['#667eea', '#764ba2'] as const },
+  { icon: 'accessibility', title: 'WCAG 2.2 AA', description: 'Roles, states, ≥48dp touch targets, focus-visible rings, live regions', gradient: ['#43e97b', '#38f9d7'] as const },
+  { icon: 'eye-off', title: 'Reduce-motion aware', description: 'Animations skip / shorten when the OS asks. No motion sickness.', gradient: ['#fa709a', '#fee140'] as const },
+  { icon: 'language', title: 'Real RTL', description: 'Logical paddings throughout, direction-aware layouts out of the box', gradient: ['#4facfe', '#00f2fe'] as const },
+  { icon: 'flash', title: 'Reanimated 3 perf', description: 'State-layer transitions on the UI thread. Zero re-renders during press.', gradient: ['#f093fb', '#f5576c'] as const },
+  { icon: 'code-slash', title: 'TypeScript-first', description: 'Strict types, JSDoc on every prop, imperative refs where it matters', gradient: ['#a18cd1', '#fbc2eb'] as const },
 ];
 
 const componentCategories = [
@@ -56,10 +56,10 @@ const componentCategories = [
 
 // Stats data
 const stats = [
-  { value: '33', label: 'Components', icon: 'cube' as IconName },
-  { value: '100%', label: 'TypeScript', icon: 'code-slash' as IconName },
-  { value: '60fps', label: 'Animations', icon: 'flash' as IconName },
-  { value: 'A11y', label: 'Accessible', icon: 'accessibility' as IconName },
+  { value: '38', label: 'Components', icon: 'cube' as IconName },
+  { value: '218', label: 'Tests', icon: 'checkmark-done' as IconName },
+  { value: '31KB', label: 'Bundle (br)', icon: 'flash' as IconName },
+  { value: 'A11y', label: 'WCAG 2.2', icon: 'accessibility' as IconName },
 ];
 
 const LICENSE_URL = 'https://github.com/sitharaj88/quartz-ui/blob/main/LICENSE';
@@ -79,6 +79,38 @@ function MyComponent() {
     </Card>
   );
 }`;
+
+/** Three-way theme toggle: light → dark → system → light. */
+function LandingThemeToggle() {
+  const { mode, setMode } = useQuartzTheme();
+  const theme = useTheme();
+  const next = mode === 'light' ? 'dark' : mode === 'dark' ? 'system' : 'light';
+  const icon = mode === 'dark' ? 'moon' : mode === 'light' ? 'sunny' : 'contrast';
+  const label = mode === 'dark' ? 'Dark mode' : mode === 'light' ? 'Light mode' : 'System mode';
+  return (
+    <Pressable
+      onPress={() => setMode(next)}
+      accessibilityRole="button"
+      accessibilityLabel={`Theme: ${label}. Tap to switch.`}
+      style={({ pressed, hovered }) => [
+        {
+          width: 40,
+          height: 40,
+          borderRadius: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: pressed
+            ? theme.colors.primaryContainer
+            : (hovered as boolean)
+              ? theme.colors.surfaceVariant
+              : 'transparent',
+        },
+      ]}
+    >
+      <Ionicons name={icon} size={20} color={theme.colors.onSurface} />
+    </Pressable>
+  );
+}
 
 // Animated gradient orb
 function GradientOrb({ delay, size, position, colors }: { delay: number; size: number; position: { top?: number | string; left?: number | string; right?: number | string; bottom?: number | string }; colors: readonly [string, string, ...string[]] }) {
@@ -389,6 +421,7 @@ export default function HomeScreen() {
                 </Pressable>
               </>
             )}
+            <LandingThemeToggle />
             <Pressable style={styles.headerIcon} onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}>
               <Ionicons name="logo-github" size={24} color={theme.colors.onSurface} />
             </Pressable>
@@ -432,101 +465,157 @@ export default function HomeScreen() {
           </Surface>
         </Animated.View>
 
-        {/* Hero Section */}
-        <View style={[styles.hero, { minHeight: height * 0.95 }]}>
+        {/* Hero — calm, modern, restrained */}
+        <View style={[styles.hero, { minHeight: isMobile ? height * 0.85 : height * 0.78, backgroundColor: theme.colors.background }]}>
+          {/* One subtle gradient wash at the top, no animated orbs */}
           <LinearGradient
-            colors={['#1a1a2e', '#16213e', '#0f3460', '#1a1a2e']}
+            colors={[
+              theme.colors.primaryContainer + '40',
+              theme.colors.tertiaryContainer + '20',
+              'transparent',
+            ]}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
+            end={{ x: 0.6, y: 1 }}
+            style={[StyleSheet.absoluteFill, { height: '70%' }]}
           />
 
-          {/* Animated background orbs */}
-          <GradientOrb delay={0} size={isMobile ? 300 : 500} position={{ top: -100, right: isMobile ? -150 : -100 }} colors={['#667eea', '#764ba2']} />
-          <GradientOrb delay={200} size={isMobile ? 250 : 400} position={{ bottom: isMobile ? 100 : 50, left: isMobile ? -125 : -100 }} colors={['#f093fb', '#f5576c']} />
-          <GradientOrb delay={400} size={isMobile ? 150 : 250} position={{ top: '40%', left: '60%' }} colors={['#4facfe', '#00f2fe']} />
-
-          <Animated.View style={[styles.heroContent, heroParallax, { paddingTop: insets.top + 100, paddingHorizontal: isMobile ? 0 : 40 }]}>
-            {/* Version badge */}
-            <FloatingBadge delay={100}>
-              <View style={styles.versionBadge}>
-                <View style={styles.versionDot} />
-                <Text style={styles.versionText}>Dev build — Target Feb 2025</Text>
+          <Animated.View style={[styles.heroContent, heroParallax, { paddingTop: insets.top + 80, paddingHorizontal: isMobile ? 24 : 40, alignItems: 'flex-start', maxWidth: 920, alignSelf: 'center', width: '100%' }]}>
+            {/* Version pill */}
+            <Animated.View entering={FadeInUp.delay(80).duration(280)}>
+              <View style={[styles.versionPill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant + '80' }]}>
+                <View style={[styles.versionDot, { backgroundColor: theme.colors.primary }]} />
+                <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600', fontSize: 12, letterSpacing: 0.3 }}>
+                  v1.0.0-alpha.1 — production-ready
+                </Text>
               </View>
-            </FloatingBadge>
+            </Animated.View>
 
-            {/* Hero title */}
-            <Animated.View entering={FadeInUp.delay(200).springify().damping(12)} style={{ width: '100%', alignItems: 'center', paddingHorizontal: isMobile ? 16 : 0 }}>
-              <Text style={[styles.heroTitle, { fontSize: isMobile ? 40 : isTablet ? 52 : 68, lineHeight: isMobile ? 46 : isTablet ? 60 : 78 }]}>
-                Ready to build
-              </Text>
-              <Text style={[styles.heroTitleHighlight, styles.heroTitleLine2, { fontSize: isMobile ? 40 : isTablet ? 54 : 72, lineHeight: isMobile ? 48 : isTablet ? 64 : 84 }]}>
-                something amazing?
+            {/* Hero title — left-aligned, generous but not screaming */}
+            <Animated.View entering={FadeInUp.delay(140).duration(320)} style={{ width: '100%', marginTop: isMobile ? 24 : 32 }}>
+              <Text
+                style={{
+                  color: theme.colors.onSurface,
+                  fontSize: isMobile ? 40 : isTablet ? 56 : 72,
+                  lineHeight: isMobile ? 46 : isTablet ? 62 : 80,
+                  fontWeight: '700',
+                  letterSpacing: -1.2,
+                }}
+              >
+                The component library{'\n'}
+                <Text
+                  style={{
+                    color: theme.colors.primary,
+                    fontSize: isMobile ? 40 : isTablet ? 56 : 72,
+                    lineHeight: isMobile ? 46 : isTablet ? 62 : 80,
+                    fontWeight: '700',
+                    letterSpacing: -1.2,
+                  }}
+                >
+                  React Native deserves.
+                </Text>
               </Text>
             </Animated.View>
 
-            {/* Hero subtitle */}
-            <Animated.View entering={FadeInUp.delay(300).springify().damping(12)} style={{ width: '100%', alignItems: 'center', paddingHorizontal: isMobile ? 20 : 0 }}>
-              <Text style={[styles.heroSubtitle, { fontSize: isMobile ? 15 : 19, lineHeight: isMobile ? 24 : 30 }]}>
-                Create stunning mobile apps with{' '}
-                <Text style={styles.heroSubtitleHighlight}>Material Design 3</Text>
-                {'\n'}Beautiful • Accessible • Blazing Fast
+            {/* Subtitle */}
+            <Animated.View entering={FadeInUp.delay(220).duration(320)} style={{ width: '100%', marginTop: 20, maxWidth: 660 }}>
+              <Text
+                style={{
+                  color: theme.colors.onSurfaceVariant,
+                  fontSize: isMobile ? 17 : 20,
+                  lineHeight: isMobile ? 26 : 32,
+                  fontWeight: '400',
+                }}
+              >
+                38 Material 3 components built to a single world-class bar — accessible, RTL-aware, reduce-motion respecting, with state-layer transitions on the UI thread.
               </Text>
             </Animated.View>
 
-            {/* CTA buttons */}
-            <Animated.View entering={FadeInUp.delay(400).springify().damping(12)} style={[styles.ctaRow, { flexDirection: isMobile ? 'column' : 'row', paddingHorizontal: isMobile ? 20 : 0, maxWidth: isMobile ? '100%' : 400 }]}>
+            {/* CTAs */}
+            <Animated.View entering={FadeInUp.delay(300).duration(320)} style={[styles.ctaRowModern, { flexDirection: isMobile ? 'column' : 'row', marginTop: isMobile ? 28 : 36 }]}>
               <Pressable
                 onPress={() => router.push('/docs/installation' as any)}
-                style={({ pressed }) => [
-                  styles.ctaPrimary,
+                style={({ pressed, hovered }) => [
+                  styles.ctaPrimaryModern,
                   {
-                    transform: [{ scale: pressed ? 0.96 : 1 }],
-                    width: isMobile ? '100%' : 'auto',
-                    minWidth: isMobile ? undefined : 180,
-                    shadowColor: theme.colors.primary,
-                  }
+                    backgroundColor: theme.colors.primary,
+                    transform: [{ scale: pressed ? 0.97 : 1 }],
+                    opacity: hovered ? 0.92 : 1,
+                    width: isMobile ? '100%' : undefined,
+                  },
                 ]}
               >
-                <LinearGradient
-                  colors={[theme.colors.primary, theme.colors.secondary, theme.colors.primaryContainer]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[StyleSheet.absoluteFill, { borderRadius: 14 }]}
-                />
-                <Text style={[styles.ctaPrimaryText, { color: theme.colors.onPrimary }]}>Get Started</Text>
-                <Ionicons name="arrow-forward" size={18} color={theme.colors.onPrimary} />
+                <Text style={{ color: theme.colors.onPrimary, fontWeight: '600', fontSize: 15 }}>
+                  Get started
+                </Text>
+                <Ionicons name="arrow-forward" size={16} color={theme.colors.onPrimary} />
               </Pressable>
 
               <Pressable
-                onPress={() => router.push('/buttons' as any)}
-                style={({ pressed }) => [
-                  styles.ctaSecondary,
+                onPress={() => router.push('/docs/whats-new' as any)}
+                style={({ pressed, hovered }) => [
+                  styles.ctaSecondaryModern,
                   {
-                    transform: [{ scale: pressed ? 0.96 : 1 }],
-                    width: isMobile ? '100%' : 'auto',
-                    minWidth: isMobile ? undefined : 180,
-                    borderColor: theme.colors.primary + '55',
-                    backgroundColor: theme.colors.surfaceVariant + '33',
-                  }
+                    borderColor: theme.colors.outline,
+                    backgroundColor: hovered ? theme.colors.surfaceVariant + '40' : 'transparent',
+                    transform: [{ scale: pressed ? 0.97 : 1 }],
+                    width: isMobile ? '100%' : undefined,
+                  },
                 ]}
               >
-                <Text style={[styles.ctaSecondaryText, { color: '#fff' }]}>View Components</Text>
+                <Ionicons name="sparkles" size={15} color={theme.colors.onSurface} />
+                <Text style={{ color: theme.colors.onSurface, fontWeight: '600', fontSize: 15 }}>
+                  What's new in 1.0
+                </Text>
               </Pressable>
             </Animated.View>
 
-            {/* Quick stats - horizontal on all sizes */}
-            <Animated.View entering={FadeInUp.delay(500).springify().damping(12)} style={[styles.statsRow, { gap: isMobile ? 0 : 0 }]}>
+            {/* Stats — compact, restrained */}
+            <Animated.View
+              entering={FadeInUp.delay(380).duration(320)}
+              style={[
+                styles.statsRowModern,
+                {
+                  flexDirection: isMobile ? 'row' : 'row',
+                  flexWrap: 'wrap',
+                  borderTopColor: theme.colors.outlineVariant + '50',
+                  marginTop: isMobile ? 40 : 56,
+                },
+              ]}
+            >
               {stats.map((stat, i) => (
-                <View key={stat.label} style={[styles.statItem, i === stats.length - 1 && { borderRightWidth: 0 }]}>
-                  <Text style={[styles.statItemValue, { fontSize: isMobile ? 16 : 20 }]}>{stat.value}</Text>
-                  <Text style={[styles.statItemLabel, { fontSize: isMobile ? 9 : 10 }]}>{stat.label}</Text>
+                <View
+                  key={stat.label}
+                  style={[
+                    styles.statItemModern,
+                    i < stats.length - 1 && {
+                      borderRightWidth: isMobile ? 0 : 1,
+                      borderRightColor: theme.colors.outlineVariant + '50',
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: theme.colors.onSurface,
+                      fontSize: isMobile ? 22 : 28,
+                      fontWeight: '700',
+                      letterSpacing: -0.5,
+                    }}
+                  >
+                    {stat.value}
+                  </Text>
+                  <Text
+                    style={{
+                      color: theme.colors.onSurfaceVariant,
+                      fontSize: 12,
+                      marginTop: 2,
+                      fontWeight: '500',
+                    }}
+                  >
+                    {stat.label}
+                  </Text>
                 </View>
               ))}
             </Animated.View>
-
-            {/* Scroll indicator */}
-            <ScrollIndicator />
           </Animated.View>
         </View>
 
@@ -583,7 +672,7 @@ export default function HomeScreen() {
 
             {/* Title */}
             <Text style={[styles.componentsGridTitle, { color: theme.colors.onSurface, fontSize: isMobile ? 32 : 48, marginTop: 20 }]}>
-              33 Production-Ready{'\n'}
+              38 Production-Ready{'\n'}
               <Text style={{ color: theme.colors.primary }}>Components</Text>
             </Text>
 
@@ -873,7 +962,7 @@ export default function HomeScreen() {
                     <Text style={[styles.ctaStatValue, {
                       color: theme.colors.onSurface,
                       fontSize: isMobile ? 20 : 24
-                    }]}>33</Text>
+                    }]}>38</Text>
                     <Text style={[styles.ctaStatLabel, {
                       color: theme.colors.onSurfaceVariant,
                       fontSize: isMobile ? 12 : 14
@@ -1146,7 +1235,7 @@ export default function HomeScreen() {
             onPress={async () => {
               try {
                 await Share.share({
-                  message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 33+ Material Design 3 components!\n\n' + DOCS_URL,
+                  message: '🎨 Check out Quartz UI — a modern, accessible component library for React Native & Expo with 38 Material Design 3 components!\n\n' + DOCS_URL,
                   url: DOCS_URL,
                   title: 'Quartz UI - React Native Component Library',
                 });
@@ -1229,6 +1318,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+  },
+  versionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    gap: 8,
+  },
+  ctaRowModern: {
+    gap: 12,
+    width: '100%',
+    flexWrap: 'wrap',
+  },
+  ctaPrimaryModern: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    gap: 8,
+  },
+  ctaSecondaryModern: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 8,
+  },
+  statsRowModern: {
+    width: '100%',
+    paddingTop: 28,
+    borderTopWidth: 1,
+  },
+  statItemModern: {
+    paddingRight: 28,
+    paddingLeft: 0,
+    flexBasis: '25%',
+    minWidth: 110,
   },
   versionBadge: {
     flexDirection: 'row',

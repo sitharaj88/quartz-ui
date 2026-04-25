@@ -7,7 +7,7 @@
  * - Badge support
  */
 
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Pressable,
@@ -62,7 +62,7 @@ export interface NavigationBarProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function NavigationBar({
+function NavigationBarImpl({
   items,
   selectedKey,
   onSelect,
@@ -100,6 +100,10 @@ export function NavigationBar({
     </View>
   );
 }
+
+NavigationBarImpl.displayName = 'NavigationBar';
+
+export const NavigationBar = memo(NavigationBarImpl);
 
 interface NavigationBarItemComponentProps {
   item: NavigationBarItem;

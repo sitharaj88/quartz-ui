@@ -5,3 +5,6 @@
  */
 
 export * from './useComponentStyles';
+export * from './useFocusVisible';
+export * from './useInteractiveState';
+export * from './useReducedMotion';

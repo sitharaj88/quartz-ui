@@ -5,7 +5,7 @@
  * Ideal for larger screens (tablets, desktop)
  */
 
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -178,7 +178,7 @@ function RailDestinationItem({
 /**
  * Navigation Rail Component
  */
-export function NavigationRail({
+function NavigationRailImpl({
   destinations,
   selectedKey,
   onSelect,
@@ -250,6 +250,10 @@ export function NavigationRail({
     </View>
   );
 }
+
+NavigationRailImpl.displayName = 'NavigationRail';
+
+export const NavigationRail = memo(NavigationRailImpl);
 
 const styles = StyleSheet.create({
   container: {

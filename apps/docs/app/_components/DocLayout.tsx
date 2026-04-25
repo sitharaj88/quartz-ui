@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions, Platform, NativeSyntheticEvent, NativeScrollEvent, Linking, Share } from 'react-native';
-import { Text, Surface, useTheme } from 'quartz-ui';
+import { Text, Surface, useTheme, useQuartzTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,6 +31,39 @@ interface DocLayoutProps {
 }
 
 const LICENSE_URL = 'https://github.com/sitharaj88/quartz-ui/blob/main/LICENSE';
+
+/**
+ * Three-way theme toggle: light → dark → system → light.
+ * Icon reflects the *requested* mode (sun / moon / contrast for system).
+ */
+function ThemeToggleButton() {
+  const { mode, setMode } = useQuartzTheme();
+  const theme = useTheme();
+
+  const next = mode === 'light' ? 'dark' : mode === 'dark' ? 'system' : 'light';
+  const icon = mode === 'dark' ? 'moon' : mode === 'light' ? 'sunny' : 'contrast';
+  const label = mode === 'dark' ? 'Dark mode' : mode === 'light' ? 'Light mode' : 'System mode';
+
+  return (
+    <Pressable
+      onPress={() => setMode(next)}
+      accessibilityRole="button"
+      accessibilityLabel={`Theme: ${label}. Tap to switch.`}
+      style={({ pressed, hovered }) => [
+        styles.iconButton,
+        {
+          backgroundColor: pressed
+            ? theme.colors.primaryContainer
+            : (hovered as boolean)
+              ? theme.colors.surfaceVariant
+              : theme.colors.surfaceVariant + '80',
+        },
+      ]}
+    >
+      <Ionicons name={icon} size={20} color={theme.colors.onSurfaceVariant} />
+    </Pressable>
+  );
+}
 
 // Bottom navigation bar for mobile - matches main page design
 function MobileBottomNav({ router, theme, onShare }: { router: any; theme: any; onShare: () => void }) {
@@ -103,7 +136,7 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
   const handleShare = useCallback(async () => {
     try {
       await Share.share({
-        message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 33+ Material Design 3 components!\n\nhttps://sitharaj88.github.io/quartz-ui/',
+        message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 38 Material Design 3 components!\n\nhttps://sitharaj88.github.io/quartz-ui/',
         url: 'https://sitharaj88.github.io/quartz-ui/',
         title: 'Quartz UI - React Native Component Library',
       });
@@ -205,6 +238,7 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
 
           {/* Right Side - Quick actions */}
           <View style={styles.topBarRight}>
+            <ThemeToggleButton />
             <Pressable
               onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
               style={({ pressed }) => [
@@ -280,116 +314,68 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
           onScroll={handleAnimatedScroll}
           scrollEventThrottle={16}
         >
-          {/* DRAMATIC PAGE HEADER - Mobile optimized */}
+          {/* Page header — calm, modern, restrained */}
           <Animated.View
-            entering={FadeInDown.springify().damping(15)}
-            style={[styles.pageHeader, { marginTop: isMobile ? 24 : 40 }]}
+            entering={FadeInDown.duration(280)}
+            style={[styles.pageHeader, { marginTop: isMobile ? 24 : 56, paddingHorizontal: isMobile ? 4 : 8 }]}
           >
-            <Surface
-              style={[
-                styles.headerSurface,
-                {
-                  shadowColor: theme.colors.primary,
-                  shadowOffset: { width: 0, height: 20 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 50,
-                },
-              ]}
-              elevation={5}
+            {/* Eyebrow */}
+            <Text
+              variant="labelSmall"
+              style={{
+                color: theme.colors.primary,
+                fontSize: 12,
+                fontWeight: '700',
+                letterSpacing: 1.2,
+                textTransform: 'uppercase',
+                marginBottom: 12,
+              }}
             >
-              <LinearGradient
-                colors={[
-                  theme.colors.primaryContainer + 'F5',
-                  theme.colors.secondaryContainer + 'E6',
-                  theme.colors.tertiaryContainer + 'CC',
-                ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.headerGradient, { padding: isMobile ? 32 : 56 }]}
+              Documentation
+            </Text>
+
+            <Text
+              style={{
+                color: theme.colors.onSurface,
+                fontWeight: '700',
+                fontSize: isMobile ? 32 : 44,
+                letterSpacing: -0.8,
+                lineHeight: isMobile ? 38 : 50,
+              }}
+            >
+              {title}
+            </Text>
+
+            {description && (
+              <Text
+                style={{
+                  color: theme.colors.onSurfaceVariant,
+                  marginTop: 12,
+                  lineHeight: isMobile ? 24 : 28,
+                  fontSize: isMobile ? 16 : 18,
+                  fontWeight: '400',
+                  maxWidth: 720,
+                }}
               >
-                {/* Decorative elements */}
-                <View style={[styles.cornerAccent, { backgroundColor: theme.colors.primary + '15' }]} />
-                <View style={[styles.decorativeCircle, { backgroundColor: theme.colors.tertiary + '10' }]} />
+                {description}
+              </Text>
+            )}
 
-                <View style={styles.headerContent}>
-                  {/* GIANT Title - Mobile optimized */}
-                  <Text
-                    variant="displaySmall"
-                    style={{
-                      color: theme.colors.onSurface,
-                      fontWeight: '900',
-                      fontSize: isMobile ? 40 : 56,
-                      letterSpacing: -1,
-                      textShadowColor: 'rgba(0,0,0,0.05)',
-                      textShadowOffset: { width: 0, height: 2 },
-                      textShadowRadius: 4,
-                      lineHeight: isMobile ? 48 : 64,
-                    }}
-                  >
-                    {title}
-                  </Text>
-
-                  {description && (
-                    <Text
-                      variant="titleLarge"
-                      style={{
-                        color: theme.colors.onSurfaceVariant,
-                        marginTop: 16,
-                        lineHeight: isMobile ? 28 : 36,
-                        fontSize: isMobile ? 18 : 22,
-                        fontWeight: '500',
-                        opacity: 0.9,
-                      }}
-                    >
-                      {description}
-                    </Text>
-                  )}
-
-                  {/* Gradient accent line */}
-                  <LinearGradient
-                    colors={[theme.colors.primary, theme.colors.tertiary, 'transparent']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.headerAccentLine}
-                  />
-                </View>
-              </LinearGradient>
-            </Surface>
+            {/* Subtle bottom accent */}
+            <View
+              style={{
+                height: 1,
+                backgroundColor: theme.colors.outlineVariant + '50',
+                marginTop: isMobile ? 24 : 36,
+              }}
+            />
           </Animated.View>
 
-          {/* Page Content - Enhanced spacing */}
+          {/* Page Content */}
           <Animated.View
             entering={FadeInDown.delay(150).springify().damping(15)}
             style={[styles.contentBody, { marginTop: isMobile ? 32 : 48 }]}
           >
-            <Surface
-              style={[
-                styles.noteCard,
-                {
-                  backgroundColor: theme.colors.surfaceVariant,
-                  borderColor: theme.colors.outlineVariant + '60',
-                },
-              ]}
-              elevation={0}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <Ionicons name="information-circle" size={isMobile ? 18 : 20} color={theme.colors.primary} />
-                <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
-                  Note
-                </Text>
-              </View>
-              <Text
-                variant="bodyMedium"
-                style={{
-                  color: theme.colors.onSurfaceVariant,
-                  lineHeight: 22,
-                }}
-              >
-                This is a dev build targeting release in Feb 2025. Focus areas: like interactions, TODO
-                follow-ups, RTL support validation, and other in-progress items stabilizing for launch.
-              </Text>
-            </Surface>
-
             {children}
           </Animated.View>
 

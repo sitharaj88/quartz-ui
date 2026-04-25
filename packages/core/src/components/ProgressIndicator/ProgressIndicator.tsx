@@ -6,7 +6,7 @@
  * - Circular (determinate & indeterminate)
  */
 
-import React, { useEffect } from 'react';
+import React, { forwardRef, memo, useEffect } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -45,16 +45,20 @@ const LINEAR_SIZES = { small: 2, medium: 4, large: 6 };
 const CIRCULAR_SIZES = { small: 24, medium: 40, large: 56 };
 const STROKE_WIDTHS = { small: 2, medium: 3, large: 4 };
 
-export function ProgressIndicator({
-  variant = 'linear',
-  progress = 0,
-  indeterminate = false,
-  size = 'medium',
-  color,
-  trackColor,
-  style,
-  testID,
-}: ProgressIndicatorProps) {
+const ProgressIndicatorImpl = forwardRef<View, ProgressIndicatorProps>(function ProgressIndicator(
+  {
+    variant = 'linear',
+    progress = 0,
+    indeterminate = false,
+    size = 'medium',
+    color,
+    trackColor,
+    style,
+    testID,
+  },
+  // ref used by sub-components which forward the actual View
+  _ref
+) {
   const theme = useTheme();
   const activeColor = color ?? theme.colors.primary;
   const track = trackColor ?? theme.colors.primaryContainer;
@@ -84,7 +88,11 @@ export function ProgressIndicator({
       testID={testID}
     />
   );
-}
+});
+
+ProgressIndicatorImpl.displayName = 'ProgressIndicator';
+
+export const ProgressIndicator = memo(ProgressIndicatorImpl);
 
 // Linear Progress
 interface LinearProgressProps {

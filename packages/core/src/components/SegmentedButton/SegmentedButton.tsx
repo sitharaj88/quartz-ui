@@ -6,7 +6,7 @@
  * - Multi select
  */
 
-import React, { useCallback } from 'react';
+import React, { forwardRef, memo, useCallback } from 'react';
 import {
   View,
   Pressable,
@@ -61,16 +61,19 @@ const DENSITIES = {
   compact: { height: 32, paddingHorizontal: 8 },
 };
 
-export function SegmentedButton({
-  segments,
-  value,
-  onValueChange,
-  multiSelect = false,
-  disabled = false,
-  density = 'default',
-  style,
-  testID,
-}: SegmentedButtonProps) {
+const SegmentedButtonImpl = forwardRef<View, SegmentedButtonProps>(function SegmentedButton(
+  {
+    segments,
+    value,
+    onValueChange,
+    multiSelect = false,
+    disabled = false,
+    density = 'default',
+    style,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
   const selectedValues = Array.isArray(value) ? value : [value];
   const densityConfig = DENSITIES[density];
@@ -92,6 +95,7 @@ export function SegmentedButton({
   
   return (
     <View
+      ref={ref}
       style={[
         styles.container,
         {
@@ -120,7 +124,11 @@ export function SegmentedButton({
       ))}
     </View>
   );
-}
+});
+
+SegmentedButtonImpl.displayName = 'SegmentedButton';
+
+export const SegmentedButton = memo(SegmentedButtonImpl);
 
 interface SegmentButtonProps {
   segment: SegmentedButtonSegment;

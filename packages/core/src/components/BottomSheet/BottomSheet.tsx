@@ -6,7 +6,7 @@
  * - Modal
  */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import {
   View,
   Modal,
@@ -35,6 +35,7 @@ import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
 import { springConfig } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
 
 export interface BottomSheetProps {
   /** Whether the bottom sheet is visible */
@@ -63,7 +64,7 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 const DRAG_THRESHOLD = 100;
 
-export function BottomSheet({
+function BottomSheetImpl({
   visible,
   onDismiss,
   children,
@@ -177,6 +178,9 @@ export function BottomSheet({
           style,
         ]}
         testID={testID}
+        accessible
+        accessibilityViewIsModal={modal}
+        accessibilityRole="none"
       >
         <GestureDetector gesture={dragGesture}>
           <View style={styles.handleContainer}>
@@ -184,7 +188,7 @@ export function BottomSheet({
               <View
                 style={[
                   styles.dragHandle,
-                  { backgroundColor: theme.colors.onSurfaceVariant + '66' },
+                  { backgroundColor: withAlpha(theme.colors.onSurfaceVariant, 0.4) },
                 ]}
               />
             )}
@@ -213,9 +217,13 @@ export function BottomSheet({
   }
   
   if (!visible) return null;
-  
+
   return content;
 }
+
+BottomSheetImpl.displayName = 'BottomSheet';
+
+export const BottomSheet = memo(BottomSheetImpl);
 
 const styles = StyleSheet.create({
   gestureContainer: {

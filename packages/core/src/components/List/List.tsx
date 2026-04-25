@@ -8,7 +8,7 @@
  * - With leading/trailing elements
  */
 
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Pressable,
@@ -54,7 +54,7 @@ export interface ListItemProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function ListItem({
+function ListItemImpl({
   headline,
   supportingText,
   overline,
@@ -186,6 +186,9 @@ export function ListItem({
   );
 }
 
+ListItemImpl.displayName = 'ListItem';
+export const ListItem = memo(ListItemImpl);
+
 /** List Section Header */
 export interface ListSectionProps {
   title: string;
@@ -193,11 +196,11 @@ export interface ListSectionProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function ListSection({ title, children, style }: ListSectionProps) {
+function ListSectionImpl({ title, children, style }: ListSectionProps) {
   const theme = useTheme();
-  
+
   return (
-    <View style={[styles.section, style]}>
+    <View style={[styles.section, style]} accessibilityRole="header">
       <Text
         variant="titleSmall"
         style={[styles.sectionTitle, { color: theme.colors.primary }]}
@@ -208,6 +211,9 @@ export function ListSection({ title, children, style }: ListSectionProps) {
     </View>
   );
 }
+
+ListSectionImpl.displayName = 'ListSection';
+export const ListSection = memo(ListSectionImpl);
 
 /** List Divider */
 export function ListDivider() {

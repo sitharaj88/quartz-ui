@@ -29,7 +29,7 @@
  * - Clock dial selector track: 2dp width
  */
 
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -341,7 +341,7 @@ function ClockDial({
 /**
  * Time Picker Component
  */
-export function TimePicker({
+function TimePickerImpl({
   visible,
   value,
   onChange,
@@ -708,6 +708,10 @@ export function TimePicker({
     </Modal>
   );
 }
+
+TimePickerImpl.displayName = 'TimePicker';
+
+export const TimePicker = memo(TimePickerImpl);
 
 const styles = StyleSheet.create({
   overlay: {

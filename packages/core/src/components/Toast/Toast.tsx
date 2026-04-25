@@ -10,13 +10,14 @@
  */
 
 import React, {
-    forwardRef,
     createContext,
-    useContext,
-    useState,
+    forwardRef,
+    memo,
     useCallback,
-    useMemo,
+    useContext,
     useEffect,
+    useMemo,
+    useState,
 } from 'react';
 import {
     View,
@@ -45,6 +46,7 @@ import {
 } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeProvider';
+import { withAlpha } from '../../utils/color';
 import {
     ToastData,
     ToastProps,
@@ -127,7 +129,7 @@ function getToastColors(type: ToastType, theme: any): { bg: string; text: string
 /**
  * Individual Toast Component
  */
-const Toast = forwardRef<View, ToastProps>(function Toast(
+const ToastImpl = forwardRef<View, ToastProps>(function Toast(
     {
         data,
         onDismiss,
@@ -209,7 +211,7 @@ const Toast = forwardRef<View, ToastProps>(function Toast(
                 <View
                     style={[
                         styles.iconContainer,
-                        { backgroundColor: colors.icon + '20' },
+                        { backgroundColor: withAlpha(colors.icon, 0.13) },
                     ]}
                 >
                     <Text style={[styles.icon, { color: colors.icon }]}>{icon}</Text>
@@ -250,6 +252,9 @@ const Toast = forwardRef<View, ToastProps>(function Toast(
         </GestureDetector>
     );
 });
+
+ToastImpl.displayName = 'Toast';
+const Toast = memo(ToastImpl);
 
 /**
  * Toast Provider Component

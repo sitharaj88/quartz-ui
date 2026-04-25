@@ -5,7 +5,7 @@
  * Supports modal and standard (side) variants
  */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -196,7 +196,7 @@ function DrawerItemComponent({
 /**
  * Navigation Drawer Component
  */
-export function NavigationDrawer({
+function NavigationDrawerImpl({
   open = false,
   onClose,
   selectedKey,
@@ -431,6 +431,10 @@ export function NavigationDrawer({
     </View>
   );
 }
+
+NavigationDrawerImpl.displayName = 'NavigationDrawer';
+
+export const NavigationDrawer = memo(NavigationDrawerImpl);
 
 const styles = StyleSheet.create({
   standardDrawer: {

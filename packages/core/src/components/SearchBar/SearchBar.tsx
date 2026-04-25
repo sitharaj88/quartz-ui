@@ -6,7 +6,7 @@
  * - Search view (full screen)
  */
 
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import {
   View,
   TextInput,
@@ -29,7 +29,14 @@ import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
 import { springConfig } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
 import { Text } from '../Text';
+
+export interface SearchBarHandle {
+  focus(): void;
+  blur(): void;
+  clear(): void;
+}
 
 export interface SearchBarProps {
   /** Current search value */
@@ -66,26 +73,39 @@ export interface SearchBarProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function SearchBar({
-  value,
-  onChangeText,
-  placeholder = 'Search',
-  leadingIcon,
-  trailingIcon,
-  onSubmit,
-  onFocus,
-  onBlur,
-  expanded: controlledExpanded,
-  showClearButton = true,
-  style,
-  inputStyle,
-  editable = true,
-  autoFocus = false,
-  testID,
-}: SearchBarProps) {
+const SearchBarImpl = forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
+  {
+    value,
+    onChangeText,
+    placeholder = 'Search',
+    leadingIcon,
+    trailingIcon,
+    onSubmit,
+    onFocus,
+    onBlur,
+    expanded: controlledExpanded,
+    showClearButton = true,
+    style,
+    inputStyle,
+    editable = true,
+    autoFocus = false,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
   const inputRef = useRef<TextInput>(null);
   const [internalFocused, setInternalFocused] = useState(false);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => inputRef.current?.focus(),
+      blur: () => inputRef.current?.blur(),
+      clear: () => onChangeText(''),
+    }),
+    [onChangeText]
+  );
   
   const focused = controlledExpanded ?? internalFocused;
   const elevation = useSharedValue(focused ? 2 : 0);
@@ -211,7 +231,11 @@ export function SearchBar({
       )}
     </AnimatedView>
   );
-}
+});
+
+SearchBarImpl.displayName = 'SearchBar';
+
+export const SearchBar = memo(SearchBarImpl);
 
 /** Search suggestions list item */
 export interface SearchSuggestionProps {
@@ -234,8 +258,9 @@ export function SearchSuggestion({
       onPress={onPress}
       style={({ pressed }) => [
         styles.suggestion,
-        pressed && { backgroundColor: theme.colors.onSurface + '0D' },
+        pressed && { backgroundColor: withAlpha(theme.colors.onSurface, 0.08) },
       ]}
+      accessibilityRole="button"
       testID={testID}
     >
       {icon && <View style={styles.suggestionIcon}>{icon}</View>}

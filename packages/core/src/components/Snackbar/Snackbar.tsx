@@ -8,7 +8,7 @@
  * - With dismiss
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect } from 'react';
 import {
   View,
   Pressable,
@@ -62,17 +62,20 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 const DURATION_SHORT = 4000;
 const DURATION_LONG = 7000;
 
-export function Snackbar({
-  visible,
-  onDismiss,
-  message,
-  action,
-  duration = DURATION_SHORT,
-  showCloseIcon = false,
-  position = 'bottom',
-  style,
-  testID,
-}: SnackbarProps) {
+const SnackbarImpl = forwardRef<View, SnackbarProps>(function Snackbar(
+  {
+    visible,
+    onDismiss,
+    message,
+    action,
+    duration = DURATION_SHORT,
+    showCloseIcon = false,
+    position = 'bottom',
+    style,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
   const { width: screenWidth } = useWindowDimensions();
   
@@ -124,6 +127,7 @@ export function Snackbar({
   
   return (
     <View
+      ref={ref}
       style={[
         styles.container,
         position === 'bottom' ? styles.bottom : styles.top,
@@ -200,11 +204,17 @@ export function Snackbar({
       </AnimatedView>
     </View>
   );
-}
+});
 
-/** Snackbar durations */
-Snackbar.DURATION_SHORT = DURATION_SHORT;
-Snackbar.DURATION_LONG = DURATION_LONG;
+SnackbarImpl.displayName = 'Snackbar';
+
+const SnackbarMemo = memo(SnackbarImpl) as React.MemoExoticComponent<typeof SnackbarImpl> & {
+  DURATION_SHORT: number;
+  DURATION_LONG: number;
+};
+SnackbarMemo.DURATION_SHORT = DURATION_SHORT;
+SnackbarMemo.DURATION_LONG = DURATION_LONG;
+export const Snackbar = SnackbarMemo;
 
 const styles = StyleSheet.create({
   container: {

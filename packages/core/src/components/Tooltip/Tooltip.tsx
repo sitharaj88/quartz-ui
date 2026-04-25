@@ -6,7 +6,15 @@
  * - Rich tooltip (with title, text, actions)
  */
 
-import React, { useCallback, useEffect, useState, useRef, cloneElement, isValidElement } from 'react';
+import React, {
+  cloneElement,
+  isValidElement,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Modal,
@@ -51,7 +59,7 @@ export interface TooltipProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function Tooltip({
+function TooltipImpl({
   message,
   title,
   actions,
@@ -269,8 +277,9 @@ export function Tooltip({
               ]}
               onLayout={handleTooltipLayout}
               testID={testID}
-              accessible={true}
+              accessible
               accessibilityRole="text"
+              accessibilityLiveRegion="polite"
             >
               {isRich ? (
                 <>
@@ -310,6 +319,10 @@ export function Tooltip({
     </View>
   );
 }
+
+TooltipImpl.displayName = 'Tooltip';
+
+export const Tooltip = memo(TooltipImpl);
 
 const styles = StyleSheet.create({
   backdrop: {

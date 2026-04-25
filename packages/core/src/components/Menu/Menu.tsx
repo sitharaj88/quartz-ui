@@ -6,7 +6,7 @@
  * - Context menu
  */
 
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Modal,
@@ -28,6 +28,7 @@ import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
 import { springConfig } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
 import { Text } from '../Text';
 import { Divider } from '../Divider';
 
@@ -62,7 +63,7 @@ export interface MenuProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function Menu({
+function MenuImpl({
   visible,
   onDismiss,
   anchor,
@@ -185,6 +186,7 @@ export function Menu({
             ]}
             onLayout={handleMenuLayout}
             testID={testID}
+            accessibilityRole="menu"
           >
             {items.map((item, index) => (
               <React.Fragment key={item.key}>
@@ -196,11 +198,12 @@ export function Menu({
                   disabled={item.disabled}
                   style={({ pressed }) => [
                     styles.menuItem,
-                    pressed && { backgroundColor: theme.colors.onSurface + '0D' },
+                    pressed && { backgroundColor: withAlpha(theme.colors.onSurface, 0.08) },
                     item.disabled && styles.disabledItem,
                   ]}
                   accessibilityRole="menuitem"
                   accessibilityState={{ disabled: item.disabled }}
+                  accessibilityLabel={item.label}
                 >
                   {item.icon && (
                     <View style={styles.leadingIcon}>
@@ -214,7 +217,7 @@ export function Menu({
                       styles.label,
                       {
                         color: item.disabled
-                          ? theme.colors.onSurface + '61'
+                          ? withAlpha(theme.colors.onSurface, 0.38)
                           : item.destructive
                           ? theme.colors.error
                           : theme.colors.onSurface,
@@ -239,6 +242,10 @@ export function Menu({
     </View>
   );
 }
+
+MenuImpl.displayName = 'Menu';
+
+export const Menu = memo(MenuImpl);
 
 const styles = StyleSheet.create({
   backdrop: {

@@ -6,18 +6,11 @@
  * - Large (number) badge
  */
 
-import React from 'react';
+import React, { forwardRef, memo } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  FadeIn,
-  FadeOut,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useTheme } from '../../theme/ThemeProvider';
-import { springConfig } from '../../tokens/motion';
 import { Text } from '../Text';
 
 export interface BadgeProps {
@@ -39,31 +32,35 @@ export interface BadgeProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function Badge({
-  content,
-  visible = true,
-  max = 999,
-  size = content !== undefined ? 'large' : 'small',
-  color,
-  style,
-  testID,
-}: BadgeProps) {
+const BadgeImpl = forwardRef<View, BadgeProps>(function Badge(
+  {
+    content,
+    visible = true,
+    max = 999,
+    size = content !== undefined ? 'large' : 'small',
+    color,
+    style,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
-  
+
   const bgColor = color ?? theme.colors.error;
   const textColor = theme.colors.onError;
-  
+
   if (!visible) return null;
-  
+
   const isSmall = size === 'small';
-  const displayContent = typeof content === 'number' && content > max 
-    ? `${max}+` 
-    : content?.toString();
-  
+  const displayContent =
+    typeof content === 'number' && content > max ? `${max}+` : content?.toString();
+
   const hasContent = displayContent !== undefined && displayContent !== '';
-  
+
+  // Live-region announces count changes to screen readers (e.g. notification count).
   return (
     <AnimatedView
+      ref={ref}
       entering={FadeIn.duration(150).springify()}
       exiting={FadeOut.duration(100)}
       style={[
@@ -74,20 +71,21 @@ export function Badge({
         style,
       ]}
       testID={testID}
-      accessible={true}
+      accessible
       accessibilityRole="text"
-      accessibilityLabel={hasContent ? `${displayContent} notifications` : 'New notification'}
+      accessibilityLiveRegion="polite"
+      accessibilityLabel={
+        hasContent ? `${displayContent} notifications` : 'New notification'
+      }
     >
-      {hasContent && (
-        <Text
-          style={[styles.text, { color: textColor }]}
-        >
-          {displayContent}
-        </Text>
-      )}
+      {hasContent && <Text style={[styles.text, { color: textColor }]}>{displayContent}</Text>}
     </AnimatedView>
   );
-}
+});
+
+BadgeImpl.displayName = 'Badge';
+
+export const Badge = memo(BadgeImpl);
 
 const styles = StyleSheet.create({
   badge: {

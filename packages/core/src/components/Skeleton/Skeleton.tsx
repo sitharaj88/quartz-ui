@@ -8,7 +8,7 @@
  * - Animation speed control
  */
 
-import React, { forwardRef, useEffect, useMemo } from 'react';
+import React, { forwardRef, memo, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ViewStyle, LayoutChangeEvent } from 'react-native';
 import Animated, {
     useSharedValue,
@@ -53,7 +53,7 @@ function getShapeBorderRadius(
 /**
  * Skeleton Component
  */
-export const Skeleton = forwardRef<View, SkeletonProps>(function Skeleton(
+const SkeletonImpl = forwardRef<View, SkeletonProps>(function Skeleton(
     {
         width = '100%',
         height = 16,
@@ -148,6 +148,10 @@ export const Skeleton = forwardRef<View, SkeletonProps>(function Skeleton(
         </View>
     );
 });
+
+SkeletonImpl.displayName = 'Skeleton';
+
+export const Skeleton = memo(SkeletonImpl);
 
 /**
  * Skeleton Text Component

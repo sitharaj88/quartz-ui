@@ -7,7 +7,7 @@
  * - Smooth animations
  */
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -32,6 +32,7 @@ import {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { withAlpha } from '../../utils/color';
 import { Text } from '../Text';
 
 export interface SliderProps {
@@ -67,26 +68,29 @@ const THUMB_TOUCH_SIZE = 40;
 const TRACK_HEIGHT = 4;
 const STATE_LAYER_SIZE = 40;
 
-export function Slider({
-  value,
-  min = 0,
-  max = 100,
-  step,
-  onValueChange,
-  onSlidingComplete,
-  disabled = false,
-  showLabel = true,
-  color,
-  style,
-  testID,
-}: SliderProps) {
+const SliderImpl = forwardRef<View, SliderProps>(function Slider(
+  {
+    value,
+    min = 0,
+    max = 100,
+    step,
+    onValueChange,
+    onSlidingComplete,
+    disabled = false,
+    showLabel = true,
+    color,
+    style,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
   const trackWidthRef = useRef(0);
   const isDraggingRef = useRef(false);
   const lastStepValue = useRef(value);
   
   const activeColor = color ?? theme.colors.primary;
-  const disabledColor = theme.colors.onSurface + '38'; // 22% opacity
+  const disabledColor = withAlpha(theme.colors.onSurface, 0.22);
   const trackColor = disabled ? disabledColor : theme.colors.surfaceContainerHighest;
   
   // Animated values
@@ -305,7 +309,7 @@ export function Slider({
   const valueToNormalized = (val: number) => (val - min) / (max - min);
   
   return (
-    <View style={[styles.container, style]} testID={testID}>
+    <View ref={ref} style={[styles.container, style]} testID={testID}>
       {/* Value Label */}
       {showLabel && (
         <AnimatedView
@@ -398,7 +402,7 @@ export function Slider({
       </GestureDetector>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -476,5 +480,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+SliderImpl.displayName = 'Slider';
+
+export const Slider = memo(SliderImpl);
 
 export default Slider;

@@ -8,7 +8,7 @@
  * - Delay and duration controls
  */
 
-import React, { forwardRef, useEffect, Children, isValidElement, cloneElement } from 'react';
+import React, { Children, cloneElement, forwardRef, isValidElement, memo, useEffect } from 'react';
 import { View, ViewStyle } from 'react-native';
 import Animated, {
     useSharedValue,
@@ -48,7 +48,7 @@ const springConfig = {
 /**
  * AnimatedView Component
  */
-export const AnimatedView = forwardRef<View, AnimatedViewProps>(function AnimatedView(
+const AnimatedViewImpl = forwardRef<View, AnimatedViewProps>(function AnimatedView(
     {
         animation = 'fadeIn',
         delay = 0,
@@ -135,6 +135,10 @@ export const AnimatedView = forwardRef<View, AnimatedViewProps>(function Animate
         </Animated.View>
     );
 });
+
+AnimatedViewImpl.displayName = 'AnimatedView';
+
+export const AnimatedView = memo(AnimatedViewImpl);
 
 /**
  * Stagger Component

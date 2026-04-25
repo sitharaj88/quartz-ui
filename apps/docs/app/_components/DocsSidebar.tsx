@@ -1,26 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions } from 'react-native';
-import { Text, Surface, Divider, useTheme } from 'quartz-ui';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions, TextInput } from 'react-native';
+import { Text, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, {
-  FadeInLeft,
-  FadeInDown,
-  useAnimatedStyle,
-  withSpring,
-  useSharedValue,
-  interpolate,
-  Extrapolation,
-} from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 
 type IconName = keyof typeof Ionicons.glyphMap;
-
-interface NavSection {
-  title: string;
-  items: NavItem[];
-}
 
 interface NavItem {
   title: string;
@@ -29,588 +14,376 @@ interface NavItem {
   badge?: string;
 }
 
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
 const navigation: NavSection[] = [
   {
     title: 'Getting Started',
     items: [
-      { title: 'Introduction', route: '/docs/introduction', icon: 'book' },
-      { title: 'Installation', route: '/docs/installation', icon: 'download' },
-      { title: 'Quick Start', route: '/docs/quick-start', icon: 'flash' },
-      { title: 'Theming', route: '/docs/theming-guide', icon: 'color-palette' },
+      { title: "What's new in 1.0", route: '/docs/whats-new', icon: 'sparkles', badge: 'NEW' },
+      { title: 'Introduction', route: '/docs/introduction', icon: 'book-outline' },
+      { title: 'Installation', route: '/docs/installation', icon: 'download-outline' },
+      { title: 'Quick Start', route: '/docs/quick-start', icon: 'flash-outline' },
+      { title: 'Theming', route: '/docs/theming-guide', icon: 'color-palette-outline' },
+    ],
+  },
+  {
+    title: 'Foundations',
+    items: [
+      { title: 'Accessibility', route: '/docs/accessibility', icon: 'accessibility-outline' },
+      { title: 'Hooks', route: '/docs/hooks', icon: 'fish-outline', badge: 'NEW' },
+      { title: 'Utilities', route: '/docs/utilities', icon: 'construct-outline', badge: 'NEW' },
     ],
   },
   {
     title: 'Core Components',
     items: [
-      { title: 'Buttons', route: '/buttons', icon: 'radio-button-on', badge: '3' },
-      { title: 'FAB & Icon Buttons', route: '/fab', icon: 'add-circle', badge: '3' },
-      { title: 'Cards', route: '/cards', icon: 'albums', badge: '2' },
-      { title: 'Typography', route: '/typography', icon: 'text', badge: '1' },
-      { title: 'Surfaces', route: '/surfaces', icon: 'layers', badge: '2' },
+      { title: 'Buttons', route: '/buttons', icon: 'radio-button-on-outline' },
+      { title: 'FAB & Icon Buttons', route: '/fab', icon: 'add-circle-outline' },
+      { title: 'Cards', route: '/cards', icon: 'albums-outline' },
+      { title: 'Typography', route: '/typography', icon: 'text-outline' },
+      { title: 'Surfaces', route: '/surfaces', icon: 'layers-outline' },
     ],
   },
   {
     title: 'Inputs & Selection',
     items: [
-      { title: 'Text Input', route: '/inputs', icon: 'create', badge: '2' },
-      { title: 'Selection Controls', route: '/selection', icon: 'checkbox', badge: '3' },
-      { title: 'Chips', route: '/chips', icon: 'pricetags', badge: '2' },
-      { title: 'Date & Time Pickers', route: '/pickers', icon: 'calendar', badge: '2' },
+      { title: 'Text Input', route: '/inputs', icon: 'create-outline' },
+      { title: 'Selection Controls', route: '/selection', icon: 'checkbox-outline' },
+      { title: 'Chips', route: '/chips', icon: 'pricetags-outline' },
+      { title: 'Date & Time Pickers', route: '/pickers', icon: 'calendar-outline' },
     ],
   },
   {
     title: 'Navigation',
     items: [
-      { title: 'App Bar & Nav Bar', route: '/navigation', icon: 'navigate', badge: '2' },
-      { title: 'Tabs & Search', route: '/tabs', icon: 'tablet-portrait', badge: '2' },
-      { title: 'Drawer & Rail', route: '/advanced-navigation', icon: 'menu', badge: '2' },
+      { title: 'App Bar & Nav Bar', route: '/navigation', icon: 'navigate-outline' },
+      { title: 'Tabs & Search', route: '/tabs', icon: 'tablet-portrait-outline' },
+      { title: 'Drawer & Rail', route: '/advanced-navigation', icon: 'menu-outline' },
     ],
   },
   {
     title: 'Data Display',
     items: [
-      { title: 'Lists & Badges', route: '/lists', icon: 'list', badge: '3' },
-      { title: 'Carousel & Slider', route: '/carousel', icon: 'images', badge: '2' },
-      { title: 'Progress Indicators', route: '/progress', icon: 'sync', badge: '2' },
+      { title: 'Lists & Badges', route: '/lists', icon: 'list-outline' },
+      { title: 'Carousel & Slider', route: '/carousel', icon: 'images-outline' },
+      { title: 'Progress Indicators', route: '/progress', icon: 'sync-outline' },
     ],
   },
   {
     title: 'Feedback & Overlays',
     items: [
-      { title: 'Dialogs', route: '/dialogs', icon: 'chatbox-ellipses', badge: '1' },
-      { title: 'Snackbar & Tooltip', route: '/feedback', icon: 'alert-circle', badge: '3' },
-      { title: 'Sheets & Menus', route: '/overlays', icon: 'albums-outline', badge: '3' },
-    ],
-  },
-  {
-    title: 'Guides',
-    items: [
-      { title: 'Accessibility', route: '/docs/accessibility', icon: 'accessibility' },
+      { title: 'Dialogs', route: '/dialogs', icon: 'chatbox-ellipses-outline' },
+      { title: 'Snackbar & Tooltip', route: '/feedback', icon: 'alert-circle-outline' },
+      { title: 'Sheets & Menus', route: '/overlays', icon: 'albums-outline' },
     ],
   },
 ];
-
-// Collapsible Section
-function CollapsibleSection({
-  section,
-  sectionIndex,
-  pathname,
-  onNavigate,
-  theme,
-  isMobile,
-}: {
-  section: NavSection;
-  sectionIndex: number;
-  pathname: string;
-  onNavigate: (route: string) => void;
-  theme: any;
-  isMobile: boolean;
-}) {
-  const [collapsed, setCollapsed] = useState(false);
-  const rotation = useSharedValue(0);
-
-  const animatedIconStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        rotate: `${interpolate(
-          rotation.value,
-          [0, 1],
-          [0, 90],
-          Extrapolation.CLAMP
-        )}deg`,
-      },
-    ],
-  }));
-
-  const toggleCollapse = useCallback(() => {
-    setCollapsed((prev) => {
-      rotation.value = withSpring(prev ? 0 : 1, { damping: 15 });
-      return !prev;
-    });
-  }, [rotation]);
-
-  return (
-    <Animated.View
-      entering={FadeInLeft.delay(sectionIndex * 50).springify().damping(15)}
-      style={styles.section}
-    >
-      {/* Section Header */}
-      <Pressable
-        onPress={toggleCollapse}
-        style={({ pressed }) => [
-          styles.sectionHeader,
-          { opacity: pressed ? 0.7 : 1 },
-        ]}
-      >
-        <Text
-          variant="labelLarge"
-          style={{
-            color: theme.colors.onSurfaceVariant,
-            fontWeight: '800',
-            textTransform: 'uppercase',
-            letterSpacing: 1.2,
-            flex: 1,
-            fontSize: isMobile ? 13 : 12,
-          }}
-        >
-          {section.title}
-        </Text>
-        <Animated.View style={animatedIconStyle}>
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={theme.colors.onSurfaceVariant}
-          />
-        </Animated.View>
-      </Pressable>
-
-      {/* Section Items */}
-      {!collapsed &&
-        section.items.map((item, itemIndex) => {
-          const isActive = pathname === item.route;
-          return (
-            <NavItemComponent
-              key={item.route}
-              item={item}
-              isActive={isActive}
-              onPress={() => onNavigate(item.route)}
-              theme={theme}
-              delay={itemIndex * 30}
-              isMobile={isMobile}
-            />
-          );
-        })}
-    </Animated.View>
-  );
-}
-
-// Individual Nav Item with 3D effects
-function NavItemComponent({
-  item,
-  isActive,
-  onPress,
-  theme,
-  delay,
-  isMobile,
-}: {
-  item: NavItem;
-  isActive: boolean;
-  onPress: () => void;
-  theme: any;
-  delay: number;
-  isMobile: boolean;
-}) {
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const handlePressIn = () => {
-    scale.value = withSpring(0.97, { damping: 15 });
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15 });
-  };
-
-  return (
-    <Animated.View entering={FadeInDown.delay(delay).springify().damping(15)}>
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={styles.navItem}
-      >
-        <Animated.View style={animatedStyle}>
-          {/* Active State Gradient Background */}
-          {isActive && (
-            <LinearGradient
-              colors={[
-                theme.colors.primaryContainer + 'F0',
-                theme.colors.secondaryContainer + 'E0',
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-          )}
-
-          <View style={[styles.navItemContent, { minHeight: isMobile ? 60 : 52 }]}>
-            {/* Icon with Gradient Box */}
-            {item.icon && (
-              <View style={styles.iconContainer}>
-                {isActive ? (
-                  <LinearGradient
-                    colors={['#667eea', '#764ba2']}
-                    style={[styles.iconBox, { width: isMobile ? 44 : 40, height: isMobile ? 44 : 40 }]}
-                  >
-                    <Ionicons name={item.icon} size={isMobile ? 24 : 22} color="#FFFFFF" />
-                  </LinearGradient>
-                ) : (
-                  <View
-                    style={[
-                      styles.iconBox,
-                      {
-                        backgroundColor: theme.colors.surfaceVariant,
-                        width: isMobile ? 44 : 40,
-                        height: isMobile ? 44 : 40,
-                      },
-                    ]}
-                  >
-                    <Ionicons name={item.icon} size={isMobile ? 24 : 22} color={theme.colors.onSurfaceVariant} />
-                  </View>
-                )}
-              </View>
-            )}
-
-            <View style={styles.navItemText}>
-              <Text
-                variant="bodyLarge"
-                style={{
-                  color: isActive ? theme.colors.primary : theme.colors.onSurface,
-                  fontWeight: isActive ? '800' : '600',
-                  fontSize: isMobile ? 17 : 15,
-                }}
-              >
-                {item.title}
-              </Text>
-            </View>
-
-            {/* Badge */}
-            {item.badge && (
-              <LinearGradient
-                colors={
-                  isActive
-                    ? ['#667eea', '#764ba2']
-                    : [theme.colors.tertiaryContainer, theme.colors.tertiaryContainer]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[
-                  styles.badge,
-                  {
-                    shadowColor: isActive ? theme.colors.primary : 'transparent',
-                    shadowOffset: { width: 0, height: 3 },
-                    shadowOpacity: 0.4,
-                    shadowRadius: 6,
-                    elevation: isActive ? 4 : 0,
-                    minWidth: isMobile ? 32 : 28,
-                    paddingHorizontal: isMobile ? 10 : 8,
-                    paddingVertical: isMobile ? 6 : 5,
-                  },
-                ]}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={{
-                    color: isActive ? '#FFFFFF' : theme.colors.onTertiaryContainer,
-                    fontWeight: '900',
-                    fontSize: isMobile ? 13 : 11,
-                  }}
-                >
-                  {item.badge}
-                </Text>
-              </LinearGradient>
-            )}
-
-            {/* Active Indicator Line */}
-            {isActive && (
-              <LinearGradient
-                colors={['#667eea', '#764ba2', '#f093fb']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={[styles.activeBar, { width: isMobile ? 5 : 4 }]}
-              />
-            )}
-          </View>
-        </Animated.View>
-      </Pressable>
-    </Animated.View>
-  );
-}
 
 interface DocsSidebarProps {
   onClose?: () => void;
 }
 
+/**
+ * Quartz docs sidebar — restrained, modern aesthetic.
+ *
+ * No gradients on every item. No 3D shadows. No scale-on-press animations.
+ * Active state: subtle filled background + colored accent bar on the leading edge.
+ * Hover state: subtle surface tint (web only).
+ * Type: 14pt items, 11pt all-caps section headers with letter-spacing.
+ */
 export function DocsSidebar({ onClose }: DocsSidebarProps) {
   const theme = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-
+  const [query, setQuery] = useState('');
   const isMobile = width < 768;
 
-  const handleNavigation = useCallback(
+  const onNavigate = useCallback(
     (route: string) => {
-      router.push(route as any);
+      router.push(route as never);
       onClose?.();
     },
     [router, onClose]
   );
 
+  // Filter sections by query (matches title contains).
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return navigation;
+    return navigation
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((i) => i.title.toLowerCase().includes(q)),
+      }))
+      .filter((section) => section.items.length > 0);
+  }, [query]);
+
+  const onSurface = theme.colors.onSurface;
+  const onSurfaceVariant = theme.colors.onSurfaceVariant;
+  const accent = theme.colors.primary;
+  const subtleBorder = theme.colors.outlineVariant + '40';
+
   return (
-    <Surface
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.colors.surface,
-          paddingTop: isMobile ? insets.top + 16 : 0,
-        },
-      ]}
-      elevation={0}
-    >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollContent,
-          {
-            paddingHorizontal: isMobile ? 20 : 24,
-            paddingBottom: isMobile ? 120 : 40,
-          }
-        ]}
-      >
-        {/* HEADER - Mobile optimized */}
-        <Animated.View entering={FadeInDown.springify().damping(15)} style={styles.header}>
-          <View style={styles.headerTop}>
-            <LinearGradient
-              colors={['#667eea', '#764ba2']}
-              style={[styles.logoBox, { width: isMobile ? 64 : 60, height: isMobile ? 64 : 60 }]}
-            >
-              <Ionicons name="layers" size={isMobile ? 32 : 30} color="#FFFFFF" />
-            </LinearGradient>
-
-            {onClose && isMobile && (
-              <Pressable onPress={onClose} style={styles.closeButton}>
-                <View style={[styles.closeIconBox, { backgroundColor: theme.colors.surfaceVariant }]}>
-                  <Ionicons name="close" size={24} color={theme.colors.onSurfaceVariant} />
-                </View>
-              </Pressable>
-            )}
+    <View style={[styles.container, { backgroundColor: theme.colors.surface, paddingTop: isMobile ? insets.top : 0 }]}>
+      {/* Brand row */}
+      <View style={[styles.brandRow, { borderBottomColor: subtleBorder, paddingHorizontal: 24 }]}>
+        <Pressable
+          onPress={() => onNavigate('/')}
+          style={({ pressed }) => [styles.brandPressable, { opacity: pressed ? 0.7 : 1 }]}
+          accessibilityRole="link"
+        >
+          <View style={[styles.brandMark, { backgroundColor: accent }]}>
+            <Ionicons name="layers" size={18} color={theme.colors.onPrimary} />
           </View>
-
-          <View style={styles.headerText}>
-            <View style={styles.headerTitleRow}>
-              <Text
-                variant="headlineSmall"
-                style={{
-                  color: theme.colors.onSurface,
-                  fontWeight: '900',
-                  fontSize: isMobile ? 26 : 24,
-                }}
-              >
-                Quartz UI
-              </Text>
-              <LinearGradient
-                colors={['#4CAF50', '#66BB6A']}
-                style={[styles.versionBadge, { paddingHorizontal: isMobile ? 10 : 8, paddingVertical: isMobile ? 5 : 4 }]}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={{
-                    color: '#FFFFFF',
-                    fontWeight: '900',
-                    fontSize: isMobile ? 12 : 10,
-                  }}
-                >
-                  v1.0.0-dev
-                </Text>
-              </LinearGradient>
-            </View>
-            <Text
-              variant="bodyMedium"
-              style={{
-                color: theme.colors.onSurfaceVariant,
-                fontSize: isMobile ? 15 : 14,
-                marginTop: 4,
-              }}
-            >
-              Documentation
+          <View>
+            <Text variant="titleMedium" style={{ color: onSurface, fontWeight: '700', fontSize: 17 }}>
+              Quartz UI
+            </Text>
+            <Text variant="bodySmall" style={{ color: onSurfaceVariant, fontSize: 12, marginTop: 1 }}>
+              v1.0.0-alpha.1
             </Text>
           </View>
-        </Animated.View>
+        </Pressable>
 
-        <Divider style={{ marginVertical: isMobile ? 28 : 24, opacity: 0.5 }} />
-
-        {/* NAVIGATION SECTIONS */}
-        {navigation.map((section, sectionIndex) => (
-          <CollapsibleSection
-            key={section.title}
-            section={section}
-            sectionIndex={sectionIndex}
-            pathname={pathname}
-            onNavigate={handleNavigation}
-            theme={theme}
-            isMobile={isMobile}
-          />
-        ))}
-
-        {/* FOOTER - Mobile optimized */}
-        <Animated.View
-          entering={FadeInDown.delay(400).springify().damping(15)}
-          style={[styles.footerContainer, { marginTop: isMobile ? 32 : 28 }]}
-        >
-          {/* Version Info */}
-          <Surface
-            style={[
-              styles.footer,
-              {
-                backgroundColor: theme.colors.surfaceVariant + '60',
-                borderWidth: 1.5,
-                borderColor: theme.colors.outlineVariant + '40',
-                minHeight: isMobile ? 56 : 48,
-              },
-            ]}
-            elevation={1}
+        {onClose && isMobile && (
+          <Pressable
+            onPress={onClose}
+            accessibilityLabel="Close menu"
+            style={({ pressed }) => [styles.closeBtn, { opacity: pressed ? 0.6 : 1 }]}
           >
-            <LinearGradient
-              colors={[theme.colors.primaryContainer, theme.colors.tertiaryContainer]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.footerGradient}
+            <Ionicons name="close" size={20} color={onSurfaceVariant} />
+          </Pressable>
+        )}
+      </View>
+
+      {/* Search */}
+      <View style={[styles.searchWrapper, { paddingHorizontal: 16, paddingTop: 16 }]}>
+        <View
+          style={[
+            styles.searchInputWrap,
+            { backgroundColor: theme.colors.surfaceVariant + '70', borderColor: subtleBorder },
+          ]}
+        >
+          <Ionicons name="search" size={16} color={onSurfaceVariant} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search docs"
+            placeholderTextColor={onSurfaceVariant}
+            style={[styles.searchInput, { color: onSurface }]}
+          />
+          {query.length > 0 && (
+            <Pressable onPress={() => setQuery('')} accessibilityLabel="Clear search">
+              <Ionicons name="close-circle" size={16} color={onSurfaceVariant} />
+            </Pressable>
+          )}
+        </View>
+      </View>
+
+      {/* Nav */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 18, paddingBottom: isMobile ? 120 : 32 }}
+      >
+        {filtered.length === 0 && (
+          <View style={{ padding: 24 }}>
+            <Text variant="bodySmall" style={{ color: onSurfaceVariant, textAlign: 'center' }}>
+              Nothing matches "{query}"
+            </Text>
+          </View>
+        )}
+        {filtered.map((section) => (
+          <View key={section.title} style={styles.section}>
+            <Text
+              variant="labelSmall"
+              style={{
+                color: onSurfaceVariant,
+                fontWeight: '600',
+                fontSize: 11,
+                letterSpacing: 0.6,
+                textTransform: 'uppercase',
+                paddingHorizontal: 12,
+                marginBottom: 6,
+              }}
             >
-              <Ionicons
-                name="information-circle"
-                size={isMobile ? 22 : 20}
-                color={theme.colors.primary}
-              />
-              <Text
-                variant="labelMedium"
-                style={{
-                  color: theme.colors.onSurfaceVariant,
-                  marginLeft: 10,
-                  fontWeight: '700',
-                  fontSize: isMobile ? 15 : 13,
-                }}
-              >
-                Dev build • Target Feb 2025
-              </Text>
-            </LinearGradient>
-          </Surface>
-        </Animated.View>
+              {section.title}
+            </Text>
+            {section.items.map((item) => {
+              const isActive = pathname === item.route;
+              return (
+                <Pressable
+                  key={item.route}
+                  onPress={() => onNavigate(item.route)}
+                  accessibilityRole="link"
+                  style={({ hovered, pressed }) => [
+                    styles.navItem,
+                    {
+                      backgroundColor: isActive
+                        ? theme.colors.primaryContainer
+                        : (hovered as boolean)
+                          ? theme.colors.surfaceVariant + '70'
+                          : 'transparent',
+                      opacity: pressed ? 0.85 : 1,
+                    },
+                  ]}
+                >
+                  {isActive && <View style={[styles.activeBar, { backgroundColor: accent }]} />}
+                  {item.icon && (
+                    <Ionicons
+                      name={item.icon}
+                      size={16}
+                      color={isActive ? theme.colors.onPrimaryContainer : onSurfaceVariant}
+                      style={{ marginEnd: 10 }}
+                    />
+                  )}
+                  <Text
+                    variant="bodyMedium"
+                    style={{
+                      color: isActive ? theme.colors.onPrimaryContainer : onSurface,
+                      fontWeight: isActive ? '600' : '500',
+                      fontSize: 14,
+                      flex: 1,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                  {item.badge && (
+                    <View
+                      style={[
+                        styles.badge,
+                        {
+                          backgroundColor:
+                            item.badge === 'NEW'
+                              ? accent
+                              : isActive
+                                ? theme.colors.onPrimaryContainer + '22'
+                                : theme.colors.surfaceVariant,
+                        },
+                      ]}
+                    >
+                      <Text
+                        variant="labelSmall"
+                        style={{
+                          color:
+                            item.badge === 'NEW'
+                              ? theme.colors.onPrimary
+                              : isActive
+                                ? theme.colors.onPrimaryContainer
+                                : onSurfaceVariant,
+                          fontWeight: '700',
+                          fontSize: 10,
+                          letterSpacing: 0.4,
+                        }}
+                      >
+                        {item.badge}
+                      </Text>
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
       </ScrollView>
-    </Surface>
+
+      {/* Footer pill */}
+      <View
+        style={[
+          styles.footer,
+          {
+            borderTopColor: subtleBorder,
+            paddingBottom: insets.bottom + 12,
+          },
+        ]}
+      >
+        <View style={[styles.footerPill, { backgroundColor: theme.colors.surfaceVariant + '70' }]}>
+          <Ionicons name="cube-outline" size={14} color={onSurfaceVariant} />
+          <Text variant="bodySmall" style={{ color: onSurfaceVariant, fontSize: 12, marginStart: 8 }}>
+            38 components · 218 tests
+          </Text>
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { paddingTop: 24 },
-  header: { marginBottom: 24 },
-  headerTop: {
+  brandRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    height: 64,
+    borderBottomWidth: 1,
   },
-  logoBox: {
-    borderRadius: 18,
+  brandPressable: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  brandMark: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
   },
-  closeButton: { padding: 4 },
-  closeIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerText: {},
-  headerTitleRow: {
+  closeBtn: { padding: 8 },
+  searchWrapper: {},
+  searchInputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 4,
+    gap: 8,
+    height: 36,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
   },
-  versionBadge: {
-    borderRadius: 10,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 4,
+  searchInput: {
+    flex: 1,
+    fontSize: 13,
+    height: 36,
+    paddingVertical: 0,
+    outlineStyle: 'none' as never,
   },
-  searchContainer: { marginBottom: 4 },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    borderWidth: 1.5,
-  },
-  searchIcon: { marginRight: 12 },
-  searchInput: { flex: 1, fontWeight: '600' },
-  clearButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  section: { marginBottom: 32 },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingVertical: 8,
-  },
+  section: { marginBottom: 18 },
   navItem: {
-    borderRadius: 16,
-    marginBottom: 8,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  navItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 14,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginBottom: 1,
     position: 'relative',
-  },
-  iconContainer: {},
-  iconBox: {
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  navItemText: { flex: 1 },
-  badge: {
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   activeBar: {
     position: 'absolute',
     left: 0,
-    top: 10,
-    bottom: 10,
-    borderTopRightRadius: 4,
-    borderBottomRightRadius: 4,
+    top: 6,
+    bottom: 6,
+    width: 3,
+    borderRadius: 2,
   },
-  footerContainer: { gap: 12 },
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    minWidth: 26,
+    alignItems: 'center',
+  },
   footer: {
-    borderRadius: 14,
-    overflow: 'hidden',
+    borderTopWidth: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
-  footerGradient: {
+  footerPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
 });

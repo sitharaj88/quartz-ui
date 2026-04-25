@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Button, useTheme } from 'quartz-ui';
+import { Text, Button, Surface, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';
 import { CodePlayground } from './_components/CodePlayground';
@@ -8,81 +8,155 @@ import { PropsTable, PropDefinition } from './_components/PropsTable';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const buttonProps: PropDefinition[] = [
+  // Content
+  {
+    name: 'children',
+    type: 'ReactNode',
+    description: 'Button content. Takes precedence over `label`.',
+  },
+  {
+    name: 'label',
+    type: 'string',
+    description: 'Convenience prop for the common "string label" case.',
+  },
+  // Variants
   {
     name: 'variant',
     type: "'filled' | 'outlined' | 'text' | 'elevated' | 'tonal'",
     default: "'filled'",
-    description: 'Visual style variant of the button',
+    description: 'Material 3 visual treatment.',
   },
   {
     name: 'size',
     type: "'small' | 'medium' | 'large'",
     default: "'medium'",
-    description: 'Size of the button (height: 34dp, 40dp, 48dp)',
+    description: 'Vertical density: 34dp / 40dp / 48dp.',
   },
-  {
-    name: 'children',
-    type: 'ReactNode',
-    description: 'Button content (alternative to label prop)',
-  },
-  {
-    name: 'label',
-    type: 'string',
-    description: 'Button text label',
-  },
+  // Icons
   {
     name: 'icon',
     type: 'ReactNode',
-    description: 'Icon element to display in the button',
+    description: 'Leading or trailing icon (sized to 16/18/20dp by `size`).',
   },
   {
     name: 'iconPosition',
     type: "'left' | 'right'",
     default: "'left'",
-    description: 'Position of the icon relative to label',
+    description: 'RTL is handled automatically via logical paddings.',
   },
+  {
+    name: 'iconOnly',
+    type: 'boolean',
+    description: 'Square icon-only mode. Auto-detected when `icon` is set without label/children.',
+  },
+  // State
   {
     name: 'loading',
     type: 'boolean',
     default: 'false',
-    description: 'Shows loading spinner and disables interaction',
+    description: 'Shows spinner, blocks press, sets `accessibilityState.busy`, announces to screen readers.',
   },
   {
     name: 'disabled',
     type: 'boolean',
     default: 'false',
-    description: 'Disables the button interaction',
+    description: 'Disabled visually and for interaction.',
   },
+  {
+    name: 'selected',
+    type: 'boolean',
+    description:
+      'Toggle-button mode. When defined, role becomes `togglebutton` and `accessibilityState.selected` is set.',
+  },
+  // Layout
   {
     name: 'fullWidth',
     type: 'boolean',
     default: 'false',
-    description: 'Makes button expand to full width of container',
+    description: 'Stretches to container width instead of hugging content.',
   },
+  // Custom colors
   {
     name: 'color',
     type: 'string',
-    description: 'Custom background color (overrides theme)',
+    description:
+      'Override container background. Foreground auto-picks for AA contrast unless `textColor` is also set.',
   },
   {
     name: 'textColor',
     type: 'string',
-    description: 'Custom text color (overrides theme)',
+    description: 'Override label / icon color.',
+  },
+  // Behavior
+  {
+    name: 'enableHaptics',
+    type: 'boolean',
+    description: 'Force-enable or disable haptic feedback. Defaults to `theme.accessibility.hapticFeedback`.',
   },
   {
-    name: 'onPress',
-    type: '(event: GestureResponderEvent) => void',
-    description: 'Callback fired when button is pressed',
+    name: 'loadingAccessibilityLabel',
+    type: 'string',
+    default: "'Loading'",
+    description: 'Custom message announced to screen readers when `loading` flips to true.',
   },
+  // Style overrides
+  {
+    name: 'style',
+    type: 'ViewStyle',
+    description: 'Style override for the outer Pressable.',
+  },
+  {
+    name: 'labelStyle',
+    type: 'TextStyle',
+    description: 'Style override for the label text.',
+  },
+  {
+    name: 'contentStyle',
+    type: 'ViewStyle',
+    description: 'Style override for the inner content row.',
+  },
+  // Events
+  {
+    name: 'onPress',
+    type: '(e: GestureResponderEvent) => void',
+    description: 'Fired when the button is pressed (no-op when disabled or loading).',
+  },
+  {
+    name: 'onLongPress',
+    type: '(e: GestureResponderEvent) => void',
+    description: 'Fired on long press.',
+  },
+  {
+    name: 'onFocus',
+    type: '(e: TargetedEvent) => void',
+    description: 'Fired when the button gains focus.',
+  },
+  {
+    name: 'onBlur',
+    type: '(e: TargetedEvent) => void',
+    description: 'Fired when the button loses focus.',
+  },
+  // Accessibility
   {
     name: 'accessibilityLabel',
     type: 'string',
-    description: 'Accessibility label for screen readers',
+    description: 'Defaults to the label/children text if it\'s a string.',
   },
   {
     name: 'accessibilityHint',
     type: 'string',
-    description: 'Accessibility hint describing button action',
+    description: 'Describes the action that will occur on activation.',
+  },
+  {
+    name: 'testID',
+    type: 'string',
+    description: 'Forwarded to the underlying Pressable.',
+  },
+  // Ref
+  {
+    name: 'ref',
+    type: 'Ref<ButtonHandle>',
+    description: 'Imperative handle. See "Imperative ref" section below.',
   },
 ];
 
@@ -304,6 +378,85 @@ export default function ButtonsDocPage() {
       {/* Props API */}
       <PropsTable props={buttonProps} title="API Reference" />
 
+      {/* Imperative ref */}
+      <Animated.View entering={FadeInDown.springify()} style={styles.section}>
+        <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 12 }}>
+          Imperative ref
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16, lineHeight: 26 }}>
+          Pass a <Text style={{ fontFamily: 'monospace', color: theme.colors.primary, fontWeight: '700' }}>ref</Text> to drive focus programmatically — handy for the primary action of a Dialog or Snackbar so screen readers and keyboard users land on it when the surface opens.
+        </Text>
+        <View style={[styles.codeBlock, { backgroundColor: theme.colors.surfaceVariant }]}>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', lineHeight: 20 }}>
+{`import { Button } from 'quartz-ui';
+import type { ButtonHandle } from 'quartz-ui';
+import { useRef, useEffect } from 'react';
+
+function Dialog() {
+  const ref = useRef<ButtonHandle>(null);
+
+  useEffect(() => {
+    // Focus the primary action when the dialog mounts.
+    ref.current?.focus();
+  }, []);
+
+  return <Button ref={ref} variant="filled">Confirm</Button>;
+}`}
+          </Text>
+        </View>
+        <View style={{ marginTop: 12 }}>
+          <Text variant="labelLarge" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '700', marginBottom: 8 }}>
+            ButtonHandle
+          </Text>
+          <View style={[styles.codeBlock, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', lineHeight: 20 }}>
+{`interface ButtonHandle {
+  focus(): void;
+  blur(): void;
+}`}
+            </Text>
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* World-class guarantees */}
+      <Animated.View entering={FadeInDown.springify()} style={styles.section}>
+        <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 12 }}>
+          What you get for free
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 20, lineHeight: 26 }}>
+          Every Button instance ships with these behaviors. You don't have to wire them up.
+        </Text>
+        <View style={{ gap: 12 }}>
+          {[
+            { icon: 'flash', title: 'Animated state layer', body: 'MD3 hover/focus/press opacity transitions on the UI thread (no React re-renders).' },
+            { icon: 'eye', title: 'Focus-visible ring', body: 'Outline appears only on keyboard focus — never on tap.' },
+            { icon: 'eye-off', title: 'Reduce-motion respect', body: 'Spring scale and state-layer transitions skip when the OS asks.' },
+            { icon: 'volume-medium', title: 'Loading announcements', body: 'Screen readers hear "Loading" when `loading` flips on (configurable via `loadingAccessibilityLabel`).' },
+            { icon: 'language', title: 'RTL paddings', body: 'Asymmetric icon padding flips correctly in right-to-left layouts.' },
+            { icon: 'color-palette', title: 'AA contrast for custom colors', body: 'Pass `color="#FFD700"` and the foreground auto-picks black for AA contrast.' },
+            { icon: 'finger-print', title: 'Haptics', body: 'Light impact on press (configurable via `enableHaptics` or theme setting).' },
+            { icon: 'resize', title: '≥48dp touch target', body: 'Met by all sizes; large size is 48dp tall.' },
+          ].map((g) => (
+            <Surface
+              key={g.title}
+              style={[styles.guaranteeCard, { backgroundColor: theme.colors.surface, borderLeftColor: theme.colors.primary }]}
+              elevation={1}
+            >
+              <Ionicons name={g.icon as any} size={22} color={theme.colors.primary} />
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+                  {g.title}
+                </Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, lineHeight: 20 }}>
+                  {g.body}
+                </Text>
+              </View>
+            </Surface>
+          ))}
+        </View>
+      </Animated.View>
+
       {/* Accessibility */}
       <Animated.View entering={FadeInDown.springify()} style={styles.section}>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 12 }}>
@@ -441,5 +594,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
+  },
+  guaranteeCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
   },
 });

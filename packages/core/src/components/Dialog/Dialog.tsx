@@ -7,7 +7,7 @@
  * - Alert dialog
  */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import {
   View,
   Modal,
@@ -65,7 +65,7 @@ export interface DialogProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function Dialog({
+function DialogImpl({
   visible,
   onDismiss,
   title,
@@ -227,6 +227,10 @@ export function Dialog({
   );
 }
 
+DialogImpl.displayName = 'Dialog';
+
+export const Dialog = memo(DialogImpl);
+
 /** Alert Dialog - convenience component for simple alerts */
 export interface AlertDialogProps {
   visible: boolean;
@@ -240,7 +244,7 @@ export interface AlertDialogProps {
   testID?: string;
 }
 
-export function AlertDialog({
+function AlertDialogImpl({
   visible,
   onDismiss,
   title,
@@ -289,6 +293,10 @@ export function AlertDialog({
     </Dialog>
   );
 }
+
+AlertDialogImpl.displayName = 'AlertDialog';
+
+export const AlertDialog = memo(AlertDialogImpl);
 
 const styles = StyleSheet.create({
   modalContainer: {

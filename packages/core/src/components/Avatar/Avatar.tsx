@@ -10,7 +10,15 @@
  * - Group stacking with overlap
  */
 
-import React, { forwardRef, useState, useMemo, Children, isValidElement, cloneElement } from 'react';
+import React, {
+    Children,
+    cloneElement,
+    forwardRef,
+    isValidElement,
+    memo,
+    useMemo,
+    useState,
+} from 'react';
 import {
     View,
     Image,
@@ -32,7 +40,7 @@ import {
 /**
  * Avatar Component
  */
-export const Avatar = forwardRef<View, AvatarProps>(function Avatar(
+const AvatarImpl = forwardRef<View, AvatarProps>(function Avatar(
     {
         source,
         initials,
@@ -193,7 +201,7 @@ export const Avatar = forwardRef<View, AvatarProps>(function Avatar(
 /**
  * Avatar Badge Component
  */
-export const AvatarBadge = forwardRef<View, AvatarBadgeProps>(function AvatarBadge(
+const AvatarBadgeImpl = forwardRef<View, AvatarBadgeProps>(function AvatarBadge(
     {
         children,
         position = 'bottom-right',
@@ -242,7 +250,7 @@ export const AvatarBadge = forwardRef<View, AvatarBadgeProps>(function AvatarBad
 /**
  * Avatar Group Component
  */
-export const AvatarGroup = forwardRef<View, AvatarGroupProps>(function AvatarGroup(
+const AvatarGroupImpl = forwardRef<View, AvatarGroupProps>(function AvatarGroup(
     {
         max = 4,
         spacing = -8,
@@ -319,5 +327,13 @@ export const AvatarGroup = forwardRef<View, AvatarGroupProps>(function AvatarGro
         </View>
     );
 });
+
+AvatarImpl.displayName = 'Avatar';
+AvatarBadgeImpl.displayName = 'AvatarBadge';
+AvatarGroupImpl.displayName = 'AvatarGroup';
+
+export const Avatar = memo(AvatarImpl);
+export const AvatarBadge = memo(AvatarBadgeImpl);
+export const AvatarGroup = memo(AvatarGroupImpl);
 
 export default Avatar;

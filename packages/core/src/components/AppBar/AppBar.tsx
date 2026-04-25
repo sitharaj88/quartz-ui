@@ -8,7 +8,7 @@
  * - Large
  */
 
-import React from 'react';
+import React, { forwardRef, memo } from 'react';
 import {
   View,
   Pressable,
@@ -50,17 +50,20 @@ export interface AppBarProps {
   testID?: string;
 }
 
-export function AppBar({
-  title,
-  variant = 'small',
-  navigationIcon,
-  onNavigationPress,
-  actions = [],
-  elevated = false,
-  backgroundColor,
-  style,
-  testID,
-}: AppBarProps) {
+const AppBarImpl = forwardRef<View, AppBarProps>(function AppBar(
+  {
+    title,
+    variant = 'small',
+    navigationIcon,
+    onNavigationPress,
+    actions = [],
+    elevated = false,
+    backgroundColor,
+    style,
+    testID,
+  },
+  ref
+) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   
@@ -83,6 +86,7 @@ export function AppBar({
   
   return (
     <View
+      ref={ref}
       style={[
         styles.container,
         {
@@ -94,6 +98,7 @@ export function AppBar({
         style,
       ]}
       testID={testID}
+      accessibilityRole="header"
     >
       {/* Top Row */}
       <View style={styles.topRow}>
@@ -170,7 +175,11 @@ export function AppBar({
       )}
     </View>
   );
-}
+});
+
+AppBarImpl.displayName = 'AppBar';
+
+export const AppBar = memo(AppBarImpl);
 
 const styles = StyleSheet.create({
   container: {

@@ -10,7 +10,7 @@
  * Note: Requires expo-linear-gradient as a peer dependency
  */
 
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, memo, useMemo } from 'react';
 import { View, Text, StyleSheet, ViewStyle, Pressable } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import {
@@ -32,7 +32,7 @@ try {
 /**
  * Gradient Component
  */
-export const Gradient = forwardRef<View, GradientProps>(function Gradient(
+const GradientImpl = forwardRef<View, GradientProps>(function Gradient(
     {
         colors,
         preset,
@@ -97,6 +97,10 @@ export const Gradient = forwardRef<View, GradientProps>(function Gradient(
         </LinearGradientComponent>
     );
 });
+
+GradientImpl.displayName = 'Gradient';
+
+export const Gradient = memo(GradientImpl);
 
 /**
  * GradientCard Component

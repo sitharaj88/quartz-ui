@@ -294,6 +294,83 @@ export default function AccessibilityPage() {
         </Surface>
       </Animated.View>
 
+      {/* Per-component guarantees */}
+      <Animated.View entering={FadeInDown.delay(420).springify()} style={styles.section}>
+        <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>
+          Per-component guarantees
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 24, lineHeight: 26 }}>
+          Every component ships with the right role, state surface, touch-target sizing, and live-region behavior. If you find one that doesn't meet the bar, file a bug — it's a defect.
+        </Text>
+
+        <Surface style={[styles.tableCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }]} elevation={1}>
+          {/* Table header */}
+          <View style={[styles.tableRow, styles.tableHeader, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <Text variant="labelLarge" style={[styles.cellComponent, { color: theme.colors.onSurfaceVariant, fontWeight: '800' }]}>
+              Component
+            </Text>
+            <Text variant="labelLarge" style={[styles.cellRole, { color: theme.colors.onSurfaceVariant, fontWeight: '800' }]}>
+              Role
+            </Text>
+            <Text variant="labelLarge" style={[styles.cellState, { color: theme.colors.onSurfaceVariant, fontWeight: '800' }]}>
+              State surface
+            </Text>
+            <Text variant="labelLarge" style={[styles.cellNotes, { color: theme.colors.onSurfaceVariant, fontWeight: '800' }]}>
+              Notes
+            </Text>
+          </View>
+
+          {[
+            { name: 'Button', role: 'button / togglebutton', state: 'disabled, busy, selected', notes: '≥48dp; live-region while loading' },
+            { name: 'IconButton', role: 'button / togglebutton', state: 'disabled, selected', notes: 'hitSlop fills compact sizes to 48dp' },
+            { name: 'TextInput', role: '(input)', state: 'disabled, invalid', notes: 'Error text uses role=alert' },
+            { name: 'Checkbox', role: 'checkbox', state: 'checked / mixed, disabled', notes: 'hitSlop to 48dp' },
+            { name: 'RadioButton', role: 'radio (in radiogroup)', state: 'checked, disabled', notes: '—' },
+            { name: 'Switch', role: 'switch', state: 'checked, disabled', notes: '52×32 + focus ring' },
+            { name: 'FAB', role: 'button', state: 'disabled', notes: '≥48dp at small/regular' },
+            { name: 'Chip', role: 'button / togglebutton', state: 'selected, disabled', notes: 'Filter chips are toggle buttons' },
+            { name: 'Tabs', role: 'tablist / tab', state: 'selected', notes: '—' },
+            { name: 'SegmentedButton', role: 'tablist / tab', state: 'selected, disabled', notes: 'Single or multi-select' },
+            { name: 'Slider', role: 'adjustable', state: 'min, max, now', notes: 'Pan + tap gestures' },
+            { name: 'ProgressIndicator', role: 'progressbar', state: 'min, max, now (or undefined)', notes: 'Determinate + indeterminate' },
+            { name: 'SearchBar', role: 'search (input)', state: 'disabled', notes: '—' },
+            { name: 'Snackbar', role: 'alert', state: '—', notes: 'polite live-region' },
+            { name: 'Toast', role: 'alert', state: '—', notes: 'polite live-region' },
+            { name: 'Tooltip', role: 'text', state: '—', notes: 'polite live-region' },
+            { name: 'Menu', role: 'menuitem', state: 'disabled', notes: '48dp item height' },
+            { name: 'Dialog / AlertDialog', role: 'alert (modal)', state: '—', notes: 'accessibilityViewIsModal' },
+            { name: 'BottomSheet', role: '(modal)', state: '—', notes: 'accessibilityViewIsModal' },
+            { name: 'AppBar', role: 'header', state: '—', notes: 'Action buttons require accessibilityLabel' },
+            { name: 'Badge', role: 'text', state: '—', notes: 'polite live-region (count changes)' },
+            { name: 'List / ListItem', role: 'button (interactive)', state: 'disabled, selected', notes: '56dp height' },
+          ].map((row, i) => (
+            <View
+              key={row.name}
+              style={[
+                styles.tableRow,
+                {
+                  backgroundColor: i % 2 === 0 ? 'transparent' : theme.colors.surfaceVariant + '40',
+                  borderTopColor: theme.colors.outlineVariant + '30',
+                },
+              ]}
+            >
+              <Text variant="bodySmall" style={[styles.cellComponent, { color: theme.colors.onSurface, fontWeight: '700' }]}>
+                {row.name}
+              </Text>
+              <Text variant="bodySmall" style={[styles.cellRole, { color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', fontSize: 12 }]}>
+                {row.role}
+              </Text>
+              <Text variant="bodySmall" style={[styles.cellState, { color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', fontSize: 12 }]}>
+                {row.state}
+              </Text>
+              <Text variant="bodySmall" style={[styles.cellNotes, { color: theme.colors.onSurfaceVariant }]}>
+                {row.notes}
+              </Text>
+            </View>
+          ))}
+        </Surface>
+      </Animated.View>
+
       {/* Resources */}
       <Animated.View entering={FadeInDown.delay(450).springify()} style={styles.section}>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 16 }}>
@@ -440,5 +517,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderRadius: 16,
+  },
+  tableCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    gap: 12,
+  },
+  tableHeader: {
+    borderTopWidth: 0,
+  },
+  cellComponent: {
+    flex: 1.2,
+    minWidth: 90,
+  },
+  cellRole: {
+    flex: 1.6,
+    minWidth: 110,
+  },
+  cellState: {
+    flex: 1.6,
+    minWidth: 110,
+  },
+  cellNotes: {
+    flex: 2,
+    minWidth: 120,
   },
 });

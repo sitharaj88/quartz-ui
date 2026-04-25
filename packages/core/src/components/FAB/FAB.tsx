@@ -1,169 +1,175 @@
 /**
  * Quartz UI - Floating Action Button (FAB)
- * 
- * FAB with three sizes:
- * - Small: 40x40
- * - Regular: 56x56
- * - Large: 96x96
- * 
- * And two variants:
- * - Primary: Primary container color
- * - Secondary: Secondary container color
- * - Tertiary: Tertiary container color
- * - Surface: Surface container high color
+ *
+ * Three sizes (40 / 56 / 96), four color variants. Extended FAB when a `label`
+ * is provided alongside the regular size. Same world-class checklist as Button.
  */
 
-import React, { useState, useCallback, ReactNode } from 'react';
+import React, {
+  ReactNode,
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import {
-  View,
-  Pressable,
-  Text,
-  ViewStyle,
-  StyleProp,
   GestureResponderEvent,
-  AccessibilityRole,
   Platform,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useTheme } from '../../theme/ThemeProvider';
-import { springConfig } from '../../tokens/motion';
+import { useInteractiveState } from '../../hooks/useInteractiveState';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { duration, springConfig } from '../../tokens/motion';
+import { withAlpha } from '../../utils/color';
 
 export type FABSize = 'small' | 'regular' | 'large';
 export type FABColor = 'primary' | 'secondary' | 'tertiary' | 'surface';
 
+export interface FABHandle {
+  focus(): void;
+  blur(): void;
+}
+
 export interface FABProps {
-  // Icon to render
   icon: ReactNode;
-  
-  // Optional label for extended FAB
+  /** Optional label — when set with `size='regular'` produces the extended FAB. */
   label?: string;
-  
-  // Color variant
   color?: FABColor;
-  
-  // Size
   size?: FABSize;
-  
-  // Whether FAB is lowered (no elevation)
   lowered?: boolean;
-  
-  // Press handler
-  onPress?: (event: GestureResponderEvent) => void;
-  
-  // Long press handler
-  onLongPress?: (event: GestureResponderEvent) => void;
-  
-  // Disabled state
+  onPress?: (e: GestureResponderEvent) => void;
+  onLongPress?: (e: GestureResponderEvent) => void;
   disabled?: boolean;
-  
-  // Style override
+  enableHaptics?: boolean;
   style?: StyleProp<ViewStyle>;
-  
-  // Accessibility
+  /** Required — FABs are icon-only by default and need an a11y label. */
   accessibilityLabel: string;
   accessibilityHint?: string;
   testID?: string;
+  ref?: React.Ref<FABHandle>;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-// Size configurations
 const sizeConfig = {
-  small: { size: 40, iconSize: 24, radius: 12, labelSize: 0 },
-  regular: { size: 56, iconSize: 24, radius: 16, labelSize: 14 },
-  large: { size: 96, iconSize: 36, radius: 28, labelSize: 0 },
-};
+  small: { size: 40, iconSize: 24, radius: 12 },
+  regular: { size: 56, iconSize: 24, radius: 16 },
+  large: { size: 96, iconSize: 36, radius: 28 },
+} as const;
 
-/**
- * FAB Component
- */
-export function FAB({
-  icon,
-  label,
-  color = 'primary',
-  size = 'regular',
-  lowered = false,
-  onPress,
-  onLongPress,
-  disabled = false,
-  style,
-  accessibilityLabel,
-  accessibilityHint,
-  testID,
-}: FABProps): React.ReactElement {
+const FABImpl = forwardRef<FABHandle, FABProps>(function FAB(
+  {
+    icon,
+    label,
+    color = 'primary',
+    size = 'regular',
+    lowered = false,
+    onPress,
+    onLongPress,
+    disabled = false,
+    enableHaptics,
+    style,
+    accessibilityLabel,
+    accessibilityHint,
+    testID,
+  },
+  ref
+): React.ReactElement {
   const theme = useTheme();
-  const [isPressed, setIsPressed] = useState(false);
-  const scale = useSharedValue(1);
-  
+  const reduceMotion = useReducedMotion();
+  const viewRef = useRef<View>(null);
   const sizeStyles = sizeConfig[size];
   const isExtended = !!label && size === 'regular';
-  
-  // Get colors based on color variant
-  const getColors = () => {
-    if (disabled) {
-      return {
-        container: theme.colors.onSurface + '1F',
-        content: theme.colors.onSurface + '61',
-      };
-    }
-    
-    switch (color) {
-      case 'primary':
-        return {
-          container: theme.colors.primaryContainer,
-          content: theme.colors.onPrimaryContainer,
-        };
-      case 'secondary':
-        return {
-          container: theme.colors.secondaryContainer,
-          content: theme.colors.onSecondaryContainer,
-        };
-      case 'tertiary':
-        return {
-          container: theme.colors.tertiaryContainer,
-          content: theme.colors.onTertiaryContainer,
-        };
-      case 'surface':
-        return {
-          container: theme.colors.surfaceContainerHigh,
-          content: theme.colors.primary,
-        };
-      default:
-        return {
-          container: theme.colors.primaryContainer,
-          content: theme.colors.onPrimaryContainer,
-        };
-    }
-  };
-  
-  const colors = getColors();
-  
-  // Animated styles
-  const animatedStyle = useAnimatedStyle(() => ({
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus() {
+        const node = viewRef.current as (View & { focus?: () => void }) | null;
+        node?.focus?.();
+      },
+      blur() {
+        const node = viewRef.current as (View & { blur?: () => void }) | null;
+        node?.blur?.();
+      },
+    }),
+    []
+  );
+
+  const interactive = useInteractiveState({ disabled });
+  const { pressed, hovered, focused, focusVisible, handlers } = interactive;
+
+  const scale = useSharedValue(1);
+  const stateLayerProgress = useSharedValue(0);
+
+  useEffect(() => {
+    const target = pressed || focused || hovered ? 1 : 0;
+    stateLayerProgress.value = reduceMotion
+      ? target
+      : withTiming(target, { duration: duration.short3 });
+  }, [pressed, focused, hovered, reduceMotion, stateLayerProgress]);
+
+  const colors = disabled
+    ? {
+        container: withAlpha(theme.colors.onSurface, 0.12),
+        content: withAlpha(theme.colors.onSurface, 0.38),
+      }
+    : color === 'primary'
+      ? { container: theme.colors.primaryContainer, content: theme.colors.onPrimaryContainer }
+      : color === 'secondary'
+        ? { container: theme.colors.secondaryContainer, content: theme.colors.onSecondaryContainer }
+        : color === 'tertiary'
+          ? { container: theme.colors.tertiaryContainer, content: theme.colors.onTertiaryContainer }
+          : { container: theme.colors.surfaceContainerHigh, content: theme.colors.primary };
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
-  
-  // Handle press events
-  const handlePressIn = useCallback(() => {
-    setIsPressed(true);
-    scale.value = withSpring(0.95, springConfig.stiff);
-    if (theme.accessibility.hapticFeedback && !disabled && Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-  }, [disabled, scale, theme.accessibility.hapticFeedback]);
-  
-  const handlePressOut = useCallback(() => {
-    setIsPressed(false);
-    scale.value = withSpring(1, springConfig.gentle);
-  }, [scale]);
-  
-  // FAB styles
+
+  const stateLayerOpacity = pressed || focused ? 0.12 : hovered ? 0.08 : 0;
+  const stateLayerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: stateLayerProgress.value * stateLayerOpacity,
+  }));
+
+  const handlePressIn = useCallback(
+    (e: GestureResponderEvent) => {
+      handlers.onPressIn(e);
+      if (!reduceMotion) scale.value = withSpring(0.95, springConfig.stiff);
+      const hapticsOn = enableHaptics ?? theme.accessibility.hapticFeedback;
+      if (hapticsOn && !disabled && Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+      }
+    },
+    [handlers, reduceMotion, scale, enableHaptics, theme.accessibility.hapticFeedback, disabled]
+  );
+
+  const handlePressOut = useCallback(
+    (e: GestureResponderEvent) => {
+      handlers.onPressOut(e);
+      if (!reduceMotion) scale.value = withSpring(1, springConfig.gentle);
+      else scale.value = 1;
+    },
+    [handlers, reduceMotion, scale]
+  );
+
+  const elevationLevel = lowered ? 0 : 3;
+
   const fabStyles: StyleProp<ViewStyle> = [
     {
       height: sizeStyles.size,
@@ -176,58 +182,70 @@ export function FAB({
       paddingHorizontal: isExtended ? 16 : 0,
       gap: isExtended ? 8 : 0,
       overflow: 'hidden',
+      ...theme.elevation(elevationLevel as 0 | 1 | 2 | 3 | 4 | 5),
     },
     style,
   ];
-  
-  // State layer
-  const stateLayerStyle: ViewStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+
+  const stateLayerBaseStyle: ViewStyle = {
+    ...StyleSheet.absoluteFillObject,
     borderRadius: sizeStyles.radius,
-    backgroundColor: isPressed
-      ? colors.content + '1F' // 12% opacity
-      : 'transparent',
+    backgroundColor: colors.content,
   };
 
+  const focusRingStyle: ViewStyle = {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: sizeStyles.radius + 3,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  };
+
+  const webHoverProps =
+    Platform.OS === 'web'
+      ? ({
+          onMouseEnter: handlers.onHoverIn,
+          onMouseLeave: handlers.onHoverOut,
+        } as unknown as object)
+      : {};
+
   return (
-    <AnimatedPressable
-      style={[fabStyles, animatedStyle]}
-      onPress={disabled ? undefined : onPress}
-      onLongPress={disabled ? undefined : onLongPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={disabled}
-      accessible={true}
-      accessibilityRole={'button' as AccessibilityRole}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
-      testID={testID}
-    >
-      <View style={stateLayerStyle} pointerEvents="none" />
-      
-      {/* Icon */}
-      <View style={{ width: sizeStyles.iconSize, height: sizeStyles.iconSize }}>
-        {icon}
-      </View>
-      
-      {/* Label (extended FAB) */}
-      {isExtended && (
-        <Text
-          style={{
-            ...theme.typography.labelLarge,
-            color: colors.content,
-          }}
-        >
-          {label}
-        </Text>
-      )}
-    </AnimatedPressable>
+    <View>
+      <AnimatedPressable
+        ref={viewRef as React.Ref<View>}
+        {...webHoverProps}
+        style={[fabStyles, containerAnimatedStyle]}
+        onPress={disabled ? undefined : onPress}
+        onLongPress={disabled ? undefined : onLongPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onFocus={handlers.onFocus}
+        onBlur={handlers.onBlur}
+        disabled={disabled}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled }}
+        focusable={!disabled}
+        testID={testID}
+      >
+        <Animated.View style={[stateLayerBaseStyle, stateLayerAnimatedStyle]} pointerEvents="none" />
+        <View style={{ width: sizeStyles.iconSize, height: sizeStyles.iconSize }}>{icon}</View>
+        {isExtended && (
+          <Text style={{ ...theme.typography.labelLarge, color: colors.content }}>{label}</Text>
+        )}
+      </AnimatedPressable>
+      {focusVisible && <View style={focusRingStyle} pointerEvents="none" accessibilityElementsHidden />}
+    </View>
   );
-}
+});
+
+FABImpl.displayName = 'FAB';
+
+export const FAB = memo(FABImpl);
 
 export default FAB;
