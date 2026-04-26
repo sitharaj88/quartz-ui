@@ -262,7 +262,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Hero Carousel */}
       <Animated.View entering={FadeInDown.delay(200).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Hero Carousel"
           description="Full-width hero carousel with auto-play and loop"
           code={`<Carousel
@@ -308,7 +308,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Multi-browse Carousel */}
       <Animated.View entering={FadeInDown.delay(300).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Multi-browse Carousel"
           description="Browse multiple items at once - perfect for product catalogs"
           code={`<Carousel
@@ -341,7 +341,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Center Carousel */}
       <Animated.View entering={FadeInDown.delay(400).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Center Carousel"
           description="Centered item with preview of adjacent items"
           code={`<Carousel
@@ -380,7 +380,7 @@ export default function CarouselSliderDocPage() {
 
       {/* All Slider Examples */}
       <Animated.View entering={FadeInDown.delay(650).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Common Use Cases"
           description="Real-world slider applications for settings and controls"
           code={`// Volume Control
@@ -459,7 +459,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Continuous Slider */}
       <Animated.View entering={FadeInDown.delay(700).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Continuous Slider"
           description="Smooth value selection"
           code={`<Slider
@@ -493,7 +493,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Slider with Label */}
       <Animated.View entering={FadeInDown.delay(750).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="With Value Label"
           description="Show current value above thumb"
           code={`<Slider
@@ -529,7 +529,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Discrete Slider */}
       <Animated.View entering={FadeInDown.delay(800).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Discrete Slider"
           description="Slider with step marks"
           code={`<Slider
@@ -565,7 +565,7 @@ export default function CarouselSliderDocPage() {
 
       {/* Rating Slider */}
       <Animated.View entering={FadeInDown.delay(850).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Rating Slider"
           description="Discrete slider for ratings"
           code={`<Slider

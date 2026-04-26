@@ -161,7 +161,7 @@ export default function FeedbackDocPage() {
 
       {/* Basic Snackbar */}
       <Animated.View entering={FadeInDown.delay(200).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Snackbar"
           description="Simple message notification"
           code={`<Snackbar
@@ -190,7 +190,7 @@ export default function FeedbackDocPage() {
 
       {/* Snackbar with Action */}
       <Animated.View entering={FadeInDown.delay(300).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="With Action"
           description="Snackbar with undo action button"
           code={`<Snackbar
@@ -244,7 +244,7 @@ export default function FeedbackDocPage() {
 
       {/* Basic Banner */}
       <Animated.View entering={FadeInDown.delay(600).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Banner"
           description="Informational banner with actions"
           code={`<Banner
@@ -275,7 +275,7 @@ export default function FeedbackDocPage() {
 
       {/* Warning Banner */}
       <Animated.View entering={FadeInDown.delay(700).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Warning Banner"
           description="Banner for important warnings"
           code={`<Banner
@@ -320,7 +320,7 @@ export default function FeedbackDocPage() {
 
       {/* Basic Tooltip */}
       <Animated.View entering={FadeInDown.delay(1000).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Tooltips"
           description="Plain tooltips on hover/long-press"
           code={`<Tooltip message="Add to favorites">
@@ -358,7 +358,7 @@ export default function FeedbackDocPage() {
 
       {/* Tooltip Placement */}
       <Animated.View entering={FadeInDown.delay(1100).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Position Options"
           description="Tooltips can appear on any side"
           code={`<Tooltip message="Top" position="top">...</Tooltip>

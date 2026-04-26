@@ -211,7 +211,7 @@ export default function OverlaysDocPage() {
 
             {/* Basic Menu */}
             <Animated.View entering={FadeInDown.delay(200).springify()}>
-                <CodePlayground
+                <CodePlayground frameContentLayout="full"
                     title="Basic Menu"
                     description="Dropdown menu with icons and actions"
                     code={`const [visible, setVisible] = useState(false);
@@ -280,7 +280,7 @@ const menuItems = [
 
             {/* Basic Bottom Sheet */}
             <Animated.View entering={FadeInDown.delay(500).springify()}>
-                <CodePlayground
+                <CodePlayground frameContentLayout="full"
                     title="Basic Bottom Sheet"
                     description="Draggable sheet with snap points"
                     code={`const [visible, setVisible] = useState(false);
@@ -370,7 +370,7 @@ const menuItems = [
 
             {/* Basic Side Sheet */}
             <Animated.View entering={FadeInDown.delay(800).springify()}>
-                <CodePlayground
+                <CodePlayground frameContentLayout="full"
                     title="Basic Side Sheet"
                     description="Modal side sheet with header"
                     code={`const [open, setOpen] = useState(false);

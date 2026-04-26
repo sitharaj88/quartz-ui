@@ -155,7 +155,7 @@ export default function DialogsDocPage() {
         </Text>
 
         {/* Basic Dialog */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Dialog"
           description="Dialog with title, content, and action buttons"
           code={`const [visible, setVisible] = useState(false);
@@ -198,7 +198,7 @@ export default function DialogsDocPage() {
         />
 
         {/* Dialog with Icon */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Dialog with Icon"
           description="Dialog featuring an icon for visual emphasis"
           code={`<Dialog
@@ -233,7 +233,7 @@ export default function DialogsDocPage() {
         />
 
         {/* Full-Screen Dialog */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Full-Screen Dialog"
           description="Dialog that takes up the entire screen"
           code={`<Dialog
@@ -288,7 +288,7 @@ export default function DialogsDocPage() {
         />
 
         {/* Alert Dialog */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Alert Dialog"
           description="Simple alert with confirm button"
           code={`const [visible, setVisible] = useState(false);
@@ -317,7 +317,7 @@ export default function DialogsDocPage() {
         />
 
         {/* Destructive Alert */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Destructive Alert"
           description="Alert for destructive actions with cancel option"
           code={`<AlertDialog
@@ -355,7 +355,7 @@ export default function DialogsDocPage() {
         />
 
         {/* Non-Dismissable Dialog */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Non-Dismissable Dialog"
           description="Dialog that requires explicit user action"
           code={`<Dialog

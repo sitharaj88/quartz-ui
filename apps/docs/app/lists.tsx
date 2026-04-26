@@ -151,7 +151,7 @@ export default function ListsDocPage() {
 
       {/* Single Line List */}
       <Animated.View entering={FadeInDown.delay(200).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="top"
           title="Single Line"
           description="Simple list with one line of text"
           code={`<ListItem
@@ -188,7 +188,7 @@ export default function ListsDocPage() {
 
       {/* Two Line List */}
       <Animated.View entering={FadeInDown.delay(300).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="top"
           title="Two Lines"
           description="List with headline and supporting text"
           code={`<ListItem
@@ -241,7 +241,7 @@ export default function ListsDocPage() {
 
       {/* Selectable List */}
       <Animated.View entering={FadeInDown.delay(400).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="top"
           title="Selectable Items"
           description="List items with selection state"
           code={`<ListItem
@@ -290,7 +290,7 @@ export default function ListsDocPage() {
 
       {/* Divider Variants */}
       <Animated.View entering={FadeInDown.delay(700).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="top"
           title="Divider Insets"
           description="No inset, start inset, and both sides inset"
           code={`<Divider />
@@ -327,7 +327,7 @@ export default function ListsDocPage() {
 
       {/* Badge Examples */}
       <Animated.View entering={FadeInDown.delay(1000).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="top"
           title="Badge Variants"
           description="Small dot and large numbered badges"
           code={`// Large badge with number

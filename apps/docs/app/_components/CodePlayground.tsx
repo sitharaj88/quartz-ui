@@ -23,6 +23,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MobileFrame } from './MobileFrame';
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -37,6 +38,25 @@ interface CodePlaygroundProps {
   description?: string;
   language?: 'tsx' | 'jsx' | 'typescript' | 'javascript';
   fileName?: string;
+  /**
+   * Wrap the preview in a mobile device frame. Defaults to true — Quartz UI is
+   * a mobile component library, so showing previews "as on a phone" reads
+   * better. Pass `false` for full-bleed components (large layouts, navigation
+   * containers, full-screen sheets) where the frame doesn't make sense.
+   */
+  framed?: boolean;
+  /** Frame width in dp. Default 320. Auto-shrinks on narrow viewports. */
+  frameWidth?: number;
+  /** Min content height inside the frame. Default 480. */
+  frameMinHeight?: number;
+  /**
+   * How the preview lays out inside the frame's screen:
+   *   - `'center'` (default): centered + padded — best for individual components
+   *   - `'top'`: top-aligned + padded — best for lists, forms, nav-anchored content
+   *   - `'full'`: edge-to-edge with no padding — best for AppBar, NavigationBar,
+   *     Drawer, BottomSheet, Dialog, and other full-bleed components
+   */
+  frameContentLayout?: 'center' | 'top' | 'full';
 }
 
 // Token types for syntax highlighting
@@ -718,6 +738,10 @@ export function CodePlayground({
   description,
   language = 'tsx',
   fileName,
+  framed = true,
+  frameWidth = 320,
+  frameMinHeight = 480,
+  frameContentLayout = 'center',
 }: CodePlaygroundProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
@@ -842,9 +866,19 @@ export function CodePlayground({
               key="preview"
               entering={FadeInLeft.duration(350).easing(Easing.out(Easing.cubic))}
               exiting={FadeOutLeft.duration(250).easing(Easing.in(Easing.cubic))}
-              style={[styles.preview, { padding: isMobile ? 32 : 40 }]}
+              style={[styles.preview, { padding: isMobile ? 16 : 32 }]}
             >
-              {preview}
+              {framed ? (
+                <MobileFrame
+                  width={frameWidth}
+                  minHeight={frameMinHeight}
+                  contentLayout={frameContentLayout}
+                >
+                  {preview}
+                </MobileFrame>
+              ) : (
+                preview
+              )}
             </Animated.View>
           ) : (
             <Animated.View 

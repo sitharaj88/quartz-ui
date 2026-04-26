@@ -144,7 +144,7 @@ export default function TabsDocPage() {
 
       {/* Primary Tabs */}
       <Animated.View entering={FadeInDown.delay(200).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Primary Tabs"
           description="Tabs with icons for top-level navigation"
           code={`const [selected, setSelected] = useState('home');
@@ -185,7 +185,7 @@ export default function TabsDocPage() {
 
       {/* Secondary Tabs */}
       <Animated.View entering={FadeInDown.delay(300).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Secondary Tabs"
           description="Text-only tabs for sub-navigation"
           code={`<Tabs
@@ -223,7 +223,7 @@ export default function TabsDocPage() {
 
       {/* Scrollable Tabs */}
       <Animated.View entering={FadeInDown.delay(400).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Scrollable Tabs"
           description="Horizontally scrollable for many tabs"
           code={`<Tabs
@@ -284,7 +284,7 @@ export default function TabsDocPage() {
 
       {/* Basic Search */}
       <Animated.View entering={FadeInDown.delay(700).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Search Bar"
           description="Simple search with clear button"
           code={`const [query, setQuery] = useState('');
@@ -310,7 +310,7 @@ export default function TabsDocPage() {
 
       {/* Search with Trailing Icon */}
       <Animated.View entering={FadeInDown.delay(800).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="With Trailing Icon"
           description="Search bar with avatar or action icon"
           code={`<SearchBar

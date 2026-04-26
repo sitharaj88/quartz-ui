@@ -163,7 +163,7 @@ export default function AdvancedNavigationDocPage() {
 
       {/* Standard Drawer - Using Real Component */}
       <Animated.View entering={FadeInDown.delay(200).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Standard Drawer (Always Visible)"
           description="Persistent side navigation for desktop/tablet layouts"
           code={`const drawerSections = [
@@ -327,7 +327,7 @@ export default function AdvancedNavigationDocPage() {
 
       {/* Modal Drawer - Using Real Component */}
       <Animated.View entering={FadeInDown.delay(300).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Modal Drawer (Overlay)"
           description="Overlay navigation for mobile devices - swipe or tap scrim to close"
           code={`const [drawerOpen, setDrawerOpen] = useState(false);
@@ -530,7 +530,7 @@ interface DrawerItem {
 
       {/* Basic Rail */}
       <Animated.View entering={FadeInDown.delay(600).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Navigation Rail"
           description="Compact vertical navigation"
           code={`<NavigationRail
@@ -599,7 +599,7 @@ interface DrawerItem {
 
       {/* Rail with FAB */}
       <Animated.View entering={FadeInDown.delay(700).springify()}>
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="With FAB Action"
           description="Navigation rail with floating action button"
           code={`<NavigationRail

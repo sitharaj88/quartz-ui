@@ -168,7 +168,7 @@ export default function NavigationDocPage() {
         </Text>
 
         {/* Small App Bar */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Small App Bar"
           description="Compact app bar for standard screens"
           code={`<AppBar
@@ -214,7 +214,7 @@ export default function NavigationDocPage() {
         />
 
         {/* Center-Aligned App Bar */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Center-Aligned App Bar"
           description="App bar with centered title"
           code={`<AppBar
@@ -250,7 +250,7 @@ export default function NavigationDocPage() {
         />
 
         {/* Medium App Bar */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Medium App Bar"
           description="App bar with expanded title area"
           code={`<AppBar
@@ -286,7 +286,7 @@ export default function NavigationDocPage() {
         />
 
         {/* Large App Bar */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Large App Bar"
           description="App bar with large title for emphasis"
           code={`<AppBar
@@ -322,7 +322,7 @@ export default function NavigationDocPage() {
         />
 
         {/* Elevated App Bar */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Elevated App Bar"
           description="App bar with elevation (scrolled state)"
           code={`<AppBar
@@ -356,7 +356,7 @@ export default function NavigationDocPage() {
         </Text>
 
         {/* Basic Navigation Bar */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Basic Navigation Bar"
           description="Navigation bar with icons and labels"
           code={`const [selected, setSelected] = useState('home');
@@ -399,7 +399,7 @@ const items = [
         />
 
         {/* Navigation Bar with Badges */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Navigation Bar with Badges"
           description="Show notification counts with badges"
           code={`const items = [
@@ -436,7 +436,7 @@ const items = [
         />
 
         {/* Active Only Labels */}
-        <CodePlayground
+        <CodePlayground frameContentLayout="full"
           title="Active-Only Labels"
           description="Show labels only for selected item"
           code={`<NavigationBar

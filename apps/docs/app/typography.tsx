@@ -101,7 +101,7 @@ export default function TypographyDocPage() {
                 <Text variant="bodyMedium" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
                     Display styles are reserved for short, important text or numerals. Used for hero sections and large callouts.
                 </Text>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Display Variants"
                     description="Large, impactful typography for heroes"
                     code={`<Text variant="displayLarge">Display Large</Text>
@@ -132,7 +132,7 @@ export default function TypographyDocPage() {
                 <Text variant="bodyMedium" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
                     Headlines are best-suited for short, high-emphasis text on smaller screens. Used for section titles.
                 </Text>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Headline Variants"
                     description="Section headers and page titles"
                     code={`<Text variant="headlineLarge">Headline Large</Text>
@@ -163,7 +163,7 @@ export default function TypographyDocPage() {
                 <Text variant="bodyMedium" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
                     Titles are smaller than headlines and should be used for medium-emphasis text. Used for cards, dialogs, and sections.
                 </Text>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Title Variants"
                     description="Card titles and dialog headers"
                     code={`<Text variant="titleLarge">Title Large</Text>
@@ -194,7 +194,7 @@ export default function TypographyDocPage() {
                 <Text variant="bodyMedium" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
                     Body styles are used for longer passages of text and paragraph content. The primary reading style.
                 </Text>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Body Variants"
                     description="Paragraph text and descriptions"
                     code={`<Text variant="bodyLarge">Body Large</Text>
@@ -225,7 +225,7 @@ export default function TypographyDocPage() {
                 <Text variant="bodyMedium" style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
                     Label styles are smaller, utilitarian styles used for things like navigation, tabs, and buttons.
                 </Text>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Label Variants"
                     description="Buttons, tabs, and UI controls"
                     code={`<Text variant="labelLarge">Label Large</Text>
@@ -250,7 +250,7 @@ export default function TypographyDocPage() {
 
             {/* Color Variations */}
             <Animated.View entering={FadeInDown.delay(700).springify()}>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Color Variations"
                     description="Text with semantic colors"
                     code={`<Text color={theme.colors.primary}>Primary Text</Text>
@@ -280,7 +280,7 @@ export default function TypographyDocPage() {
 
             {/* Text Features */}
             <Animated.View entering={FadeInDown.delay(800).springify()}>
-                <CodePlayground
+                <CodePlayground frameContentLayout="top"
                     title="Text Features"
                     description="Alignment, truncation, and selection"
                     code={`// Alignment
