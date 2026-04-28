@@ -15,7 +15,6 @@ import {
   ViewStyle,
   StyleProp,
   LayoutRectangle,
-  useWindowDimensions,
   Platform,
 } from 'react-native';
 import Animated, {
@@ -27,6 +26,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { springConfig } from '../../tokens/motion';
 import { withAlpha } from '../../utils/color';
 import { Text } from '../Text';
@@ -74,7 +74,8 @@ function MenuImpl({
   testID,
 }: MenuProps) {
   const theme = useTheme();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const viewport = useViewportDimensions();
+  const { width: screenWidth, height: screenHeight, isContained } = viewport;
   const [anchorLayout, setAnchorLayout] = useState<LayoutRectangle | null>(null);
   const [menuSize, setMenuSize] = useState({ width: 0, height: 0 });
   const anchorRef = useRef<View>(null);
@@ -95,10 +96,21 @@ function MenuImpl({
   const handleAnchorLayout = useCallback(() => {
     if (anchorRef.current) {
       anchorRef.current.measureInWindow((x, y, width, height) => {
-        setAnchorLayout({ x, y, width, height });
+        setAnchorLayout({
+          x: isContained ? x - viewport.x : x,
+          y: isContained ? y - viewport.y : y,
+          width,
+          height,
+        });
       });
     }
-  }, []);
+  }, [isContained, viewport.x, viewport.y]);
+
+  useEffect(() => {
+    if (visible) {
+      handleAnchorLayout();
+    }
+  }, [handleAnchorLayout, visible]);
   
   const handleMenuLayout = (event: any) => {
     const { width, height } = event.nativeEvent.layout;
@@ -160,85 +172,95 @@ function MenuImpl({
     return { top, left };
   };
   
+  const menuOverlay = (
+    <Pressable style={styles.backdrop} onPress={onDismiss}>
+      <AnimatedView
+        style={[
+          styles.menu,
+          {
+            backgroundColor: theme.colors.surfaceContainer,
+            ...getMenuPosition(),
+          },
+          menuStyle,
+          style,
+        ]}
+        onLayout={handleMenuLayout}
+        testID={testID}
+        accessibilityRole="menu"
+      >
+        {items.map((item, index) => (
+          <React.Fragment key={item.key}>
+            {item.divider && index > 0 && (
+              <Divider style={styles.divider} />
+            )}
+            <Pressable
+              onPress={() => handleSelect(item)}
+              disabled={item.disabled}
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { backgroundColor: withAlpha(theme.colors.onSurface, 0.08) },
+                item.disabled && styles.disabledItem,
+              ]}
+              accessibilityRole="menuitem"
+              accessibilityState={{ disabled: item.disabled }}
+              accessibilityLabel={item.label}
+            >
+              {item.icon && (
+                <View style={styles.leadingIcon}>
+                  {item.icon}
+                </View>
+              )}
+              
+              <Text
+                variant="bodyLarge"
+                style={[
+                  styles.label,
+                  {
+                    color: item.disabled
+                      ? withAlpha(theme.colors.onSurface, 0.38)
+                      : item.destructive
+                      ? theme.colors.error
+                      : theme.colors.onSurface,
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {item.label}
+              </Text>
+              
+              {item.trailingIcon && (
+                <View style={styles.trailingIcon}>
+                  {item.trailingIcon}
+                </View>
+              )}
+            </Pressable>
+          </React.Fragment>
+        ))}
+      </AnimatedView>
+    </Pressable>
+  );
+
   return (
     <View>
       <View ref={anchorRef} onLayout={handleAnchorLayout}>
         {anchor}
       </View>
-      
-      <Modal
-        visible={visible}
-        transparent
-        statusBarTranslucent
-        animationType="none"
-        onRequestClose={onDismiss}
-      >
-        <Pressable style={styles.backdrop} onPress={onDismiss}>
-          <AnimatedView
-            style={[
-              styles.menu,
-              {
-                backgroundColor: theme.colors.surfaceContainer,
-                ...getMenuPosition(),
-              },
-              menuStyle,
-              style,
-            ]}
-            onLayout={handleMenuLayout}
-            testID={testID}
-            accessibilityRole="menu"
-          >
-            {items.map((item, index) => (
-              <React.Fragment key={item.key}>
-                {item.divider && index > 0 && (
-                  <Divider style={styles.divider} />
-                )}
-                <Pressable
-                  onPress={() => handleSelect(item)}
-                  disabled={item.disabled}
-                  style={({ pressed }) => [
-                    styles.menuItem,
-                    pressed && { backgroundColor: withAlpha(theme.colors.onSurface, 0.08) },
-                    item.disabled && styles.disabledItem,
-                  ]}
-                  accessibilityRole="menuitem"
-                  accessibilityState={{ disabled: item.disabled }}
-                  accessibilityLabel={item.label}
-                >
-                  {item.icon && (
-                    <View style={styles.leadingIcon}>
-                      {item.icon}
-                    </View>
-                  )}
-                  
-                  <Text
-                    variant="bodyLarge"
-                    style={[
-                      styles.label,
-                      {
-                        color: item.disabled
-                          ? withAlpha(theme.colors.onSurface, 0.38)
-                          : item.destructive
-                          ? theme.colors.error
-                          : theme.colors.onSurface,
-                      },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {item.label}
-                  </Text>
-                  
-                  {item.trailingIcon && (
-                    <View style={styles.trailingIcon}>
-                      {item.trailingIcon}
-                    </View>
-                  )}
-                </Pressable>
-              </React.Fragment>
-            ))}
-          </AnimatedView>
-        </Pressable>
-      </Modal>
+
+      {isContained ? (
+        <QuartzViewportPortal active={visible}>
+          {menuOverlay}
+        </QuartzViewportPortal>
+      ) : (
+        <Modal
+          visible={visible}
+          transparent
+          statusBarTranslucent
+          animationType="none"
+          onRequestClose={onDismiss}
+        >
+          {menuOverlay}
+        </Modal>
+      )}
     </View>
   );
 }
@@ -249,6 +271,7 @@ export const Menu = memo(MenuImpl);
 
 const styles = StyleSheet.create({
   backdrop: {
+    ...StyleSheet.absoluteFillObject,
     flex: 1,
   },
   menu: {

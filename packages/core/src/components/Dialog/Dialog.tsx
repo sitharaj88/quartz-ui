@@ -15,7 +15,6 @@ import {
   StyleSheet,
   ViewStyle,
   StyleProp,
-  useWindowDimensions,
   BackHandler,
   Platform,
   ScrollView,
@@ -30,6 +29,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { springConfig } from '../../tokens/motion';
 import { Text } from '../Text';
 import { Button } from '../Button';
@@ -78,7 +78,7 @@ function DialogImpl({
   testID,
 }: DialogProps) {
   const theme = useTheme();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { width: screenWidth, height: screenHeight, isContained } = useViewportDimensions();
   
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.9);
@@ -130,6 +130,101 @@ function DialogImpl({
   const maxWidth = fullScreen ? screenWidth : Math.min(560, screenWidth - 48);
   const maxHeight = fullScreen ? screenHeight : screenHeight * 0.85;
   
+  const dialogContent = (
+    <View style={styles.modalContainer}>
+      {/* Backdrop */}
+      <Pressable
+        onPress={handleBackdropPress}
+        style={styles.backdropPressable}
+      >
+        <AnimatedView
+          style={[
+            styles.backdrop,
+            { backgroundColor: theme.colors.scrim },
+            backdropStyle,
+          ]}
+        />
+      </Pressable>
+      
+      {/* Dialog */}
+      <AnimatedView
+        style={[
+          styles.dialog,
+          {
+            backgroundColor: theme.colors.surfaceContainerHigh,
+            maxWidth,
+            maxHeight,
+            borderRadius: fullScreen ? 0 : 28,
+          },
+          containerStyle,
+          fullScreen && styles.fullScreenDialog,
+        ]}
+        accessible={true}
+        accessibilityRole="alert"
+        accessibilityViewIsModal={true}
+      >
+        <ScrollView
+          style={styles.scrollContent}
+          contentContainerStyle={[styles.contentContainer, contentStyle]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Icon */}
+          {icon && <View style={styles.iconContainer}>{icon}</View>}
+          
+          {/* Title */}
+          {title && (
+            <Text
+              variant="headlineSmall"
+              style={[
+                styles.title,
+                { color: theme.colors.onSurface },
+                icon ? styles.titleWithIcon : undefined,
+              ]}
+            >
+              {title}
+            </Text>
+          )}
+          
+          {/* Content */}
+          {typeof children === 'string' ? (
+            <Text
+              variant="bodyMedium"
+              style={[styles.content, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {children}
+            </Text>
+          ) : (
+            <View style={styles.content}>{children}</View>
+          )}
+        </ScrollView>
+        
+        {/* Actions */}
+        {actions.length > 0 && (
+          <View style={styles.actions}>
+            {actions.map((action, index) => (
+              <Button
+                key={index}
+                variant={action.variant ?? 'text'}
+                onPress={action.onPress}
+                style={styles.actionButton}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </View>
+        )}
+      </AnimatedView>
+    </View>
+  );
+
+  if (isContained) {
+    return (
+      <QuartzViewportPortal active={visible}>
+        {dialogContent}
+      </QuartzViewportPortal>
+    );
+  }
+
   return (
     <Modal
       visible={visible}
@@ -139,90 +234,7 @@ function DialogImpl({
       onRequestClose={dismissable ? onDismiss : undefined}
       testID={testID}
     >
-      <View style={styles.modalContainer}>
-        {/* Backdrop */}
-        <Pressable
-          onPress={handleBackdropPress}
-          style={styles.backdropPressable}
-        >
-          <AnimatedView
-            style={[
-              styles.backdrop,
-              { backgroundColor: theme.colors.scrim },
-              backdropStyle,
-            ]}
-          />
-        </Pressable>
-        
-        {/* Dialog */}
-        <AnimatedView
-          style={[
-            styles.dialog,
-            {
-              backgroundColor: theme.colors.surfaceContainerHigh,
-              maxWidth,
-              maxHeight,
-              borderRadius: fullScreen ? 0 : 28,
-            },
-            containerStyle,
-            fullScreen && styles.fullScreenDialog,
-          ]}
-          accessible={true}
-          accessibilityRole="alert"
-          accessibilityViewIsModal={true}
-        >
-          <ScrollView
-            style={styles.scrollContent}
-            contentContainerStyle={[styles.contentContainer, contentStyle]}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Icon */}
-            {icon && <View style={styles.iconContainer}>{icon}</View>}
-            
-            {/* Title */}
-            {title && (
-              <Text
-                variant="headlineSmall"
-                style={[
-                  styles.title,
-                  { color: theme.colors.onSurface },
-                  icon ? styles.titleWithIcon : undefined,
-                ]}
-              >
-                {title}
-              </Text>
-            )}
-            
-            {/* Content */}
-            {typeof children === 'string' ? (
-              <Text
-                variant="bodyMedium"
-                style={[styles.content, { color: theme.colors.onSurfaceVariant }]}
-              >
-                {children}
-              </Text>
-            ) : (
-              <View style={styles.content}>{children}</View>
-            )}
-          </ScrollView>
-          
-          {/* Actions */}
-          {actions.length > 0 && (
-            <View style={styles.actions}>
-              {actions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant={action.variant ?? 'text'}
-                  onPress={action.onPress}
-                  style={styles.actionButton}
-                >
-                  {action.label}
-                </Button>
-              ))}
-            </View>
-          )}
-        </AnimatedView>
-      </View>
+      {dialogContent}
     </Modal>
   );
 }

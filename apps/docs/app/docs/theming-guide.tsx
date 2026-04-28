@@ -7,6 +7,23 @@ import { CodePlayground } from '../_components/CodePlayground';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
+// Lives inside the MobileFrame's nested QuartzProvider, so `useQuartzTheme`
+// here resolves to the inner provider — toggling flips only the preview.
+function ThemeToggleDemo() {
+  const theme = useTheme();
+  const { mode, toggleMode } = useQuartzTheme();
+  return (
+    <View style={{ gap: 12 }}>
+      <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+        Current mode: {mode}
+      </Text>
+      <Button variant="filled" onPress={toggleMode}>
+        Toggle Theme
+      </Button>
+    </View>
+  );
+}
+
 export default function ThemingGuidePage() {
   const theme = useTheme();
   const { mode, toggleMode } = useQuartzTheme();
@@ -261,16 +278,7 @@ function ThemeToggle() {
     </View>
   );
 }`}
-          preview={
-            <View style={{ gap: 12 }}>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
-                Current mode: {mode}
-              </Text>
-              <Button variant="filled" onPress={toggleMode}>
-                Toggle Theme
-              </Button>
-            </View>
-          }
+          preview={<ThemeToggleDemo />}
         />
       </Animated.View>
 

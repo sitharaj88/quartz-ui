@@ -12,7 +12,6 @@ import {
   Pressable,
   ViewStyle,
   StyleProp,
-  Dimensions,
   ScrollView,
   I18nManager,
   Platform,
@@ -29,13 +28,12 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { Text } from '../Text';
 import { IconButton } from '../IconButton';
 import { Divider } from '../Divider';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SHEET_WIDTH = 360;
-const SHEET_MAX_WIDTH = Math.min(SHEET_WIDTH, SCREEN_WIDTH * 0.9);
 
 export interface SideSheetProps {
   /** Whether the sheet is open (for modal variant) */
@@ -82,13 +80,15 @@ function SideSheetImpl({
   testID,
 }: SideSheetProps): React.ReactElement | null {
   const theme = useTheme();
+  const { width: screenWidth } = useViewportDimensions();
+  const sheetMaxWidth = Math.min(SHEET_WIDTH, screenWidth * 0.9);
   
   // Determine translation direction based on position and RTL
   const isRTL = I18nManager.isRTL;
   const isEnd = position === 'end';
   const shouldSlideFromRight = (isEnd && !isRTL) || (!isEnd && isRTL);
   
-  const translateX = useSharedValue(shouldSlideFromRight ? SHEET_MAX_WIDTH : -SHEET_MAX_WIDTH);
+  const translateX = useSharedValue(shouldSlideFromRight ? sheetMaxWidth : -sheetMaxWidth);
   const scrimOpacity = useSharedValue(0);
   const [shouldRender, setShouldRender] = React.useState(open);
 
@@ -103,7 +103,7 @@ function SideSheetImpl({
       });
       scrimOpacity.value = withTiming(0.32, { duration: DURATION });
     } else {
-      const targetX = shouldSlideFromRight ? SHEET_MAX_WIDTH : -SHEET_MAX_WIDTH;
+      const targetX = shouldSlideFromRight ? sheetMaxWidth : -sheetMaxWidth;
       translateX.value = withTiming(targetX, {
         duration: DURATION,
         easing: Easing.in(Easing.cubic),
@@ -114,7 +114,7 @@ function SideSheetImpl({
       });
       scrimOpacity.value = withTiming(0, { duration: DURATION });
     }
-  }, [open, translateX, scrimOpacity, shouldSlideFromRight]);
+  }, [open, translateX, scrimOpacity, shouldSlideFromRight, sheetMaxWidth]);
 
   // Swipe gesture to close
   const panGesture = Gesture.Pan()
@@ -124,7 +124,7 @@ function SideSheetImpl({
         translateX.value = shouldSlideFromRight ? translation : -translation;
         scrimOpacity.value = interpolate(
           translation,
-          [0, SHEET_MAX_WIDTH],
+          [0, sheetMaxWidth],
           [0.32, 0]
         );
       }
@@ -133,8 +133,8 @@ function SideSheetImpl({
       const translation = shouldSlideFromRight ? event.translationX : -event.translationX;
       const velocity = shouldSlideFromRight ? event.velocityX : -event.velocityX;
       
-      if (translation > SHEET_MAX_WIDTH / 3 || velocity > 500) {
-        const targetX = shouldSlideFromRight ? SHEET_MAX_WIDTH : -SHEET_MAX_WIDTH;
+      if (translation > sheetMaxWidth / 3 || velocity > 500) {
+        const targetX = shouldSlideFromRight ? sheetMaxWidth : -sheetMaxWidth;
         translateX.value = withTiming(targetX, {
           duration: 200,
           easing: Easing.out(Easing.cubic),
@@ -171,6 +171,7 @@ function SideSheetImpl({
           styles.standardSheet,
           {
             backgroundColor: theme.colors.surface,
+            width: sheetMaxWidth,
             [position === 'end' ? 'borderStartWidth' : 'borderEndWidth']: 1,
             borderColor: theme.colors.outlineVariant,
           },
@@ -244,7 +245,7 @@ function SideSheetImpl({
             styles.modalSheet,
             {
               backgroundColor: theme.colors.surfaceContainerLow,
-              width: SHEET_MAX_WIDTH,
+              width: sheetMaxWidth,
               [shouldSlideFromRight ? 'right' : 'left']: 0,
               [shouldSlideFromRight ? 'borderTopStartRadius' : 'borderTopEndRadius']: 28,
               [shouldSlideFromRight ? 'borderBottomStartRadius' : 'borderBottomEndRadius']: 28,
@@ -304,7 +305,6 @@ export const SideSheet = memo(SideSheetImpl);
 
 const styles = StyleSheet.create({
   standardSheet: {
-    width: SHEET_MAX_WIDTH,
     height: '100%',
   },
   modalSheet: {

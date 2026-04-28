@@ -499,7 +499,10 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     demoContainer: {
+        flex: 1,
+        width: '100%',
         alignItems: 'center',
+        justifyContent: 'center',
         paddingVertical: 24,
     },
     guidelineCard: {

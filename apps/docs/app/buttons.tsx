@@ -215,20 +215,20 @@ export default function ButtonsDocPage() {
   <Button variant="text">Text Button</Button>
 </View>`}
           preview={
-            <View style={{ gap: 12, alignItems: 'flex-start', width: '100%' }}>
-              <Button variant="filled" onPress={() => {}} style={{ minWidth: 200 }}>
+            <View style={{ gap: 12, alignItems: 'center' }}>
+              <Button variant="filled" onPress={() => {}} style={{ minWidth: 220 }}>
                 Filled Button
               </Button>
-              <Button variant="elevated" onPress={() => {}} style={{ minWidth: 200 }}>
+              <Button variant="elevated" onPress={() => {}} style={{ minWidth: 220 }}>
                 Elevated Button
               </Button>
-              <Button variant="tonal" onPress={() => {}} style={{ minWidth: 200 }}>
+              <Button variant="tonal" onPress={() => {}} style={{ minWidth: 220 }}>
                 Tonal Button
               </Button>
-              <Button variant="outlined" onPress={() => {}} style={{ minWidth: 200 }}>
+              <Button variant="outlined" onPress={() => {}} style={{ minWidth: 220 }}>
                 Outlined Button
               </Button>
-              <Button variant="text" onPress={() => {}} style={{ minWidth: 200 }}>
+              <Button variant="text" onPress={() => {}} style={{ minWidth: 220 }}>
                 Text Button
               </Button>
             </View>

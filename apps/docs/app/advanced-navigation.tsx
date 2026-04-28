@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Pressable } from 'react-native';
 import { 
   Text, 
   NavigationDrawer, 
@@ -137,13 +137,376 @@ const railItems = [
   { key: 'settings', label: 'Settings', icon: 'settings-outline' },
 ];
 
+// ─── Drawer & Rail demos — self-contained, fit nicely in a phone frame ──
+
+function buildDrawerSections(theme: ReturnType<typeof useTheme>) {
+  return [
+    {
+      items: [
+        {
+          key: 'inbox',
+          label: 'Inbox',
+          icon: <Ionicons name="mail-outline" size={22} color={theme.colors.onSurfaceVariant} />,
+          selectedIcon: <Ionicons name="mail" size={22} color={theme.colors.onSecondaryContainer} />,
+          badge: 12,
+        },
+        {
+          key: 'outbox',
+          label: 'Outbox',
+          icon: <Ionicons name="send-outline" size={22} color={theme.colors.onSurfaceVariant} />,
+          selectedIcon: <Ionicons name="send" size={22} color={theme.colors.onSecondaryContainer} />,
+        },
+        {
+          key: 'favorites',
+          label: 'Favorites',
+          icon: <Ionicons name="heart-outline" size={22} color={theme.colors.onSurfaceVariant} />,
+          selectedIcon: <Ionicons name="heart" size={22} color={theme.colors.onSecondaryContainer} />,
+        },
+        {
+          key: 'trash',
+          label: 'Trash',
+          icon: <Ionicons name="trash-outline" size={22} color={theme.colors.onSurfaceVariant} />,
+          selectedIcon: <Ionicons name="trash" size={22} color={theme.colors.onSecondaryContainer} />,
+        },
+      ],
+      showDivider: true,
+    },
+    {
+      title: 'Labels',
+      items: [
+        {
+          key: 'work',
+          label: 'Work',
+          icon: <Ionicons name="briefcase-outline" size={22} color={theme.colors.onSurfaceVariant} />,
+          selectedIcon: <Ionicons name="briefcase" size={22} color={theme.colors.onSecondaryContainer} />,
+        },
+        {
+          key: 'personal',
+          label: 'Personal',
+          icon: <Ionicons name="person-outline" size={22} color={theme.colors.onSurfaceVariant} />,
+          selectedIcon: <Ionicons name="person" size={22} color={theme.colors.onSecondaryContainer} />,
+        },
+      ],
+    },
+  ];
+}
+
+function StandardDrawerDemo() {
+  const theme = useTheme();
+  const [active, setActive] = useState('inbox');
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', backgroundColor: theme.colors.background }}>
+      <NavigationDrawer
+        variant="standard"
+        sections={buildDrawerSections(theme)}
+        selectedKey={active}
+        onSelect={setActive}
+        header={
+          <View style={{ padding: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: theme.colors.primaryContainer,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text
+                  variant="titleSmall"
+                  style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700' }}
+                >
+                  JD
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text
+                  variant="titleSmall"
+                  style={{ color: theme.colors.onSurface, fontWeight: '600' }}
+                >
+                  John Doe
+                </Text>
+                <Text
+                  variant="bodySmall"
+                  style={{ color: theme.colors.onSurfaceVariant }}
+                  numberOfLines={1}
+                >
+                  john@example.com
+                </Text>
+              </View>
+            </View>
+          </View>
+        }
+        style={{ width: 220 }}
+      />
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 16,
+          gap: 6,
+        }}
+      >
+        <Ionicons
+          name={(active === 'inbox' ? 'mail' : 'document-text') as any}
+          size={36}
+          color={theme.colors.primary}
+        />
+        <Text
+          variant="titleMedium"
+          style={{ color: theme.colors.onSurface, fontWeight: '600' }}
+        >
+          {active.charAt(0).toUpperCase() + active.slice(1)}
+        </Text>
+        <Text
+          variant="bodySmall"
+          style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}
+        >
+          {active} content goes here
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function ModalDrawerDemo() {
+  const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState('inbox');
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <View style={{ padding: 16, gap: 10 }}>
+        <Button
+          variant="filled"
+          onPress={() => setOpen(true)}
+          icon={<Ionicons name="menu" size={18} color={theme.colors.onPrimary} />}
+        >
+          Open Drawer
+        </Button>
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, lineHeight: 18 }}>
+          Tap the button to open the modal drawer. Tap the scrim or pick an item to dismiss.
+        </Text>
+      </View>
+      <NavigationDrawer
+        variant="modal"
+        open={open}
+        onClose={() => setOpen(false)}
+        sections={buildDrawerSections(theme)}
+        selectedKey={active}
+        onSelect={(key) => {
+          setActive(key);
+          setOpen(false);
+        }}
+        header={
+          <View style={{ padding: 16, paddingBottom: 8 }}>
+            <Text variant="titleLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+              Navigation
+            </Text>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2 }}>
+              Choose a destination
+            </Text>
+          </View>
+        }
+      />
+    </View>
+  );
+}
+
+function BasicRailDemo() {
+  const theme = useTheme();
+  const [active, setActive] = useState('home');
+  const items = [
+    { key: 'home', label: 'Home', icon: 'home-outline', activeIcon: 'home' },
+    { key: 'search', label: 'Search', icon: 'search-outline', activeIcon: 'search' },
+    {
+      key: 'notifications',
+      label: 'Alerts',
+      icon: 'notifications-outline',
+      activeIcon: 'notifications',
+      badge: 3,
+    },
+    { key: 'settings', label: 'Settings', icon: 'settings-outline', activeIcon: 'settings' },
+  ];
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', backgroundColor: theme.colors.background }}>
+      <View
+        style={{
+          width: 80,
+          paddingVertical: 16,
+          alignItems: 'center',
+          gap: 6,
+          backgroundColor: theme.colors.surface,
+          borderRightWidth: StyleSheet.hairlineWidth,
+          borderRightColor: theme.colors.outlineVariant,
+        }}
+      >
+        {items.map((item) => {
+          const selected = active === item.key;
+          return (
+            <Pressable
+              key={item.key}
+              onPress={() => setActive(item.key)}
+              style={{
+                width: 64,
+                paddingVertical: 8,
+                borderRadius: 14,
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: selected ? theme.colors.secondaryContainer : 'transparent',
+              }}
+            >
+              <View>
+                <Ionicons
+                  name={(selected ? item.activeIcon : item.icon) as any}
+                  size={22}
+                  color={
+                    selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant
+                  }
+                />
+                {item.badge ? (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -3,
+                      right: -8,
+                      minWidth: 16,
+                      height: 16,
+                      borderRadius: 8,
+                      paddingHorizontal: 4,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: theme.colors.error,
+                    }}
+                  >
+                    <Text
+                      variant="labelSmall"
+                      style={{ color: theme.colors.onError, fontSize: 10, fontWeight: '700' }}
+                    >
+                      {item.badge}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+              <Text
+                variant="labelSmall"
+                style={{
+                  color: selected
+                    ? theme.colors.onSecondaryContainer
+                    : theme.colors.onSurfaceVariant,
+                  fontWeight: selected ? '700' : '500',
+                }}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+        <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>
+          {items.find((i) => i.key === active)?.label}
+        </Text>
+        <Text
+          variant="bodySmall"
+          style={{ color: theme.colors.onSurfaceVariant, marginTop: 6, textAlign: 'center' }}
+        >
+          Content for {active}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function RailWithFabDemo() {
+  const theme = useTheme();
+  const [active, setActive] = useState('home');
+  const items = [
+    { key: 'home', label: 'Home', icon: 'home-outline', activeIcon: 'home' },
+    { key: 'search', label: 'Search', icon: 'search-outline', activeIcon: 'search' },
+    { key: 'settings', label: 'Settings', icon: 'settings-outline', activeIcon: 'settings' },
+  ];
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', backgroundColor: theme.colors.background }}>
+      <View
+        style={{
+          width: 80,
+          paddingTop: 16,
+          paddingBottom: 12,
+          alignItems: 'center',
+          backgroundColor: theme.colors.surface,
+          borderRightWidth: StyleSheet.hairlineWidth,
+          borderRightColor: theme.colors.outlineVariant,
+        }}
+      >
+        <View
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            backgroundColor: theme.colors.primaryContainer,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <Ionicons name="add" size={24} color={theme.colors.onPrimaryContainer} />
+        </View>
+        <View style={{ gap: 6, alignItems: 'center' }}>
+          {items.map((item) => {
+            const selected = active === item.key;
+            return (
+              <Pressable
+                key={item.key}
+                onPress={() => setActive(item.key)}
+                style={{
+                  width: 64,
+                  paddingVertical: 8,
+                  borderRadius: 14,
+                  alignItems: 'center',
+                  gap: 4,
+                  backgroundColor: selected ? theme.colors.secondaryContainer : 'transparent',
+                }}
+              >
+                <Ionicons
+                  name={(selected ? item.activeIcon : item.icon) as any}
+                  size={22}
+                  color={
+                    selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant
+                  }
+                />
+                <Text
+                  variant="labelSmall"
+                  style={{
+                    color: selected
+                      ? theme.colors.onSecondaryContainer
+                      : theme.colors.onSurfaceVariant,
+                    fontWeight: selected ? '700' : '500',
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+        <Text
+          variant="bodySmall"
+          style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', lineHeight: 20 }}
+        >
+          The FAB at the top of the rail provides quick access to the primary action.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 export default function AdvancedNavigationDocPage() {
   const theme = useTheme();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [modalDrawerOpen, setModalDrawerOpen] = useState(false);
-  const [activeNavItem, setActiveNavItem] = useState('inbox');
-  const [activeRailItem, setActiveRailItem] = useState('home');
-  const [railExpanded, setRailExpanded] = useState(false);
 
   return (
     <DocLayout
@@ -239,89 +602,7 @@ export default function AdvancedNavigationDocPage() {
     </View>
   }
 />`}
-          preview={
-            <View style={styles.drawerDemo}>
-              <Surface elevation={2} style={[styles.drawerPreviewContainer, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-                <NavigationDrawer
-                  variant="standard"
-                  sections={[
-                    {
-                      items: [
-                        {
-                          key: 'inbox',
-                          label: 'Inbox',
-                          icon: <Ionicons name="mail-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                          selectedIcon: <Ionicons name="mail" size={24} color={theme.colors.onSecondaryContainer} />,
-                          badge: 12
-                        },
-                        {
-                          key: 'outbox',
-                          label: 'Outbox',
-                          icon: <Ionicons name="send-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                          selectedIcon: <Ionicons name="send" size={24} color={theme.colors.onSecondaryContainer} />
-                        },
-                        {
-                          key: 'favorites',
-                          label: 'Favorites',
-                          icon: <Ionicons name="heart-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                          selectedIcon: <Ionicons name="heart" size={24} color={theme.colors.onSecondaryContainer} />
-                        },
-                        {
-                          key: 'trash',
-                          label: 'Trash',
-                          icon: <Ionicons name="trash-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                          selectedIcon: <Ionicons name="trash" size={24} color={theme.colors.onSecondaryContainer} />
-                        },
-                      ],
-                      showDivider: true
-                    },
-                    {
-                      title: 'Labels',
-                      items: [
-                        {
-                          key: 'work',
-                          label: 'Work',
-                          icon: <Ionicons name="briefcase-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                          selectedIcon: <Ionicons name="briefcase" size={24} color={theme.colors.onSecondaryContainer} />
-                        },
-                        {
-                          key: 'personal',
-                          label: 'Personal',
-                          icon: <Ionicons name="person-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                          selectedIcon: <Ionicons name="person" size={24} color={theme.colors.onSecondaryContainer} />
-                        },
-                      ]
-                    }
-                  ]}
-                  selectedKey={activeNavItem}
-                  onSelect={setActiveNavItem}
-                  header={
-                    <View style={{ padding: 16, paddingBottom: 8 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={[styles.avatar, { backgroundColor: theme.colors.primaryContainer }]}>
-                          <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700' }}>JD</Text>
-                        </View>
-                        <View style={styles.headerText}>
-                          <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>John Doe</Text>
-                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>john@example.com</Text>
-                        </View>
-                      </View>
-                    </View>
-                  }
-                  style={{ maxWidth: 280 }}
-                />
-                <View style={[styles.contentArea, { backgroundColor: theme.colors.background }]}>
-                  <Ionicons name={navItems.find(i => i.key === activeNavItem)?.icon as any || 'document-outline'} size={48} color={theme.colors.primary} />
-                  <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, marginTop: 16 }}>
-                    {activeNavItem.charAt(0).toUpperCase() + activeNavItem.slice(1)}
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8, textAlign: 'center' }}>
-                    Content for {activeNavItem} section goes here
-                  </Text>
-                </View>
-              </Surface>
-            </View>
-          }
+          preview={<StandardDrawerDemo />}
         />
       </Animated.View>
 
@@ -364,105 +645,7 @@ export default function AdvancedNavigationDocPage() {
     </View>
   }
 />`}
-          preview={
-            <View style={styles.modalDemo}>
-              <Button
-                variant="filled"
-                onPress={() => setModalDrawerOpen(true)}
-                icon={<Ionicons name="menu" size={18} color="white" />}
-              >
-                Open Modal Drawer
-              </Button>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12, lineHeight: 20 }}>
-                Tap the button to open the modal drawer. You can close it by swiping left, tapping the scrim, or selecting an item.
-              </Text>
-
-              <NavigationDrawer
-                variant="modal"
-                open={modalDrawerOpen}
-                onClose={() => setModalDrawerOpen(false)}
-                sections={[
-                  {
-                    items: [
-                      {
-                        key: 'inbox',
-                        label: 'Inbox',
-                        icon: <Ionicons name="mail-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                        selectedIcon: <Ionicons name="mail" size={24} color={theme.colors.onSecondaryContainer} />,
-                        badge: 12
-                      },
-                      {
-                        key: 'outbox',
-                        label: 'Outbox',
-                        icon: <Ionicons name="send-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                        selectedIcon: <Ionicons name="send" size={24} color={theme.colors.onSecondaryContainer} />
-                      },
-                      {
-                        key: 'favorites',
-                        label: 'Favorites',
-                        icon: <Ionicons name="heart-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                        selectedIcon: <Ionicons name="heart" size={24} color={theme.colors.onSecondaryContainer} />
-                      },
-                      {
-                        key: 'trash',
-                        label: 'Trash',
-                        icon: <Ionicons name="trash-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                        selectedIcon: <Ionicons name="trash" size={24} color={theme.colors.onSecondaryContainer} />
-                      },
-                    ],
-                    showDivider: true
-                  },
-                  {
-                    title: 'Labels',
-                    items: [
-                      {
-                        key: 'work',
-                        label: 'Work',
-                        icon: <Ionicons name="briefcase-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                        selectedIcon: <Ionicons name="briefcase" size={24} color={theme.colors.onSecondaryContainer} />
-                      },
-                      {
-                        key: 'personal',
-                        label: 'Personal',
-                        icon: <Ionicons name="person-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                        selectedIcon: <Ionicons name="person" size={24} color={theme.colors.onSecondaryContainer} />
-                      },
-                    ]
-                  }
-                ]}
-                selectedKey={activeNavItem}
-                onSelect={(key) => {
-                  setActiveNavItem(key);
-                }}
-                header={
-                  <View style={{ padding: 20, paddingBottom: 12 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={[styles.avatar, { backgroundColor: theme.colors.primaryContainer }]}>
-                          <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700' }}>JD</Text>
-                        </View>
-                        <View style={{ marginLeft: 12 }}>
-                          <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>John Doe</Text>
-                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>john@example.com</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                }
-                footer={
-                  <View style={{ padding: 16, paddingTop: 8 }}>
-                    <Button
-                      variant="outlined"
-                      onPress={() => {}}
-                      icon={<Ionicons name="settings-outline" size={20} color={theme.colors.primary} />}
-                    >
-                      Settings
-                    </Button>
-                  </View>
-                }
-              />
-            </View>
-          }
+          preview={<ModalDrawerDemo />}
         />
       </Animated.View>
 
@@ -541,59 +724,7 @@ interface DrawerItem {
   activeKey={activeKey}
   onItemPress={setActiveKey}
 />`}
-          preview={
-          <Surface elevation={1} style={[styles.railDemo, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-            <View style={[styles.miniRail, { backgroundColor: theme.colors.surface }]}>
-              <IconButton
-                icon={<Ionicons name="menu" size={24} color={theme.colors.onSurface} />}
-                onPress={() => setRailExpanded(!railExpanded)}
-                accessibilityLabel="Toggle menu"
-                style={{ marginBottom: 16 }}
-              />
-              {railItems.map((item) => (
-                <View
-                  key={item.key}
-                  style={[
-                    styles.railItem,
-                    activeRailItem === item.key && { backgroundColor: theme.colors.secondaryContainer }
-                  ]}
-                  onTouchEnd={() => setActiveRailItem(item.key)}
-                >
-                  <View>
-                    <Ionicons 
-                      name={(activeRailItem === item.key ? item.icon.replace('-outline', '') : item.icon) as any} 
-                      size={24} 
-                      color={activeRailItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant} 
-                    />
-                    {item.badge && (
-                      <View style={[styles.railBadge, { backgroundColor: theme.colors.error }]}>
-                        <Text variant="labelSmall" style={{ color: theme.colors.onError, fontSize: 10 }}>{item.badge}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text 
-                    variant="labelSmall" 
-                    style={{ 
-                      color: activeRailItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant,
-                      marginTop: 4,
-                      textAlign: 'center'
-                    }}
-                  >
-                    {item.label}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            <View style={styles.railContent}>
-              <Text variant="headlineSmall" style={{ color: theme.colors.onSurface }}>
-                {railItems.find(i => i.key === activeRailItem)?.label}
-              </Text>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-                Content for {activeRailItem} section
-              </Text>
-            </View>
-          </Surface>
-          }
+          preview={<BasicRailDemo />}
         />
       </Animated.View>
 
@@ -611,48 +742,7 @@ interface DrawerItem {
     onPress: handleCompose
   }}
 />`}
-          preview={
-          <Surface elevation={1} style={[styles.railDemo, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-            <View style={[styles.miniRail, { backgroundColor: theme.colors.surface }]}>
-              <View style={[styles.fab, { backgroundColor: theme.colors.primaryContainer }]}>
-                <Ionicons name="add" size={24} color={theme.colors.onPrimaryContainer} />
-              </View>
-              <View style={{ marginTop: 24 }}>
-                {railItems.slice(0, 3).map((item) => (
-                  <View
-                    key={item.key}
-                    style={[
-                      styles.railItem,
-                      activeRailItem === item.key && { backgroundColor: theme.colors.secondaryContainer }
-                    ]}
-                    onTouchEnd={() => setActiveRailItem(item.key)}
-                  >
-                    <Ionicons 
-                      name={(activeRailItem === item.key ? item.icon.replace('-outline', '') : item.icon) as any} 
-                      size={24} 
-                      color={activeRailItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant} 
-                    />
-                    <Text 
-                      variant="labelSmall" 
-                      style={{ 
-                        color: activeRailItem === item.key ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant,
-                        marginTop: 4,
-                        textAlign: 'center'
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-            <View style={styles.railContent}>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                FAB provides quick access to primary action
-              </Text>
-            </View>
-          </Surface>
-          }
+          preview={<RailWithFabDemo />}
         />
       </Animated.View>
 

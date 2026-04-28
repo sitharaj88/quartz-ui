@@ -230,7 +230,7 @@ export default function FABDocPage() {
               />
               <FAB
                 color="secondary"
-                icon={<Ionicons name="edit-outline" size={24} color={theme.colors.onSecondaryContainer} />}
+                icon={<Ionicons name="create-outline" size={24} color={theme.colors.onSecondaryContainer} />}
                 onPress={() => {}}
                 accessibilityLabel="Edit"
               />

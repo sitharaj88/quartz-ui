@@ -13,6 +13,7 @@ import {
   Pressable,
   StyleSheet,
   ViewStyle,
+  TextStyle,
   StyleProp,
   NativeSyntheticEvent,
   TextInputFocusEventData,
@@ -62,7 +63,7 @@ export interface SearchBarProps {
   /** Style override */
   style?: StyleProp<ViewStyle>;
   /** Input style override */
-  inputStyle?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
   /** Whether the input is editable */
   editable?: boolean;
   /** Auto focus on mount */

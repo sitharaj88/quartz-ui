@@ -23,7 +23,6 @@ import {
   ViewStyle,
   StyleProp,
   LayoutRectangle,
-  useWindowDimensions,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -32,6 +31,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { Text } from '../Text';
 
 export interface TooltipProps {
@@ -72,7 +72,8 @@ function TooltipImpl({
   testID,
 }: TooltipProps) {
   const theme = useTheme();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const viewport = useViewportDimensions();
+  const { width: screenWidth, height: screenHeight, isContained } = viewport;
   const [internalVisible, setInternalVisible] = useState(false);
   const [anchorLayout, setAnchorLayout] = useState<LayoutRectangle | null>(null);
   const [tooltipSize, setTooltipSize] = useState({ width: 0, height: 0 });
@@ -115,13 +116,18 @@ function TooltipImpl({
     return new Promise<LayoutRectangle>((resolve) => {
       if (anchorRef.current) {
         anchorRef.current.measureInWindow((x, y, width, height) => {
-          const layout = { x, y, width, height };
+          const layout = {
+            x: isContained ? x - viewport.x : x,
+            y: isContained ? y - viewport.y : y,
+            width,
+            height,
+          };
           setAnchorLayout(layout);
           resolve(layout);
         });
       }
     });
-  }, []);
+  }, [isContained, viewport.x, viewport.y]);
   
   const handleTooltipLayout = useCallback((event: any) => {
     const { width, height } = event.nativeEvent.layout;
@@ -245,6 +251,62 @@ function TooltipImpl({
     } as any);
   };
   
+  const tooltipOverlay = (
+    <Pressable style={styles.backdrop} onPress={hideTooltip}>
+      <AnimatedView
+        style={[
+          styles.tooltip,
+          isRich ? styles.richTooltip : styles.plainTooltip,
+          {
+            backgroundColor: isRich 
+              ? theme.colors.surfaceContainerLow 
+              : theme.colors.inverseSurface,
+            ...getTooltipPosition(),
+          },
+          tooltipStyle,
+          style,
+        ]}
+        onLayout={handleTooltipLayout}
+        testID={testID}
+        accessible
+        accessibilityRole="text"
+        accessibilityLiveRegion="polite"
+      >
+        {isRich ? (
+          <>
+            {title && (
+              <Text
+                variant="titleSmall"
+                style={[styles.title, { color: theme.colors.onSurfaceVariant }]}
+              >
+                {title}
+              </Text>
+            )}
+            <Text
+              variant="bodyMedium"
+              style={[styles.message, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {message}
+            </Text>
+            {actions && (
+              <View style={styles.actions}>
+                {actions}
+              </View>
+            )}
+          </>
+        ) : (
+          <Text
+            variant="bodySmall"
+            style={[styles.plainMessage, { color: theme.colors.inverseOnSurface }]}
+            numberOfLines={2}
+          >
+            {message}
+          </Text>
+        )}
+      </AnimatedView>
+    </Pressable>
+  );
+
   return (
     <View
       ref={anchorRef}
@@ -253,68 +315,22 @@ function TooltipImpl({
     >
       {renderChild()}
       
-      {visible && (
-        <Modal
-          visible={visible}
-          transparent
-          statusBarTranslucent
-          animationType="fade"
-          onRequestClose={hideTooltip}
-        >
-          <Pressable style={styles.backdrop} onPress={hideTooltip}>
-            <AnimatedView
-              style={[
-                styles.tooltip,
-                isRich ? styles.richTooltip : styles.plainTooltip,
-                {
-                  backgroundColor: isRich 
-                    ? theme.colors.surfaceContainerLow 
-                    : theme.colors.inverseSurface,
-                  ...getTooltipPosition(),
-                },
-                tooltipStyle,
-                style,
-              ]}
-              onLayout={handleTooltipLayout}
-              testID={testID}
-              accessible
-              accessibilityRole="text"
-              accessibilityLiveRegion="polite"
-            >
-              {isRich ? (
-                <>
-                  {title && (
-                    <Text
-                      variant="titleSmall"
-                      style={[styles.title, { color: theme.colors.onSurfaceVariant }]}
-                    >
-                      {title}
-                    </Text>
-                  )}
-                  <Text
-                    variant="bodyMedium"
-                    style={[styles.message, { color: theme.colors.onSurfaceVariant }]}
-                  >
-                    {message}
-                  </Text>
-                  {actions && (
-                    <View style={styles.actions}>
-                      {actions}
-                    </View>
-                  )}
-                </>
-              ) : (
-                <Text
-                  variant="bodySmall"
-                  style={[styles.plainMessage, { color: theme.colors.inverseOnSurface }]}
-                  numberOfLines={2}
-                >
-                  {message}
-                </Text>
-              )}
-            </AnimatedView>
-          </Pressable>
-        </Modal>
+      {isContained ? (
+        <QuartzViewportPortal active={visible}>
+          {tooltipOverlay}
+        </QuartzViewportPortal>
+      ) : (
+        visible && (
+          <Modal
+            visible={visible}
+            transparent
+            statusBarTranslucent
+            animationType="fade"
+            onRequestClose={hideTooltip}
+          >
+            {tooltipOverlay}
+          </Modal>
+        )
       )}
     </View>
   );
@@ -326,6 +342,7 @@ export const Tooltip = memo(TooltipImpl);
 
 const styles = StyleSheet.create({
   backdrop: {
+    ...StyleSheet.absoluteFillObject,
     flex: 1,
   },
   tooltip: {

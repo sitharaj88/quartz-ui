@@ -22,7 +22,6 @@ import {
   Pressable,
   Platform,
   LayoutChangeEvent,
-  useWindowDimensions,
   type NativeSyntheticEvent,
   type NativeScrollEvent,
 } from 'react-native';
@@ -105,6 +104,10 @@ export interface CarouselProps {
  * icon library as a peer dep. Color and direction are customizable.
  */
 function Chevron({ direction, color }: { direction: 'left' | 'right'; color: string }) {
+  // Inner box is a top+right border ⌐ (corner at top-right). To rotate that
+  // into a `>` the corner must end up on the right, so we rotate +45° CW; for
+  // `<` the corner must end up on the left, so -135° CW. Earlier values
+  // (-45° / +135°) sent the corner to the top/bottom and rendered as ^ / v.
   return (
     <View
       style={{
@@ -112,7 +115,7 @@ function Chevron({ direction, color }: { direction: 'left' | 'right'; color: str
         height: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        transform: [{ rotate: direction === 'left' ? '135deg' : '-45deg' }],
+        transform: [{ rotate: direction === 'left' ? '-135deg' : '45deg' }],
       }}
     >
       <View

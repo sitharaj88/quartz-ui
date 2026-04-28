@@ -4,6 +4,7 @@ import { Text, AppBar, NavigationBar, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';
 import { CodePlayground } from './_components/CodePlayground';
+import { PhoneScaffold } from './_components/PhoneScaffold';
 import { PropsTable, PropDefinition } from './_components/PropsTable';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -97,12 +98,9 @@ const navigationBarProps: PropDefinition[] = [
   },
 ];
 
-export default function NavigationDocPage() {
+function useNavItems() {
   const theme = useTheme();
-  const [selectedNav, setSelectedNav] = useState('home');
-  const [elevated, setElevated] = useState(false);
-
-  const navItems = [
+  return [
     {
       key: 'home',
       icon: <Ionicons name="home-outline" size={24} color={theme.colors.onSurfaceVariant} />,
@@ -129,6 +127,165 @@ export default function NavigationDocPage() {
       label: 'Profile',
     },
   ];
+}
+
+// ─── AppBar previews — each one renders a real screen scaffold ────────────
+
+function SmallAppBarDemo() {
+  const theme = useTheme();
+  return (
+    <PhoneScaffold
+      topSlot={
+        <AppBar
+          variant="small"
+          title="Page Title"
+          navigationIcon={<Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />}
+          onNavigationPress={() => {}}
+          actions={[
+            {
+              icon: <Ionicons name="search" size={24} color={theme.colors.onSurfaceVariant} />,
+              onPress: () => {},
+              accessibilityLabel: 'Search',
+            },
+            {
+              icon: <Ionicons name="ellipsis-vertical" size={24} color={theme.colors.onSurfaceVariant} />,
+              onPress: () => {},
+              accessibilityLabel: 'More options',
+            },
+          ]}
+        />
+      }
+    />
+  );
+}
+
+function CenterAlignedAppBarDemo() {
+  const theme = useTheme();
+  return (
+    <PhoneScaffold
+      topSlot={
+        <AppBar
+          variant="center-aligned"
+          title="Centered Title"
+          navigationIcon={<Ionicons name="menu" size={24} color={theme.colors.onSurface} />}
+          onNavigationPress={() => {}}
+          actions={[
+            {
+              icon: <Ionicons name="heart-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+              onPress: () => {},
+              accessibilityLabel: 'Favorite',
+            },
+          ]}
+        />
+      }
+    />
+  );
+}
+
+function MediumAppBarDemo() {
+  const theme = useTheme();
+  return (
+    <PhoneScaffold
+      topSlot={
+        <AppBar
+          variant="medium"
+          title="Medium App Bar"
+          navigationIcon={<Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />}
+          onNavigationPress={() => {}}
+          actions={[
+            {
+              icon: <Ionicons name="bookmark-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+              onPress: () => {},
+              accessibilityLabel: 'Bookmark',
+            },
+          ]}
+        />
+      }
+    />
+  );
+}
+
+function LargeAppBarDemo() {
+  const theme = useTheme();
+  return (
+    <PhoneScaffold
+      topSlot={
+        <AppBar
+          variant="large"
+          title="Large App Bar Title"
+          navigationIcon={<Ionicons name="menu" size={24} color={theme.colors.onSurface} />}
+          onNavigationPress={() => {}}
+          actions={[
+            {
+              icon: <Ionicons name="share-outline" size={24} color={theme.colors.onSurfaceVariant} />,
+              onPress: () => {},
+              accessibilityLabel: 'Share',
+            },
+          ]}
+        />
+      }
+    />
+  );
+}
+
+function ElevatedAppBarDemo() {
+  const theme = useTheme();
+  return (
+    <PhoneScaffold
+      topSlot={
+        <AppBar
+          variant="small"
+          title="Elevated App Bar"
+          elevated
+          navigationIcon={<Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />}
+          onNavigationPress={() => {}}
+        />
+      }
+    />
+  );
+}
+
+// ─── NavigationBar previews — each owns its selected key ──────────────────
+
+function NavigationBarDemoBasic() {
+  const items = useNavItems();
+  const [selected, setSelected] = useState('home');
+  return (
+    <PhoneScaffold
+      bottomSlot={<NavigationBar items={items} selectedKey={selected} onSelect={setSelected} />}
+    />
+  );
+}
+
+function NavigationBarDemoBadges() {
+  const items = useNavItems();
+  const [selected, setSelected] = useState('notifications');
+  return (
+    <PhoneScaffold
+      bottomSlot={<NavigationBar items={items} selectedKey={selected} onSelect={setSelected} />}
+    />
+  );
+}
+
+function NavigationBarDemoActiveOnly() {
+  const items = useNavItems();
+  const [selected, setSelected] = useState('home');
+  return (
+    <PhoneScaffold
+      bottomSlot={
+        <NavigationBar
+          items={items}
+          selectedKey={selected}
+          onSelect={setSelected}
+          labelVisibility="active-only"
+        />
+      }
+    />
+  );
+}
+
+export default function NavigationDocPage() {
+  const theme = useTheme();
 
   return (
     <DocLayout
@@ -189,28 +346,7 @@ export default function NavigationDocPage() {
     }
   ]}
 />`}
-          preview={
-            <View style={styles.appBarPreview}>
-              <AppBar
-                variant="small"
-                title="Page Title"
-                navigationIcon={<Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />}
-                onNavigationPress={() => { }}
-                actions={[
-                  {
-                    icon: <Ionicons name="search" size={24} color={theme.colors.onSurfaceVariant} />,
-                    onPress: () => { },
-                    accessibilityLabel: 'Search'
-                  },
-                  {
-                    icon: <Ionicons name="ellipsis-vertical" size={24} color={theme.colors.onSurfaceVariant} />,
-                    onPress: () => { },
-                    accessibilityLabel: 'More options'
-                  }
-                ]}
-              />
-            </View>
-          }
+          preview={<SmallAppBarDemo />}
         />
 
         {/* Center-Aligned App Bar */}
@@ -230,23 +366,7 @@ export default function NavigationDocPage() {
     }
   ]}
 />`}
-          preview={
-            <View style={styles.appBarPreview}>
-              <AppBar
-                variant="center-aligned"
-                title="Centered Title"
-                navigationIcon={<Ionicons name="menu" size={24} color={theme.colors.onSurface} />}
-                onNavigationPress={() => { }}
-                actions={[
-                  {
-                    icon: <Ionicons name="heart-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                    onPress: () => { },
-                    accessibilityLabel: 'Favorite'
-                  }
-                ]}
-              />
-            </View>
-          }
+          preview={<CenterAlignedAppBarDemo />}
         />
 
         {/* Medium App Bar */}
@@ -266,23 +386,7 @@ export default function NavigationDocPage() {
     }
   ]}
 />`}
-          preview={
-            <View style={styles.appBarPreview}>
-              <AppBar
-                variant="medium"
-                title="Medium App Bar"
-                navigationIcon={<Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />}
-                onNavigationPress={() => { }}
-                actions={[
-                  {
-                    icon: <Ionicons name="bookmark-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                    onPress: () => { },
-                    accessibilityLabel: 'Bookmark'
-                  }
-                ]}
-              />
-            </View>
-          }
+          preview={<MediumAppBarDemo />}
         />
 
         {/* Large App Bar */}
@@ -302,23 +406,7 @@ export default function NavigationDocPage() {
     }
   ]}
 />`}
-          preview={
-            <View style={styles.appBarPreview}>
-              <AppBar
-                variant="large"
-                title="Large App Bar Title"
-                navigationIcon={<Ionicons name="menu" size={24} color={theme.colors.onSurface} />}
-                onNavigationPress={() => { }}
-                actions={[
-                  {
-                    icon: <Ionicons name="share-outline" size={24} color={theme.colors.onSurfaceVariant} />,
-                    onPress: () => { },
-                    accessibilityLabel: 'Share'
-                  }
-                ]}
-              />
-            </View>
-          }
+          preview={<LargeAppBarDemo />}
         />
 
         {/* Elevated App Bar */}
@@ -332,17 +420,7 @@ export default function NavigationDocPage() {
   navigationIcon={<Ionicons name="arrow-back" size={24} />}
   onNavigationPress={() => {}}
 />`}
-          preview={
-            <View style={styles.appBarPreview}>
-              <AppBar
-                variant="small"
-                title="Elevated App Bar"
-                elevated={true}
-                navigationIcon={<Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />}
-                onNavigationPress={() => { }}
-              />
-            </View>
-          }
+          preview={<ElevatedAppBarDemo />}
         />
       </View>
 
@@ -387,15 +465,7 @@ const items = [
   selectedKey={selected}
   onSelect={setSelected}
 />`}
-          preview={
-            <View style={styles.navBarPreview}>
-              <NavigationBar
-                items={navItems}
-                selectedKey={selectedNav}
-                onSelect={setSelectedNav}
-              />
-            </View>
-          }
+          preview={<NavigationBarDemoBasic />}
         />
 
         {/* Navigation Bar with Badges */}
@@ -424,15 +494,7 @@ const items = [
     badge: true, // Shows dot badge
   }
 ];`}
-          preview={
-            <View style={styles.navBarPreview}>
-              <NavigationBar
-                items={navItems}
-                selectedKey={selectedNav}
-                onSelect={setSelectedNav}
-              />
-            </View>
-          }
+          preview={<NavigationBarDemoBadges />}
         />
 
         {/* Active Only Labels */}
@@ -445,16 +507,7 @@ const items = [
   onSelect={setSelected}
   labelVisibility="active-only"
 />`}
-          preview={
-            <View style={styles.navBarPreview}>
-              <NavigationBar
-                items={navItems}
-                selectedKey={selectedNav}
-                onSelect={setSelectedNav}
-                labelVisibility="active-only"
-              />
-            </View>
-          }
+          preview={<NavigationBarDemoActiveOnly />}
         />
       </View>
 

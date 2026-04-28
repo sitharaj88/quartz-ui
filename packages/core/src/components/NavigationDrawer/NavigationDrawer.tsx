@@ -12,7 +12,6 @@ import {
   Pressable,
   ViewStyle,
   StyleProp,
-  Dimensions,
   I18nManager,
   ScrollView,
   Platform,
@@ -30,12 +29,11 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { Text } from '../Text';
 import { Divider } from '../Divider';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = 360;
-const DRAWER_MAX_WIDTH = Math.min(DRAWER_WIDTH, SCREEN_WIDTH * 0.85);
 
 export interface DrawerItem {
   /** Unique key for the item */
@@ -209,7 +207,9 @@ function NavigationDrawerImpl({
   testID,
 }: NavigationDrawerProps): React.ReactElement | null {
   const theme = useTheme();
-  const translateX = useSharedValue(I18nManager.isRTL ? DRAWER_MAX_WIDTH : -DRAWER_MAX_WIDTH);
+  const { width: screenWidth } = useViewportDimensions();
+  const drawerMaxWidth = Math.min(DRAWER_WIDTH, screenWidth * 0.85);
+  const translateX = useSharedValue(I18nManager.isRTL ? drawerMaxWidth : -drawerMaxWidth);
   const scrimOpacity = useSharedValue(0);
   const [shouldRender, setShouldRender] = React.useState(open);
 
@@ -225,7 +225,7 @@ function NavigationDrawerImpl({
       });
       scrimOpacity.value = withTiming(0.32, { duration: DURATION });
     } else {
-      const targetX = I18nManager.isRTL ? DRAWER_MAX_WIDTH : -DRAWER_MAX_WIDTH;
+      const targetX = I18nManager.isRTL ? drawerMaxWidth : -drawerMaxWidth;
       translateX.value = withTiming(targetX, {
         duration: DURATION,
         easing: Easing.in(Easing.cubic),
@@ -236,7 +236,7 @@ function NavigationDrawerImpl({
       });
       scrimOpacity.value = withTiming(0, { duration: DURATION });
     }
-  }, [open, translateX, scrimOpacity]);
+  }, [open, translateX, scrimOpacity, drawerMaxWidth]);
 
   // Swipe gesture to close
   const panGesture = Gesture.Pan()
@@ -246,7 +246,7 @@ function NavigationDrawerImpl({
         translateX.value = translation;
         scrimOpacity.value = interpolate(
           Math.abs(translation),
-          [0, DRAWER_MAX_WIDTH],
+          [0, drawerMaxWidth],
           [0.32, 0]
         );
       }
@@ -255,8 +255,8 @@ function NavigationDrawerImpl({
       const translation = I18nManager.isRTL ? -event.translationX : event.translationX;
       const velocity = I18nManager.isRTL ? -event.velocityX : event.velocityX;
       
-      if (translation < -DRAWER_MAX_WIDTH / 3 || velocity < -500) {
-        const targetX = I18nManager.isRTL ? DRAWER_MAX_WIDTH : -DRAWER_MAX_WIDTH;
+      if (translation < -drawerMaxWidth / 3 || velocity < -500) {
+        const targetX = I18nManager.isRTL ? drawerMaxWidth : -drawerMaxWidth;
         translateX.value = withTiming(targetX, {
           duration: 200,
           easing: Easing.out(Easing.cubic),
@@ -301,7 +301,7 @@ function NavigationDrawerImpl({
       <View
         style={[
           styles.standardDrawer,
-          { backgroundColor: theme.colors.surface },
+          { backgroundColor: theme.colors.surface, width: drawerMaxWidth },
           style,
         ]}
         testID={testID}
@@ -379,7 +379,7 @@ function NavigationDrawerImpl({
             styles.modalDrawer,
             {
               backgroundColor: theme.colors.surfaceContainerLow,
-              width: DRAWER_MAX_WIDTH,
+              width: drawerMaxWidth,
               [I18nManager.isRTL ? 'right' : 'left']: 0,
             },
             drawerAnimatedStyle,
@@ -438,7 +438,6 @@ export const NavigationDrawer = memo(NavigationDrawerImpl);
 
 const styles = StyleSheet.create({
   standardDrawer: {
-    width: DRAWER_MAX_WIDTH,
     height: '100%',
     borderTopEndRadius: 16,
     borderBottomEndRadius: 16,

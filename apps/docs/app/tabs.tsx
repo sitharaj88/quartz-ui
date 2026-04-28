@@ -4,6 +4,7 @@ import { Text, Tabs, SearchBar, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';
 import { CodePlayground } from './_components/CodePlayground';
+import { PhoneScaffold } from './_components/PhoneScaffold';
 import { PropsTable, PropDefinition } from './_components/PropsTable';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -119,12 +120,186 @@ const searchBarProps: PropDefinition[] = [
   },
 ];
 
+// ─── Tab/Search demo components — each owns its state & is wrapped in a
+// realistic phone scaffold so the chrome reads as a real screen ────────────
+
+function PrimaryTabsDemo() {
+  const theme = useTheme();
+  const [active, setActive] = useState('home');
+  return (
+    <PhoneScaffold
+      topSlot={
+        <Tabs
+          variant="primary"
+          tabs={[
+            {
+              key: 'home',
+              label: 'Home',
+              icon: (
+                <Ionicons
+                  name="home-outline"
+                  size={20}
+                  color={active === 'home' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                />
+              ),
+            },
+            {
+              key: 'explore',
+              label: 'Explore',
+              icon: (
+                <Ionicons
+                  name="compass-outline"
+                  size={20}
+                  color={active === 'explore' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                />
+              ),
+            },
+            {
+              key: 'library',
+              label: 'Library',
+              icon: (
+                <Ionicons
+                  name="library-outline"
+                  size={20}
+                  color={active === 'library' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                />
+              ),
+            },
+          ]}
+          selectedKey={active}
+          onSelect={setActive}
+        />
+      }
+      body={
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+            {active === 'home' && '🏠  Home content'}
+            {active === 'explore' && '🧭  Explore content'}
+            {active === 'library' && '📚  Library content'}
+          </Text>
+        </View>
+      }
+    />
+  );
+}
+
+function SecondaryTabsDemo() {
+  const theme = useTheme();
+  const [active, setActive] = useState('all');
+  return (
+    <PhoneScaffold
+      topSlot={
+        <Tabs
+          variant="secondary"
+          tabs={[
+            { key: 'all', label: 'All' },
+            { key: 'unread', label: 'Unread', badge: 3 },
+            { key: 'starred', label: 'Starred' },
+            { key: 'archived', label: 'Archived' },
+          ]}
+          selectedKey={active}
+          onSelect={setActive}
+        />
+      }
+      body={
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+            Showing: {active}
+          </Text>
+        </View>
+      }
+    />
+  );
+}
+
+function ScrollableTabsDemo() {
+  const theme = useTheme();
+  const [active, setActive] = useState('mon');
+  return (
+    <PhoneScaffold
+      topSlot={
+        <Tabs
+          scrollable
+          variant="secondary"
+          tabs={[
+            { key: 'mon', label: 'Monday' },
+            { key: 'tue', label: 'Tuesday' },
+            { key: 'wed', label: 'Wednesday' },
+            { key: 'thu', label: 'Thursday' },
+            { key: 'fri', label: 'Friday' },
+            { key: 'sat', label: 'Saturday' },
+            { key: 'sun', label: 'Sunday' },
+          ]}
+          selectedKey={active}
+          onSelect={setActive}
+        />
+      }
+      body={
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+            Selected day: {active}
+          </Text>
+        </View>
+      }
+    />
+  );
+}
+
+function BasicSearchDemo() {
+  const theme = useTheme();
+  const [value, setValue] = useState('');
+  return (
+    <PhoneScaffold
+      topSlot={
+        <View style={{ padding: 16, backgroundColor: theme.colors.surface }}>
+          <SearchBar
+            value={value}
+            onChangeText={setValue}
+            placeholder="Search..."
+            onSubmit={() => {}}
+          />
+        </View>
+      }
+    />
+  );
+}
+
+function SearchWithTrailingDemo() {
+  const theme = useTheme();
+  const [value, setValue] = useState('');
+  return (
+    <PhoneScaffold
+      topSlot={
+        <View style={{ padding: 16, backgroundColor: theme.colors.surface }}>
+          <SearchBar
+            value={value}
+            onChangeText={setValue}
+            placeholder="Search..."
+            trailingIcon={
+              <View
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 14,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: theme.colors.primaryContainer,
+                }}
+              >
+                <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>
+                  JD
+                </Text>
+              </View>
+            }
+          />
+        </View>
+      }
+    />
+  );
+}
+
 export default function TabsDocPage() {
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState('home');
-  const [activeSecondary, setActiveSecondary] = useState('all');
-  const [scrollableTab, setScrollableTab] = useState('mon');
-  const [searchValue, setSearchValue] = useState('');
 
   return (
     <DocLayout
@@ -159,27 +334,7 @@ export default function TabsDocPage() {
   selectedKey={selected}
   onSelect={setSelected}
 />`}
-          preview={
-            <View>
-              <Tabs
-                variant="primary"
-                tabs={[
-                  { key: 'home', label: 'Home', icon: <Ionicons name="home-outline" size={20} color={activeTab === 'home' ? theme.colors.primary : theme.colors.onSurfaceVariant} /> },
-                  { key: 'explore', label: 'Explore', icon: <Ionicons name="compass-outline" size={20} color={activeTab === 'explore' ? theme.colors.primary : theme.colors.onSurfaceVariant} /> },
-                  { key: 'library', label: 'Library', icon: <Ionicons name="library-outline" size={20} color={activeTab === 'library' ? theme.colors.primary : theme.colors.onSurfaceVariant} /> },
-                ]}
-                selectedKey={activeTab}
-                onSelect={setActiveTab}
-              />
-              <View style={[styles.tabContent, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-                <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-                  {activeTab === 'home' && '🏠 Home content goes here'}
-                  {activeTab === 'explore' && '🧭 Explore content goes here'}
-                  {activeTab === 'library' && '📚 Library content goes here'}
-                </Text>
-              </View>
-            </View>
-          }
+          preview={<PrimaryTabsDemo />}
         />
       </Animated.View>
 
@@ -198,26 +353,7 @@ export default function TabsDocPage() {
   selectedKey={selected}
   onSelect={setSelected}
 />`}
-          preview={
-            <View>
-              <Tabs
-                variant="secondary"
-                tabs={[
-                  { key: 'all', label: 'All' },
-                  { key: 'unread', label: 'Unread', badge: 3 },
-                  { key: 'starred', label: 'Starred' },
-                  { key: 'archived', label: 'Archived' },
-                ]}
-                selectedKey={activeSecondary}
-                onSelect={setActiveSecondary}
-              />
-              <View style={[styles.tabContent, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-                <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-                  Showing: {activeSecondary} items
-                </Text>
-              </View>
-            </View>
-          }
+          preview={<SecondaryTabsDemo />}
         />
       </Animated.View>
 
@@ -236,30 +372,7 @@ export default function TabsDocPage() {
   selectedKey={selected}
   onSelect={setSelected}
 />`}
-          preview={
-            <View>
-              <Tabs
-                scrollable
-                variant="secondary"
-                tabs={[
-                  { key: 'mon', label: 'Monday' },
-                  { key: 'tue', label: 'Tuesday' },
-                  { key: 'wed', label: 'Wednesday' },
-                  { key: 'thu', label: 'Thursday' },
-                  { key: 'fri', label: 'Friday' },
-                  { key: 'sat', label: 'Saturday' },
-                  { key: 'sun', label: 'Sunday' },
-                ]}
-                selectedKey={scrollableTab}
-                onSelect={setScrollableTab}
-              />
-              <View style={[styles.tabContent, { backgroundColor: theme.colors.surfaceContainerLow }]}>
-                <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-                  Selected day: {scrollableTab}
-                </Text>
-              </View>
-            </View>
-          }
+          preview={<ScrollableTabsDemo />}
         />
       </Animated.View>
 
@@ -295,16 +408,7 @@ export default function TabsDocPage() {
   placeholder="Search..."
   onSubmit={(value) => console.log('Search:', value)}
 />`}
-          preview={
-            <View style={styles.searchDemo}>
-              <SearchBar
-                value={searchValue}
-                onChangeText={setSearchValue}
-                placeholder="Search..."
-                onSubmit={(value) => console.log('Search:', value)}
-              />
-            </View>
-          }
+          preview={<BasicSearchDemo />}
         />
       </Animated.View>
 
@@ -319,20 +423,7 @@ export default function TabsDocPage() {
   placeholder="Search..."
   trailingIcon={<Avatar source={userImage} size={28} />}
 />`}
-          preview={
-            <View style={styles.searchDemo}>
-              <SearchBar
-                value={searchValue}
-                onChangeText={setSearchValue}
-                placeholder="Search..."
-                trailingIcon={
-                  <View style={[styles.avatar, { backgroundColor: theme.colors.primaryContainer }]}>
-                    <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>JD</Text>
-                  </View>
-                }
-              />
-            </View>
-          }
+          preview={<SearchWithTrailingDemo />}
         />
       </Animated.View>
 

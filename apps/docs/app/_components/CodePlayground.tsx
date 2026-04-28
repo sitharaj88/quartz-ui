@@ -45,9 +45,9 @@ interface CodePlaygroundProps {
    * containers, full-screen sheets) where the frame doesn't make sense.
    */
   framed?: boolean;
-  /** Frame width in dp. Default 320. Auto-shrinks on narrow viewports. */
+  /** Frame width in dp. Default 360. Auto-shrinks on narrow viewports. */
   frameWidth?: number;
-  /** Min content height inside the frame. Default 480. */
+  /** Min content height inside the frame. Default 640. */
   frameMinHeight?: number;
   /**
    * How the preview lays out inside the frame's screen:
@@ -739,8 +739,8 @@ export function CodePlayground({
   language = 'tsx',
   fileName,
   framed = true,
-  frameWidth = 320,
-  frameMinHeight = 480,
+  frameWidth = 360,
+  frameMinHeight = 640,
   frameContentLayout = 'center',
 }: CodePlaygroundProps) {
   const theme = useTheme();
@@ -1017,32 +1017,6 @@ const styles = StyleSheet.create({
   },
   boldToken: { fontWeight: '600' },
   italicToken: { fontStyle: 'italic' },
-  codeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  codeDots: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  codeDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  codeLangTag: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    backgroundColor: '#2a2a2a',
-  },
-  codeLangText: {
-    color: '#9CDCFE',
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    fontSize: 12,
-  },
   infoBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   infoLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   infoRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },

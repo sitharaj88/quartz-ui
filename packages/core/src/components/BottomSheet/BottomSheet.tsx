@@ -14,7 +14,6 @@ import {
   StyleSheet,
   ViewStyle,
   StyleProp,
-  useWindowDimensions,
   BackHandler,
   Platform,
 } from 'react-native';
@@ -34,6 +33,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { springConfig } from '../../tokens/motion';
 import { withAlpha } from '../../utils/color';
 
@@ -78,7 +78,7 @@ function BottomSheetImpl({
 }: BottomSheetProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { height: screenHeight } = useWindowDimensions();
+  const { height: screenHeight, isContained } = useViewportDimensions();
   
   const translateY = useSharedValue(screenHeight);
   const opacity = useSharedValue(0);
@@ -203,6 +203,14 @@ function BottomSheetImpl({
   );
   
   if (modal) {
+    if (isContained) {
+      return (
+        <QuartzViewportPortal active={visible}>
+          {content}
+        </QuartzViewportPortal>
+      );
+    }
+
     return (
       <Modal
         visible={visible}

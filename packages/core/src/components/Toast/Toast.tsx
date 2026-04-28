@@ -24,7 +24,6 @@ import {
     Text,
     Pressable,
     StyleSheet,
-    Dimensions,
     ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -46,6 +45,7 @@ import {
 } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeProvider';
+import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { withAlpha } from '../../utils/color';
 import {
     ToastData,
@@ -141,7 +141,7 @@ const ToastImpl = forwardRef<View, ToastProps>(function Toast(
 ) {
     const theme = useTheme();
     const translateX = useSharedValue(0);
-    const screenWidth = Dimensions.get('window').width;
+    const { width: screenWidth } = useViewportDimensions();
 
     // Colors based on type
     const colors = getToastColors(data.type, theme);
@@ -266,6 +266,7 @@ export function ToastProvider({
     children,
 }: ToastProviderProps) {
     const insets = useSafeAreaInsets();
+    const { isContained } = useViewportDimensions();
     const [toasts, setToasts] = useState<ToastData[]>([]);
 
     // Show toast
@@ -341,20 +342,30 @@ export function ToastProvider({
         zIndex: 9999,
     };
 
+    const toastHost = (
+        <View style={containerStyle} pointerEvents="box-none">
+            {toasts.map((toast, index) => (
+                <Toast
+                    key={toast.id}
+                    data={toast}
+                    onDismiss={dismiss}
+                    position={position}
+                    index={index}
+                />
+            ))}
+        </View>
+    );
+
     return (
         <ToastContext.Provider value={contextValue}>
             {children}
-            <View style={containerStyle} pointerEvents="box-none">
-                {toasts.map((toast, index) => (
-                    <Toast
-                        key={toast.id}
-                        data={toast}
-                        onDismiss={dismiss}
-                        position={position}
-                        index={index}
-                    />
-                ))}
-            </View>
+            {isContained ? (
+                <QuartzViewportPortal active={toasts.length > 0}>
+                    {toastHost}
+                </QuartzViewportPortal>
+            ) : (
+                toastHost
+            )}
         </ToastContext.Provider>
     );
 }

@@ -15,7 +15,6 @@ import {
   StyleSheet,
   ViewStyle,
   StyleProp,
-  useWindowDimensions,
   Platform,
 } from 'react-native';
 import Animated, {
@@ -30,6 +29,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { springConfig } from '../../tokens/motion';
 import { Text } from '../Text';
 
@@ -77,7 +77,7 @@ const SnackbarImpl = forwardRef<View, SnackbarProps>(function Snackbar(
   ref
 ) {
   const theme = useTheme();
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth } = useViewportDimensions();
   
   const translateY = useSharedValue(100);
   const opacity = useSharedValue(0);

@@ -39,6 +39,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { Text } from '../Text';
 import { Button } from '../Button';
 import { IconButton } from '../IconButton';
@@ -340,6 +341,7 @@ function DatePickerImpl({
   testID,
 }: DatePickerProps): React.ReactElement | null {
   const theme = useTheme();
+  const { width: screenWidth, isContained } = useViewportDimensions();
   const today = useMemo(() => new Date(), []);
   
   // Internal state
@@ -435,15 +437,7 @@ function DatePickerImpl({
     return null;
   }
 
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      statusBarTranslucent
-      animationType="fade"
-      onRequestClose={handleCancel}
-      testID={testID}
-    >
+  const pickerContent = (
       <Pressable
         style={[styles.overlay, { backgroundColor: theme.colors.scrim + '52' }]}
         onPress={handleCancel}
@@ -452,7 +446,10 @@ function DatePickerImpl({
           <View
             style={[
               styles.container,
-              { backgroundColor: theme.colors.surfaceContainerHigh },
+              {
+                backgroundColor: theme.colors.surfaceContainerHigh,
+                width: Math.min(328, screenWidth - 24),
+              },
               style,
             ]}
           >
@@ -579,6 +576,26 @@ function DatePickerImpl({
             </View>
           </Pressable>
         </Pressable>
+  );
+
+  if (isContained) {
+    return (
+      <QuartzViewportPortal active={visible}>
+        {pickerContent}
+      </QuartzViewportPortal>
+    );
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      statusBarTranslucent
+      animationType="fade"
+      onRequestClose={handleCancel}
+      testID={testID}
+    >
+      {pickerContent}
     </Modal>
   );
 }

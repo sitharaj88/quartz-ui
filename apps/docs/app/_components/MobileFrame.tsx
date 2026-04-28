@@ -6,20 +6,28 @@
  * the playground for previews that need full-bleed rendering (large layout
  * primitives, navigation containers, etc.).
  *
- * Design: iPhone 15 Pro inspired — flat bezel, dynamic island, status bar,
- * home indicator. Themed inner screen. Subtle shadow.
+ * Design: iPhone 15 Pro inspired — visible titanium-feel bezel, dynamic
+ * island with camera dot, status bar, home indicator, side buttons. Themed
+ * inner screen. Layered shadow for depth.
  */
 
 import React from 'react';
-import { View, StyleSheet, ViewStyle, useWindowDimensions } from 'react-native';
-import { Text, useTheme } from 'quartz-ui';
+import { View, StyleSheet, ViewStyle, useWindowDimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  QuartzProvider,
+  QuartzViewportProvider,
+  Text,
+  useQuartzTheme,
+  useTheme,
+} from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 
 interface MobileFrameProps {
   children: React.ReactNode;
-  /** Outer device width in dp. Scales down on narrow viewports. Default 320. */
+  /** Outer device width in dp. Scales down on narrow viewports. Default 360. */
   width?: number;
-  /** Min content height inside the screen. Default 480. */
+  /** Min content height inside the screen. Default 640. */
   minHeight?: number;
   /** Screen background — defaults to the theme's `background`. */
   screenBackground?: string;
@@ -38,94 +46,179 @@ interface MobileFrameProps {
   style?: ViewStyle;
 }
 
+// Bezel padding — thick enough to clearly read as a phone bezel.
+const BEZEL_PADDING = 11;
+
+interface FramedScreenProps {
+  children: React.ReactNode;
+  showChrome: boolean;
+  contentLayout: 'center' | 'top' | 'full';
+  screenBackground?: string;
+  screenWidth: number;
+  minHeight: number;
+}
+
+/**
+ * Renders the phone screen — chrome (status bar, dynamic island, home
+ * indicator) and content. Runs under the inner QuartzProvider so chrome
+ * tracks the local theme: toggling theme inside the preview flips the
+ * status-bar/home-indicator colors without affecting the docs site.
+ */
+function FramedScreen({
+  children,
+  showChrome,
+  contentLayout,
+  screenBackground,
+  screenWidth,
+  minHeight,
+}: FramedScreenProps) {
+  const theme = useTheme();
+  const screenBg = screenBackground || theme.colors.background;
+
+  return (
+    <View style={[styles.screen, { backgroundColor: screenBg }]}>
+      {showChrome && (
+        <View style={styles.statusBar}>
+          <Text
+            variant="labelMedium"
+            style={{
+              color: theme.colors.onSurface,
+              fontSize: 14,
+              fontWeight: '700',
+              letterSpacing: 0.2,
+            }}
+          >
+            9:41
+          </Text>
+          <View style={styles.statusIcons}>
+            <Ionicons name="cellular" size={13} color={theme.colors.onSurface} />
+            <Ionicons name="wifi" size={14} color={theme.colors.onSurface} />
+            <View style={[styles.battery, { borderColor: theme.colors.onSurface }]}>
+              <View style={[styles.batteryFill, { backgroundColor: theme.colors.onSurface }]} />
+              <View style={[styles.batteryNub, { backgroundColor: theme.colors.onSurface }]} />
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Dynamic island */}
+      {showChrome && (
+        <View style={styles.dynamicIsland} pointerEvents="none">
+          <View style={styles.dynamicIslandCamera} />
+        </View>
+      )}
+
+      {/* Content */}
+      <QuartzViewportProvider
+        width={screenWidth}
+        height={minHeight}
+        isContained
+        style={[
+          styles.screenContentBase,
+          contentLayout === 'full' && styles.screenContentFull,
+          contentLayout === 'top' && styles.screenContentTop,
+          contentLayout === 'center' && styles.screenContentCenter,
+        ]}
+      >
+        {children}
+      </QuartzViewportProvider>
+
+      {/* Home indicator */}
+      {showChrome && (
+        <View style={styles.homeIndicatorWrap}>
+          <View style={[styles.homeIndicator, { backgroundColor: theme.colors.onSurface }]} />
+        </View>
+      )}
+    </View>
+  );
+}
+
 export function MobileFrame({
   children,
-  width: requestedWidth = 320,
-  minHeight = 480,
+  width: requestedWidth = 360,
+  minHeight = 640,
   screenBackground,
   showChrome = true,
   contentLayout = 'center',
   style,
 }: MobileFrameProps) {
-  const theme = useTheme();
+  // Read the OUTER docs-level theme mode purely to seed the inner provider.
+  // Anything inside the frame runs under its own QuartzProvider, so toggling
+  // the theme inside a preview doesn't affect the rest of the docs site.
+  const { mode: outerMode } = useQuartzTheme();
   const { width: viewportWidth } = useWindowDimensions();
 
-  // Scale down on narrow viewports — never wider than 90% of the viewport,
+  // Scale down on narrow viewports — never wider than 92% of the viewport,
   // capped at the requested width.
-  const width = Math.min(requestedWidth, Math.floor(viewportWidth * 0.9));
-  const height = minHeight + (showChrome ? 80 : 0); // chrome adds ~80dp
+  const width = Math.min(requestedWidth, Math.floor(viewportWidth * 0.92));
+  const height = minHeight + (showChrome ? 84 : 0); // chrome adds ~84dp
+  const screenWidth = width - BEZEL_PADDING * 2;
 
-  // Bezel color stays dark even in light theme — devices are dark frames.
-  const bezelColor = '#0e0e10';
-  const bezelHighlight = '#26262a';
-  const screenBg = screenBackground || theme.colors.background;
+  // Bezel uses a subtle metallic gradient — not flat — so it reads as a real
+  // device under any theme.
+  const bezelGradient: [string, string, string] = ['#1c1c1f', '#0a0a0c', '#1c1c1f'];
 
   return (
     <View style={[styles.wrapper, style]}>
+      {/* Outer drop shadow layer — separated from the bezel so the bezel
+          can clip its inner highlight without losing the soft shadow. */}
       <View
         style={[
-          styles.bezel,
+          styles.shadowLayer,
           {
             width,
             minHeight: height,
-            backgroundColor: bezelColor,
-            borderColor: bezelHighlight,
           },
         ]}
       >
-        {/* Outer bezel highlight ring (subtle inner border) */}
         <View
-          pointerEvents="none"
-          style={[styles.bezelRing, { borderColor: bezelHighlight }]}
-        />
+          style={[
+            styles.bezel,
+            {
+              width,
+              minHeight: height,
+            },
+          ]}
+        >
+          {/* Metallic bezel fill */}
+          <LinearGradient
+            colors={bezelGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
 
-        {/* Inner screen */}
-        <View style={[styles.screen, { backgroundColor: screenBg }]}>
-          {showChrome && (
-            <View style={styles.statusBar}>
-              <Text
-                variant="labelMedium"
-                style={{ color: theme.colors.onSurface, fontSize: 13, fontWeight: '700' }}
-              >
-                9:41
-              </Text>
-              <View style={styles.statusIcons}>
-                <Ionicons name="cellular" size={13} color={theme.colors.onSurface} />
-                <Ionicons name="wifi" size={14} color={theme.colors.onSurface} />
-                <View style={[styles.battery, { borderColor: theme.colors.onSurface }]}>
-                  <View
-                    style={[styles.batteryFill, { backgroundColor: theme.colors.onSurface }]}
-                  />
-                  <View
-                    style={[styles.batteryNub, { backgroundColor: theme.colors.onSurface }]}
-                  />
-                </View>
-              </View>
-            </View>
-          )}
+          {/* Subtle highlight on the very edge of the bezel (titanium feel) */}
+          <View pointerEvents="none" style={styles.bezelOuterHighlight} />
 
-          {/* Dynamic island */}
-          {showChrome && <View style={styles.dynamicIsland} />}
+          {/* Inner bezel ring — separates bezel from screen visually */}
+          <View pointerEvents="none" style={styles.bezelInnerRing} />
 
-          {/* Content */}
-          <View
-            style={[
-              styles.screenContentBase,
-              contentLayout === 'full' && styles.screenContentFull,
-              contentLayout === 'top' && styles.screenContentTop,
-              contentLayout === 'center' && styles.screenContentCenter,
-            ]}
-          >
-            {children}
-          </View>
-
-          {/* Home indicator */}
-          {showChrome && (
-            <View style={styles.homeIndicatorWrap}>
-              <View style={[styles.homeIndicator, { backgroundColor: theme.colors.onSurface }]} />
-            </View>
-          )}
+          {/* Inner screen — runs under its own QuartzProvider so any
+              `useQuartzTheme()`/`toggleMode()` calls in the preview only
+              affect this frame. The `key` resets the inner mode whenever
+              the outer site theme changes, keeping the preview visually
+              consistent with the docs by default. */}
+          <QuartzProvider key={outerMode} initialMode={outerMode}>
+            <FramedScreen
+              showChrome={showChrome}
+              contentLayout={contentLayout}
+              screenBackground={screenBackground}
+              screenWidth={screenWidth}
+              minHeight={minHeight}
+            >
+              {children}
+            </FramedScreen>
+          </QuartzProvider>
         </View>
+
+        {/* Side buttons — purely decorative. They sit half-inside, half-outside
+            the bezel to give the device silhouette. */}
+        <View pointerEvents="none" style={[styles.sideButtonLeft, styles.silentSwitch]} />
+        <View pointerEvents="none" style={[styles.sideButtonLeft, styles.volumeUp]} />
+        <View pointerEvents="none" style={[styles.sideButtonLeft, styles.volumeDown]} />
+        <View pointerEvents="none" style={[styles.sideButtonRight, styles.powerButton]} />
       </View>
     </View>
   );
@@ -135,32 +228,54 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+  },
+  shadowLayer: {
+    position: 'relative',
+    borderRadius: 48,
+    // Layered shadow — close + soft + far for depth.
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: 0.28,
+    shadowRadius: 48,
+    elevation: 16,
+    ...(Platform.OS === 'web'
+      ? ({
+          boxShadow:
+            '0 1px 2px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.18), 0 32px 64px rgba(0,0,0,0.28)',
+        } as ViewStyle)
+      : null),
   },
   bezel: {
-    borderRadius: 44,
-    padding: 6,
-    borderWidth: 1,
-    // Subtle shadow to lift the device off the page.
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.18,
-    shadowRadius: 36,
-    elevation: 12,
+    borderRadius: 48,
+    padding: BEZEL_PADDING,
     overflow: 'hidden',
+    backgroundColor: '#0a0a0c',
   },
-  bezelRing: {
+  bezelOuterHighlight: {
     position: 'absolute',
-    top: 4,
-    left: 4,
-    right: 4,
-    bottom: 4,
-    borderRadius: 40,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 48,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  bezelInnerRing: {
+    position: 'absolute',
+    top: BEZEL_PADDING - 2,
+    left: BEZEL_PADDING - 2,
+    right: BEZEL_PADDING - 2,
+    bottom: BEZEL_PADDING - 2,
+    borderRadius: 38,
     borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   screen: {
     flex: 1,
-    borderRadius: 36,
+    borderRadius: 37,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -168,24 +283,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 22,
-    paddingTop: 14,
-    height: 38,
+    paddingHorizontal: 26,
+    paddingTop: 16,
+    height: 44,
   },
   statusIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   battery: {
-    width: 22,
-    height: 11,
+    width: 24,
+    height: 12,
     borderRadius: 3,
     borderWidth: 1,
-    padding: 1,
+    padding: 1.5,
     flexDirection: 'row',
-    marginLeft: 2,
+    marginLeft: 3,
     position: 'relative',
+    opacity: 0.85,
   },
   batteryFill: {
     flex: 1,
@@ -193,21 +309,39 @@ const styles = StyleSheet.create({
   },
   batteryNub: {
     position: 'absolute',
-    right: -2,
-    top: 3,
+    right: -2.5,
+    top: 3.5,
     width: 1.5,
     height: 4,
     borderRadius: 1,
   },
   dynamicIsland: {
     position: 'absolute',
-    top: 8,
+    top: 10,
     alignSelf: 'center',
-    width: 96,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#0a0a0c',
+    width: 110,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#000',
     zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingRight: 10,
+    // Subtle inner highlight to make it feel inset
+    ...(Platform.OS === 'web'
+      ? ({
+          boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)',
+        } as ViewStyle)
+      : null),
+  },
+  dynamicIslandCamera: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#1a1a1f',
+    borderWidth: 1,
+    borderColor: 'rgba(80,80,90,0.6)',
   },
   screenContentBase: {
     flex: 1,
@@ -231,13 +365,46 @@ const styles = StyleSheet.create({
   },
   homeIndicatorWrap: {
     paddingTop: 6,
-    paddingBottom: 8,
+    paddingBottom: 10,
     alignItems: 'center',
   },
   homeIndicator: {
-    width: 120,
-    height: 4,
-    borderRadius: 2,
-    opacity: 0.4,
+    width: 132,
+    height: 5,
+    borderRadius: 3,
+    opacity: 0.45,
+  },
+  // Side button silhouettes — sit on the bezel edge.
+  sideButtonLeft: {
+    position: 'absolute',
+    left: -2,
+    width: 4,
+    backgroundColor: '#0a0a0c',
+    borderTopLeftRadius: 1,
+    borderBottomLeftRadius: 1,
+  },
+  sideButtonRight: {
+    position: 'absolute',
+    right: -2,
+    width: 4,
+    backgroundColor: '#0a0a0c',
+    borderTopRightRadius: 1,
+    borderBottomRightRadius: 1,
+  },
+  silentSwitch: {
+    top: 110,
+    height: 26,
+  },
+  volumeUp: {
+    top: 156,
+    height: 44,
+  },
+  volumeDown: {
+    top: 212,
+    height: 44,
+  },
+  powerButton: {
+    top: 138,
+    height: 64,
   },
 });

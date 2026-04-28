@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, Checkbox, RadioButton, RadioGroup, Switch, useTheme } from 'quartz-ui';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Text, Checkbox, RadioButton, Switch, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';
 import { CodePlayground } from './_components/CodePlayground';
@@ -159,12 +159,110 @@ const switchProps: PropDefinition[] = [
   },
 ];
 
+// Each interactive preview owns its state so toggling one preview doesn't
+// also flip the others (and doesn't affect the docs page outside the frame).
+function BasicCheckboxDemo() {
+  const [checked, setChecked] = useState(false);
+  return <Checkbox checked={checked} onValueChange={setChecked} />;
+}
+
+function IndeterminateCheckboxDemo() {
+  const [indeterminate, setIndeterminate] = useState(true);
+  return (
+    <Checkbox
+      indeterminate={indeterminate}
+      onValueChange={() => setIndeterminate((v) => !v)}
+    />
+  );
+}
+
+function LabeledCheckboxDemo() {
+  const [checked, setChecked] = useState(false);
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <Checkbox checked={checked} onValueChange={setChecked} />
+      <Text variant="bodyLarge">Accept terms and conditions</Text>
+    </View>
+  );
+}
+
+// RadioGroup uses React.Children.map and only patches DIRECT children, so
+// the previous demo (RadioButtons nested inside <View>) silently broke the
+// selected-state injection. We render each option as a pressable row that
+// drives the same shared state — the label is part of the touch target.
+function RadioGroupDemo() {
+  const [radioValue, setRadioValue] = useState('option1');
+  const options = [
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' },
+    { value: 'option3', label: 'Option 3' },
+  ];
+  return (
+    <View style={{ gap: 14, alignSelf: 'stretch' }}>
+      {options.map((opt) => (
+        <Pressable
+          key={opt.value}
+          onPress={() => setRadioValue(opt.value)}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: radioValue === opt.value }}
+          accessibilityLabel={opt.label}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}
+        >
+          <RadioButton
+            value={opt.value}
+            selected={radioValue === opt.value}
+            onPress={() => setRadioValue(opt.value)}
+          />
+          <Text variant="bodyLarge">{opt.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+function BasicSwitchDemo() {
+  const [value, setValue] = useState(false);
+  return <Switch value={value} onValueChange={setValue} />;
+}
+
+function IconSwitchDemo() {
+  const theme = useTheme();
+  const [value, setValue] = useState(false);
+  return (
+    <Switch
+      value={value}
+      onValueChange={setValue}
+      thumbIcon={<Ionicons name="checkmark" size={16} color={theme.colors.onPrimaryContainer} />}
+      thumbIconOff={<Ionicons name="close" size={16} color={theme.colors.surfaceContainerHighest} />}
+    />
+  );
+}
+
+function LabeledSwitchDemo() {
+  const theme = useTheme();
+  const [value, setValue] = useState(false);
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Text variant="titleMedium">Enable notifications</Text>
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
+          Receive push notifications for updates
+        </Text>
+      </View>
+      <Switch value={value} onValueChange={setValue} />
+    </View>
+  );
+}
+
 export default function SelectionDocPage() {
   const theme = useTheme();
-  const [checked, setChecked] = useState(false);
-  const [indeterminate, setIndeterminate] = useState(true);
-  const [radioValue, setRadioValue] = useState('option1');
-  const [switchValue, setSwitchValue] = useState(false);
 
   return (
     <DocLayout
@@ -213,12 +311,7 @@ export default function SelectionDocPage() {
   checked={checked}
   onValueChange={setChecked}
 />`}
-          preview={
-            <Checkbox
-              checked={checked}
-              onValueChange={setChecked}
-            />
-          }
+          preview={<BasicCheckboxDemo />}
         />
 
         {/* Indeterminate Checkbox */}
@@ -229,12 +322,7 @@ export default function SelectionDocPage() {
   indeterminate={true}
   onValueChange={() => {}}
 />`}
-          preview={
-            <Checkbox
-              indeterminate={indeterminate}
-              onValueChange={() => setIndeterminate(!indeterminate)}
-            />
-          }
+          preview={<IndeterminateCheckboxDemo />}
         />
 
         {/* Checkbox Sizes */}
@@ -263,12 +351,7 @@ export default function SelectionDocPage() {
   <Checkbox checked={checked} onValueChange={setChecked} />
   <Text variant="bodyLarge">Accept terms and conditions</Text>
 </View>`}
-          preview={
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Checkbox checked={checked} onValueChange={setChecked} />
-              <Text variant="bodyLarge">Accept terms and conditions</Text>
-            </View>
-          }
+          preview={<LabeledCheckboxDemo />}
         />
       </View>
 
@@ -303,24 +386,7 @@ export default function SelectionDocPage() {
     </View>
   </View>
 </RadioGroup>`}
-          preview={
-            <RadioGroup value={radioValue} onValueChange={setRadioValue}>
-              <View style={{ gap: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <RadioButton value="option1" />
-                  <Text variant="bodyLarge">Option 1</Text>
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <RadioButton value="option2" />
-                  <Text variant="bodyLarge">Option 2</Text>
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <RadioButton value="option3" />
-                  <Text variant="bodyLarge">Option 3</Text>
-                </View>
-              </View>
-            </RadioGroup>
-          }
+          preview={<RadioGroupDemo />}
         />
 
         {/* Radio Button Sizes */}
@@ -361,12 +427,7 @@ export default function SelectionDocPage() {
   value={switchValue}
   onValueChange={setSwitchValue}
 />`}
-          preview={
-            <Switch
-              value={switchValue}
-              onValueChange={setSwitchValue}
-            />
-          }
+          preview={<BasicSwitchDemo />}
         />
 
         {/* Switch with Icons */}
@@ -379,14 +440,7 @@ export default function SelectionDocPage() {
   thumbIcon={<Ionicons name="checkmark" size={16} color={theme.colors.onPrimaryContainer} />}
   thumbIconOff={<Ionicons name="close" size={16} color={theme.colors.surfaceContainerHighest} />}
 />`}
-          preview={
-            <Switch
-              value={switchValue}
-              onValueChange={setSwitchValue}
-              thumbIcon={<Ionicons name="checkmark" size={16} color={theme.colors.onPrimaryContainer} />}
-              thumbIconOff={<Ionicons name="close" size={16} color={theme.colors.surfaceContainerHighest} />}
-            />
-          }
+          preview={<IconSwitchDemo />}
         />
 
         {/* Switch with Label */}
@@ -402,17 +456,7 @@ export default function SelectionDocPage() {
   </View>
   <Switch value={switchValue} onValueChange={setSwitchValue} />
 </View>`}
-          preview={
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <View style={{ flex: 1 }}>
-                <Text variant="titleMedium">Enable notifications</Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-                  Receive push notifications for updates
-                </Text>
-              </View>
-              <Switch value={switchValue} onValueChange={setSwitchValue} />
-            </View>
-          }
+          preview={<LabeledSwitchDemo />}
         />
 
         {/* Disabled Switch */}

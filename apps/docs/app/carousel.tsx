@@ -128,9 +128,304 @@ const sliderProps: PropDefinition[] = [
   },
 ];
 
+function useHeroItems() {
+  return [
+    {
+      key: '1',
+      content: (
+        <LinearGradient
+          colors={['#667eea', '#764ba2']}
+          style={styles.heroCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Ionicons
+            name="triangle-outline"
+            size={42}
+            color="rgba(255,255,255,0.9)"
+            style={{ marginBottom: 10 }}
+          />
+          <Text variant="headlineSmall" style={styles.heroTitle}>
+            Mountain Adventure
+          </Text>
+          <Text variant="bodyMedium" style={styles.heroSubtitle}>
+            Explore the peaks
+          </Text>
+        </LinearGradient>
+      ),
+      label: 'Mountain',
+    },
+    {
+      key: '2',
+      content: (
+        <LinearGradient
+          colors={['#11998e', '#38ef7d']}
+          style={styles.heroCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Ionicons
+            name="water-outline"
+            size={42}
+            color="rgba(255,255,255,0.9)"
+            style={{ marginBottom: 10 }}
+          />
+          <Text variant="headlineSmall" style={styles.heroTitle}>
+            Ocean Paradise
+          </Text>
+          <Text variant="bodyMedium" style={styles.heroSubtitle}>
+            Dive into beauty
+          </Text>
+        </LinearGradient>
+      ),
+      label: 'Ocean',
+    },
+    {
+      key: '3',
+      content: (
+        <LinearGradient
+          colors={['#F2994A', '#F2C94C']}
+          style={styles.heroCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Ionicons
+            name="sunny-outline"
+            size={42}
+            color="rgba(255,255,255,0.9)"
+            style={{ marginBottom: 10 }}
+          />
+          <Text variant="headlineSmall" style={styles.heroTitle}>
+            Desert Dreams
+          </Text>
+          <Text variant="bodyMedium" style={styles.heroSubtitle}>
+            Golden horizons
+          </Text>
+        </LinearGradient>
+      ),
+      label: 'Desert',
+    },
+    {
+      key: '4',
+      content: (
+        <LinearGradient
+          colors={['#c33764', '#1d2671']}
+          style={styles.heroCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Ionicons
+            name="snow-outline"
+            size={42}
+            color="rgba(255,255,255,0.9)"
+            style={{ marginBottom: 10 }}
+          />
+          <Text variant="headlineSmall" style={styles.heroTitle}>
+            Arctic Expedition
+          </Text>
+          <Text variant="bodyMedium" style={styles.heroSubtitle}>
+            Frozen wonderland
+          </Text>
+        </LinearGradient>
+      ),
+      label: 'Arctic',
+    },
+  ];
+}
+
+function useProductItems() {
+  const theme = useTheme();
+  return [
+    {
+      key: 'p1',
+      content: (
+        <Surface
+          elevation={2}
+          style={[styles.productCard, { backgroundColor: theme.colors.surface }]}
+        >
+          <View style={[styles.productImage, { backgroundColor: theme.colors.primaryContainer }]}>
+            <Ionicons name="headset" size={40} color={theme.colors.onPrimaryContainer} />
+          </View>
+          <Text
+            variant="titleSmall"
+            style={{ color: theme.colors.onSurface, marginTop: 10, fontWeight: '600' }}
+          >
+            Headphones
+          </Text>
+          <Text
+            variant="titleMedium"
+            style={{ color: theme.colors.primary, marginTop: 4, fontWeight: '700' }}
+          >
+            $199
+          </Text>
+        </Surface>
+      ),
+    },
+    {
+      key: 'p2',
+      content: (
+        <Surface
+          elevation={2}
+          style={[styles.productCard, { backgroundColor: theme.colors.surface }]}
+        >
+          <View style={[styles.productImage, { backgroundColor: theme.colors.secondaryContainer }]}>
+            <Ionicons name="watch" size={40} color={theme.colors.onSecondaryContainer} />
+          </View>
+          <Text
+            variant="titleSmall"
+            style={{ color: theme.colors.onSurface, marginTop: 10, fontWeight: '600' }}
+          >
+            Smart Watch
+          </Text>
+          <Text
+            variant="titleMedium"
+            style={{ color: theme.colors.primary, marginTop: 4, fontWeight: '700' }}
+          >
+            $299
+          </Text>
+        </Surface>
+      ),
+    },
+    {
+      key: 'p3',
+      content: (
+        <Surface
+          elevation={2}
+          style={[styles.productCard, { backgroundColor: theme.colors.surface }]}
+        >
+          <View style={[styles.productImage, { backgroundColor: theme.colors.tertiaryContainer }]}>
+            <Ionicons name="camera" size={40} color={theme.colors.onTertiaryContainer} />
+          </View>
+          <Text
+            variant="titleSmall"
+            style={{ color: theme.colors.onSurface, marginTop: 10, fontWeight: '600' }}
+          >
+            Camera
+          </Text>
+          <Text
+            variant="titleMedium"
+            style={{ color: theme.colors.primary, marginTop: 4, fontWeight: '700' }}
+          >
+            $899
+          </Text>
+        </Surface>
+      ),
+    },
+    {
+      key: 'p4',
+      content: (
+        <Surface
+          elevation={2}
+          style={[styles.productCard, { backgroundColor: theme.colors.surface }]}
+        >
+          <View style={[styles.productImage, { backgroundColor: theme.colors.errorContainer }]}>
+            <Ionicons name="laptop" size={40} color={theme.colors.onErrorContainer} />
+          </View>
+          <Text
+            variant="titleSmall"
+            style={{ color: theme.colors.onSurface, marginTop: 10, fontWeight: '600' }}
+          >
+            Laptop
+          </Text>
+          <Text
+            variant="titleMedium"
+            style={{ color: theme.colors.primary, marginTop: 4, fontWeight: '700' }}
+          >
+            $1,499
+          </Text>
+        </Surface>
+      ),
+    },
+  ];
+}
+
+function HeroCarouselDemo() {
+  const theme = useTheme();
+  const [index, setIndex] = useState(0);
+  const items = useHeroItems();
+  return (
+    <View style={{ flex: 1, paddingVertical: 12, justifyContent: 'center' }}>
+      <Carousel
+        layout="hero"
+        items={items}
+        onIndexChange={setIndex}
+        showIndicators
+        autoPlayInterval={3500}
+        loop
+      />
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: 14,
+          paddingHorizontal: 16,
+        }}
+      >
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+          Slide {index + 1} of {items.length}
+        </Text>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          <View style={[styles.badge, { backgroundColor: theme.colors.primaryContainer }]}>
+            <Ionicons name="infinite" size={12} color={theme.colors.onPrimaryContainer} />
+            <Text
+              variant="labelSmall"
+              style={{ color: theme.colors.onPrimaryContainer, marginLeft: 4 }}
+            >
+              Loop
+            </Text>
+          </View>
+          <View style={[styles.badge, { backgroundColor: theme.colors.secondaryContainer }]}>
+            <Ionicons name="play" size={12} color={theme.colors.onSecondaryContainer} />
+            <Text
+              variant="labelSmall"
+              style={{ color: theme.colors.onSecondaryContainer, marginLeft: 4 }}
+            >
+              Auto
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function MultiBrowseCarouselDemo() {
+  const theme = useTheme();
+  const items = useProductItems();
+  return (
+    <View style={{ flex: 1, paddingVertical: 12, justifyContent: 'center' }}>
+      <Carousel layout="multi-browse" items={items} itemWidth={150} gap={10} showIndicators={false} />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: 14,
+          gap: 6,
+        }}
+      >
+        <Ionicons name="chevron-back" size={14} color={theme.colors.onSurfaceVariant} />
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+          Swipe through {items.length} products
+        </Text>
+        <Ionicons name="chevron-forward" size={14} color={theme.colors.onSurfaceVariant} />
+      </View>
+    </View>
+  );
+}
+
+function CenterCarouselDemo() {
+  const items = useHeroItems().slice(0, 3);
+  return (
+    <View style={{ flex: 1, paddingVertical: 12, justifyContent: 'center' }}>
+      <Carousel layout="center" items={items} showIndicators indicatorPosition="outside" />
+    </View>
+  );
+}
+
 export default function CarouselSliderDocPage() {
   const theme = useTheme();
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [volume, setVolume] = useState(50);
   const [brightness, setBrightness] = useState(70);
   const [temperature, setTemperature] = useState(22);
@@ -141,109 +436,6 @@ export default function CarouselSliderDocPage() {
   const handleBrightnessChange = (value: number) => setBrightness(Math.round(value));
   const handleTemperatureChange = (value: number) => setTemperature(Math.round(value));
   const handleRatingChange = (value: number) => setRating(Math.round(value));
-
-  // Create carousel items with content
-  const heroItems = [
-    {
-      key: '1',
-      content: (
-        <LinearGradient colors={['#667eea', '#764ba2']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <Ionicons name="triangle-outline" size={48} color="rgba(255,255,255,0.9)" style={{ marginBottom: 12 }} />
-          <Text variant="displaySmall" style={styles.heroTitle}>Mountain Adventure</Text>
-          <Text variant="titleMedium" style={styles.heroSubtitle}>Explore the peaks</Text>
-        </LinearGradient>
-      ),
-      label: 'Mountain',
-    },
-    {
-      key: '2',
-      content: (
-        <LinearGradient colors={['#11998e', '#38ef7d']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <Ionicons name="water-outline" size={48} color="rgba(255,255,255,0.9)" style={{ marginBottom: 12 }} />
-          <Text variant="displaySmall" style={styles.heroTitle}>Ocean Paradise</Text>
-          <Text variant="titleMedium" style={styles.heroSubtitle}>Dive into beauty</Text>
-        </LinearGradient>
-      ),
-      label: 'Ocean',
-    },
-    {
-      key: '3',
-      content: (
-        <LinearGradient colors={['#F2994A', '#F2C94C']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <Ionicons name="sunny-outline" size={48} color="rgba(255,255,255,0.9)" style={{ marginBottom: 12 }} />
-          <Text variant="displaySmall" style={styles.heroTitle}>Desert Dreams</Text>
-          <Text variant="titleMedium" style={styles.heroSubtitle}>Golden horizons</Text>
-        </LinearGradient>
-      ),
-      label: 'Desert',
-    },
-    {
-      key: '4',
-      content: (
-        <LinearGradient colors={['#c33764', '#1d2671']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <Ionicons name="snow-outline" size={48} color="rgba(255,255,255,0.9)" style={{ marginBottom: 12 }} />
-          <Text variant="displaySmall" style={styles.heroTitle}>Arctic Expedition</Text>
-          <Text variant="titleMedium" style={styles.heroSubtitle}>Frozen wonderland</Text>
-        </LinearGradient>
-      ),
-      label: 'Arctic',
-    },
-  ];
-
-  const productItems = [
-    {
-      key: 'p1',
-      content: (
-        <Surface elevation={2} style={[styles.productCard, { backgroundColor: theme.colors.surface }]}>
-          <View style={[styles.productImage, { backgroundColor: theme.colors.primaryContainer }]}>
-            <Ionicons name="headset" size={48} color={theme.colors.onPrimaryContainer} />
-          </View>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginTop: 12 }}>Wireless Headphones</Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>Premium sound quality</Text>
-          <Text variant="titleLarge" style={{ color: theme.colors.primary, marginTop: 8, fontWeight: '700' }}>$199</Text>
-        </Surface>
-      ),
-    },
-    {
-      key: 'p2',
-      content: (
-        <Surface elevation={2} style={[styles.productCard, { backgroundColor: theme.colors.surface }]}>
-          <View style={[styles.productImage, { backgroundColor: theme.colors.secondaryContainer }]}>
-            <Ionicons name="watch" size={48} color={theme.colors.onSecondaryContainer} />
-          </View>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginTop: 12 }}>Smart Watch</Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>Track your fitness</Text>
-          <Text variant="titleLarge" style={{ color: theme.colors.primary, marginTop: 8, fontWeight: '700' }}>$299</Text>
-        </Surface>
-      ),
-    },
-    {
-      key: 'p3',
-      content: (
-        <Surface elevation={2} style={[styles.productCard, { backgroundColor: theme.colors.surface }]}>
-          <View style={[styles.productImage, { backgroundColor: theme.colors.tertiaryContainer }]}>
-            <Ionicons name="camera" size={48} color={theme.colors.onTertiaryContainer} />
-          </View>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginTop: 12 }}>Digital Camera</Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>Capture moments</Text>
-          <Text variant="titleLarge" style={{ color: theme.colors.primary, marginTop: 8, fontWeight: '700' }}>$899</Text>
-        </Surface>
-      ),
-    },
-    {
-      key: 'p4',
-      content: (
-        <Surface elevation={2} style={[styles.productCard, { backgroundColor: theme.colors.surface }]}>
-          <View style={[styles.productImage, { backgroundColor: theme.colors.errorContainer }]}>
-            <Ionicons name="laptop" size={48} color={theme.colors.onErrorContainer} />
-          </View>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginTop: 12 }}>Laptop Pro</Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>Power and portability</Text>
-          <Text variant="titleLarge" style={{ color: theme.colors.primary, marginTop: 8, fontWeight: '700' }}>$1,499</Text>
-        </Surface>
-      ),
-    },
-  ];
 
   return (
     <DocLayout
@@ -276,33 +468,7 @@ export default function CarouselSliderDocPage() {
   loop
   onIndexChange={setCurrentIndex}
 />`}
-          preview={
-            <View style={styles.carouselContainer}>
-              <Carousel
-                layout="hero"
-                items={heroItems}
-                onIndexChange={setCurrentIndex}
-                showIndicators
-                autoPlayInterval={3000}
-                loop
-              />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                  Slide {currentIndex + 1} of {heroItems.length}
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <View style={[styles.badge, { backgroundColor: theme.colors.primaryContainer }]}>
-                    <Ionicons name="infinite" size={14} color={theme.colors.onPrimaryContainer} />
-                    <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer, marginLeft: 4 }}>Loop</Text>
-                  </View>
-                  <View style={[styles.badge, { backgroundColor: theme.colors.secondaryContainer }]}>
-                    <Ionicons name="play" size={14} color={theme.colors.onSecondaryContainer} />
-                    <Text variant="labelSmall" style={{ color: theme.colors.onSecondaryContainer, marginLeft: 4 }}>Auto</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          }
+          preview={<HeroCarouselDemo />}
         />
       </Animated.View>
 
@@ -318,24 +484,7 @@ export default function CarouselSliderDocPage() {
   gap={12}
   showIndicators={false}
 />`}
-          preview={
-            <View style={{ width: '100%' }}>
-              <Carousel
-                layout="multi-browse"
-                items={productItems}
-                itemWidth={180}
-                gap={12}
-                showIndicators={false}
-              />
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16, gap: 8 }}>
-                <Ionicons name="chevron-back" size={16} color={theme.colors.onSurfaceVariant} />
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                  Swipe to browse {productItems.length} products
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={theme.colors.onSurfaceVariant} />
-              </View>
-            </View>
-          }
+          preview={<MultiBrowseCarouselDemo />}
         />
       </Animated.View>
 
@@ -350,16 +499,7 @@ export default function CarouselSliderDocPage() {
   showIndicators
   indicatorPosition="outside"
 />`}
-          preview={
-            <View style={styles.carouselContainer}>
-              <Carousel
-                layout="center"
-                items={heroItems.slice(0, 3)}
-                showIndicators
-                indicatorPosition="outside"
-              />
-            </View>
-          }
+          preview={<CenterCarouselDemo />}
         />
       </Animated.View>
 
