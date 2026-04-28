@@ -80,7 +80,7 @@ const breaking = [
   {
     title: 'Version string is now valid semver',
     body:
-      'The previous `1.0.0-dev.2025-02.1` is replaced with `1.0.0-alpha.1`. Subsequent alphas bump the trailing number.',
+      'The previous `1.0.0-dev.2025-02.1` is replaced with `1.0.0`. Future releases follow standard semver.',
   },
 ];
 
@@ -93,7 +93,7 @@ export default function WhatsNewPage() {
   return (
     <DocLayout
       title="What's new in 1.0"
-      description="Quartz UI 1.0.0-alpha.1 is a ground-up overhaul. Every component now satisfies the same world-class checklist."
+      description="Quartz UI 1.0.0 is a ground-up overhaul. Every component now satisfies the same world-class checklist."
     >
       {/* Stats banner */}
       <View style={styles.section}>
@@ -232,7 +232,7 @@ export default function WhatsNewPage() {
             Ready to upgrade?
           </Text>
           <Text variant="bodyLarge" style={{ color: theme.colors.onPrimaryContainer, marginTop: 8, textAlign: 'center', opacity: 0.9 }}>
-            Install 1.0.0-alpha.1 and read the migration notes if you depended on internal helpers.
+            Install 1.0.0 and read the migration notes if you depended on internal helpers.
           </Text>
           <View style={styles.ctaButtons}>
             <Button variant="filled" onPress={() => router.push('/docs/installation' as any)}>

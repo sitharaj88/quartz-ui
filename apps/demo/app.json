@@ -2,7 +2,7 @@
   "expo": {
     "name": "Quartz UI Demo",
     "slug": "quartz-ui-demo",
-    "version": "1.0.0-dev.2025-02.1",
+    "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "quartzui",
     "userInterfaceStyle": "automatic",

@@ -1,0 +1,81 @@
+name: Publish to npm
+
+# Two ways to fire this:
+#   1. Push a version tag like `v1.0.0` (matches the version in
+#      packages/core/package.json) — the standard release path.
+#   2. Manual `workflow_dispatch` from the Actions tab — for re-publishing
+#      or shipping out-of-band when a tag isn't desired.
+#
+# Required repo secret: NPM_TOKEN (an Automation token from npmjs.com with
+# publish rights to the `quartz-ui` package).
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (build + pack only, do not publish)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: read
+  id-token: write # for npm provenance
+
+jobs:
+  publish:
+    name: Build, test & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test --workspace=quartz-ui -- --ci --maxWorkers=2
+
+      - name: Build
+        run: npm run build --workspace=quartz-ui
+
+      - name: Verify dist
+        run: |
+          test -f packages/core/dist/index.js
+          test -f packages/core/dist/index.mjs
+          test -f packages/core/dist/index.d.ts
+
+      - name: Verify tag matches package version (tag-triggered runs)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          PKG_VERSION="$(node -p "require('./packages/core/package.json').version")"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Tag $TAG_VERSION does not match package version $PKG_VERSION"
+            exit 1
+          fi
+          echo "Publishing version $PKG_VERSION"
+
+      - name: Publish (dry run)
+        if: inputs.dry_run == 'true'
+        working-directory: packages/core
+        run: npm publish --provenance --access public --dry-run
+
+      - name: Publish to npm
+        if: inputs.dry_run != 'true'
+        working-directory: packages/core
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'

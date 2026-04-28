@@ -146,7 +146,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
               Quartz UI
             </Text>
             <Text variant="bodySmall" style={{ color: onSurfaceVariant, fontSize: 12, marginTop: 1 }}>
-              v1.0.0-alpha.1
+              v1.0.0
             </Text>
           </View>
         </Pressable>

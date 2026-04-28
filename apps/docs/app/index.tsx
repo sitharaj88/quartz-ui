@@ -467,7 +467,7 @@ export default function HomeScreen() {
               <View style={[styles.versionPill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant + '80' }]}>
                 <View style={[styles.versionDot, { backgroundColor: theme.colors.primary }]} />
                 <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600', fontSize: 12, letterSpacing: 0.3 }}>
-                  v1.0.0-alpha.1 — production-ready
+                  v1.0.0 — production-ready
                 </Text>
               </View>
             </Animated.View>

@@ -2,12 +2,12 @@
 
 ## Supported versions
 
-Quartz UI is in the `1.0.0-alpha` line. Until 1.0.0 is released, only the latest published alpha receives security fixes.
+Quartz UI follows semantic versioning. The latest minor release on the current major receives security fixes.
 
 | Version | Status |
 |---------|--------|
-| 1.0.0-alpha.x | ✅ Supported |
-| < 1.0.0-alpha.1 | ❌ Unsupported |
+| 1.x | ✅ Supported |
+| < 1.0.0 | ❌ Unsupported |
 
 ## Reporting a vulnerability
 

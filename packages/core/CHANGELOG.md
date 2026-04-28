@@ -1,5 +1,17 @@
 # quartz-ui
 
+## 1.0.0
+
+First stable release. Drops the `-alpha` tag — the API is now considered stable; future breaking changes will follow semver-major.
+
+### Fixes
+
+- **Carousel**: prev/next chevrons rendered as up/down arrows (the inline chevron's rotation values sent the corner of its `⌐` shape to the top/bottom instead of left/right). Fixed by using `+45°` for the right chevron and `-135°` for the left.
+
+### Notes
+
+- No public API changes since `1.0.0-alpha.1`. If you were on the alpha, this is a drop-in upgrade.
+
 ## 1.0.0-alpha.1
 
 ### Major changes

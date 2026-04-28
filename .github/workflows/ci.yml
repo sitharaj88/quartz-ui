@@ -33,6 +33,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --legacy-peer-deps
+      # Root tsconfig resolves `quartz-ui` via a paths mapping to
+      # `packages/core/src` so a build is not required before typecheck.
       - run: npm run typecheck
 
   test:

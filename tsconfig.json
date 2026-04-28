@@ -17,12 +17,26 @@
     "sourceMap": true,
     "jsx": "react-native",
     "allowSyntheticDefaultImports": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "quartz-ui": ["packages/core/src"]
+    }
   },
+  "include": [
+    "packages/*/src/**/*",
+    "apps/docs/app/**/*",
+    "apps/docs/expo-env.d.ts",
+    "apps/docs/.expo/types/**/*.ts",
+    "types/**/*.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    "build"
+    "build",
+    "apps/demo",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ],
   "extends": "expo/tsconfig.base"
 }

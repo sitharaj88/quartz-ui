@@ -1,6 +1,6 @@
 {
   "name": "quartz-ui",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "description": "Modern, accessible component library for React Native & Expo",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

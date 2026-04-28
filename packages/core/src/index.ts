@@ -22,5 +22,5 @@ export * from './hooks';
 export * from './utils';
 
 // Version
-export const VERSION = '1.0.0-dev.2025-02.1';
+export const VERSION = '1.0.0';
 
