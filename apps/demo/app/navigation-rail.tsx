@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import {
   Text,
   Button,
@@ -19,8 +19,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInRight, FadeInDown } from 'react-native-reanimated';
-
-const { width: screenWidth } = Dimensions.get('window');
 
 export default function NavigationRailScreen() {
   const theme = useTheme();

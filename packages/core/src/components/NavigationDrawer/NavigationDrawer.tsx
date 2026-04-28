@@ -117,10 +117,6 @@ function DrawerItemComponent({
   const textColor = selected
     ? theme.colors.onSecondaryContainer
     : theme.colors.onSurfaceVariant;
-  const iconColor = selected
-    ? theme.colors.onSecondaryContainer
-    : theme.colors.onSurfaceVariant;
-
   const iconToShow = selected && item.selectedIcon ? item.selectedIcon : item.icon;
 
   return (

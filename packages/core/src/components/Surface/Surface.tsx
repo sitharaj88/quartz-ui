@@ -31,7 +31,7 @@ export interface SurfaceProps extends ViewProps {
 
 const SurfaceImpl = forwardRef<View, SurfaceProps>(function Surface(
   {
-    elevation = 0,
+    elevation: _elevation = 0,
     background = 'surface',
     radius = 'none',
     padding = 'none',

@@ -9,7 +9,7 @@
  */
 
 import React, { forwardRef, memo, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ViewStyle, LayoutChangeEvent } from 'react-native';
+import { View, ViewStyle, LayoutChangeEvent } from 'react-native';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -34,8 +34,8 @@ const SHIMMER_WIDTH_RATIO = 0.5;
  */
 function getShapeBorderRadius(
     shape: SkeletonShape,
-    width: number | string | undefined,
-    height: number | string | undefined
+    _width: number | string | undefined,
+    _height: number | string | undefined
 ): number {
     switch (shape) {
         case 'circular':

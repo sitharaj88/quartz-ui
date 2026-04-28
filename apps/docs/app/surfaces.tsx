@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Surface, useTheme, Divider } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { DocLayout } from './_components/DocLayout';
 import { CodePlayground } from './_components/CodePlayground';
 import { PropsTable, PropDefinition } from './_components/PropsTable';

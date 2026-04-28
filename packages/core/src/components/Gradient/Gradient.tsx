@@ -11,11 +11,10 @@
  */
 
 import React, { forwardRef, memo, useMemo } from 'react';
-import { View, Text, StyleSheet, ViewStyle, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import {
     GradientProps,
-    GradientDirection,
     directionMap,
     gradientPresets,
 } from './Gradient.types';

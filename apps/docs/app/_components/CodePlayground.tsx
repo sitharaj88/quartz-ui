@@ -1,25 +1,17 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, useWindowDimensions, Platform, LayoutAnimation, UIManager } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, useWindowDimensions, Platform, UIManager } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Text, Surface, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
-  FadeIn,
-  FadeOut,
   FadeInDown,
   FadeInRight,
   FadeOutLeft,
   FadeInLeft,
   FadeOutRight,
-  SlideInRight,
-  SlideOutLeft,
-  SlideInLeft,
-  SlideOutRight,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
-  Layout,
   Easing,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';

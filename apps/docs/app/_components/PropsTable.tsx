@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, TextInput, useWindowDimensions, Platform } from 'react-native';
-import { Text, Surface, Divider, useTheme } from 'quartz-ui';
+import { View, StyleSheet, Pressable, TextInput, useWindowDimensions, Platform } from 'react-native';
+import { Text, Surface, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   FadeInDown,
@@ -269,29 +269,10 @@ export function PropsTable({ props, title = 'Props' }: PropsTableProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortField, setSortField] = useState<SortField>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [sortField] = useState<SortField>(null);
+  const [sortDirection] = useState<SortDirection>(null);
 
   const isMobile = width < 768;
-
-  // Sort handler
-  const handleSort = useCallback((field: SortField) => {
-    setSortField((prev) => {
-      if (prev === field) {
-        setSortDirection((dir) => {
-          if (dir === 'asc') return 'desc';
-          if (dir === 'desc') {
-            setSortField(null);
-            return null;
-          }
-          return 'asc';
-        });
-      } else {
-        setSortDirection('asc');
-      }
-      return field;
-    });
-  }, []);
 
   // Filtered and sorted props
   const processedProps = useMemo(() => {

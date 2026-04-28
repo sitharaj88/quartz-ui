@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, DatePicker, TimePicker, Button, useTheme } from 'quartz-ui';
-import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';
 import { CodePlayground } from './_components/CodePlayground';
 import { PropsTable, PropDefinition } from './_components/PropsTable';

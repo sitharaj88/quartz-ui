@@ -8,8 +8,6 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import {
   Text,
-  Button,
-  Surface,
   Carousel,
   useTheme,
   Switch,

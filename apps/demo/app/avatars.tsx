@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Avatar, AvatarBadge, AvatarGroup, useTheme } from 'quartz-ui';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, Avatar, AvatarGroup, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DemoLayout, Section } from './_components/DemoLayout';
 

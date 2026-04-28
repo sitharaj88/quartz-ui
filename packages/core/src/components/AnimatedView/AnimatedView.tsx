@@ -8,8 +8,8 @@
  * - Delay and duration controls
  */
 
-import React, { Children, cloneElement, forwardRef, isValidElement, memo, useEffect } from 'react';
-import { View, ViewStyle } from 'react-native';
+import React, { Children, forwardRef, isValidElement, memo, useEffect } from 'react';
+import { View } from 'react-native';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -22,7 +22,6 @@ import Animated, {
 import {
     AnimatedViewProps,
     StaggerProps,
-    AnimationPreset,
     AnimationEasing,
     animationPresets,
 } from './AnimatedView.types';

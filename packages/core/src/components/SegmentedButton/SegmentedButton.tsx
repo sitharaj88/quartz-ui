@@ -6,7 +6,7 @@
  * - Multi select
  */
 
-import React, { forwardRef, memo, useCallback } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo } from 'react';
 import {
   View,
   Pressable,
@@ -75,7 +75,10 @@ const SegmentedButtonImpl = forwardRef<View, SegmentedButtonProps>(function Segm
   ref
 ) {
   const theme = useTheme();
-  const selectedValues = Array.isArray(value) ? value : [value];
+  const selectedValues = useMemo(
+    () => (Array.isArray(value) ? value : [value]),
+    [value]
+  );
   const densityConfig = DENSITIES[density];
   
   const handleSelect = useCallback((segmentValue: string) => {

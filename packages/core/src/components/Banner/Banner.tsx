@@ -11,7 +11,6 @@ import {
   StyleSheet,
   ViewStyle,
   StyleProp,
-  I18nManager,
 } from 'react-native';
 import Animated, {
   useAnimatedStyle,

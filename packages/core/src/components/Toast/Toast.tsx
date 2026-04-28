@@ -32,8 +32,6 @@ import Animated, {
     withSpring,
     withTiming,
     runOnJS,
-    FadeIn,
-    FadeOut,
     SlideInUp,
     SlideInDown,
     SlideOutUp,
@@ -54,7 +52,6 @@ import {
     ToastContextValue,
     ToastShowOptions,
     ToastType,
-    ToastPosition,
 } from './Toast.types';
 
 // Generate unique ID

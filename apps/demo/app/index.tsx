@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Dimensions, StatusBar, TextInput } from 'react-native';
+import { View, StyleSheet, Pressable, StatusBar, TextInput } from 'react-native';
 import { Text, Surface, useTheme } from 'quartz-ui';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,9 +16,7 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 280;
-const CARD_COLUMNS = 2;
 
 type IconName = keyof typeof Ionicons.glyphMap;
 

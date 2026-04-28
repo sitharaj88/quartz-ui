@@ -102,10 +102,6 @@ function RailDestinationItem({
     ? theme.colors.secondaryContainer
     : 'transparent';
 
-  const iconColor = selected
-    ? theme.colors.onSecondaryContainer
-    : theme.colors.onSurfaceVariant;
-
   const labelColor = selected
     ? theme.colors.onSurface
     : theme.colors.onSurfaceVariant;

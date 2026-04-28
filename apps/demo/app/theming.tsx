@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, StatusBar } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import { Text, Surface, Button, useTheme, useQuartzTheme } from 'quartz-ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 

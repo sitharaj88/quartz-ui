@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Pressable } from 'react-native';
-import { 
-  Text, 
-  NavigationDrawer, 
-  NavigationRail, 
-  useTheme, 
+import { View, StyleSheet, Pressable } from 'react-native';
+import {
+  Text,
+  NavigationDrawer,
+  useTheme,
   Button,
   Surface,
-  IconButton,
-  Badge 
 } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';
@@ -121,20 +118,6 @@ const navigationRailProps: PropDefinition[] = [
     type: 'StyleProp<ViewStyle>',
     description: 'Style override',
   },
-];
-
-const navItems = [
-  { key: 'inbox', label: 'Inbox', icon: 'mail-outline', badge: 12 },
-  { key: 'outbox', label: 'Outbox', icon: 'send-outline' },
-  { key: 'favorites', label: 'Favorites', icon: 'heart-outline' },
-  { key: 'trash', label: 'Trash', icon: 'trash-outline' },
-];
-
-const railItems = [
-  { key: 'home', label: 'Home', icon: 'home-outline' },
-  { key: 'search', label: 'Search', icon: 'search-outline' },
-  { key: 'notifications', label: 'Alerts', icon: 'notifications-outline', badge: 3 },
-  { key: 'settings', label: 'Settings', icon: 'settings-outline' },
 ];
 
 // ─── Drawer & Rail demos — self-contained, fit nicely in a phone frame ──

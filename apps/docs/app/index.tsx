@@ -1,25 +1,15 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, Pressable, StatusBar, ScrollView, Platform, NativeSyntheticEvent, NativeScrollEvent, useWindowDimensions, Linking, Share } from 'react-native';
-import { Text, Surface, Button, useTheme, useQuartzTheme } from 'quartz-ui';
+import { Text, Surface, useTheme, useQuartzTheme } from 'quartz-ui';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
-  FadeInDown,
   FadeInUp,
-  FadeIn,
-  FadeInLeft,
-  FadeInRight,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   interpolate,
   Extrapolation,
-  withSpring,
-  withRepeat,
-  withTiming,
-  withSequence,
-  useAnimatedProps,
-  Easing,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -112,114 +102,6 @@ function LandingThemeToggle() {
   );
 }
 
-// Animated gradient orb
-function GradientOrb({ delay, size, position, colors }: { delay: number; size: number; position: { top?: number | string; left?: number | string; right?: number | string; bottom?: number | string }; colors: readonly [string, string, ...string[]] }) {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.4);
-
-  React.useEffect(() => {
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 4000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.6, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.3, { duration: 3000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
-
-  const positionStyle = {
-    position: 'absolute' as const,
-    width: size,
-    height: size,
-    borderRadius: size / 2,
-    ...(position.top !== undefined && { top: position.top }),
-    ...(position.left !== undefined && { left: position.left }),
-    ...(position.right !== undefined && { right: position.right }),
-    ...(position.bottom !== undefined && { bottom: position.bottom }),
-  };
-
-  return (
-    <Animated.View
-      entering={FadeIn.delay(delay).duration(1500)}
-      // @ts-ignore - Complex style typing issue with Animated.View
-      style={[positionStyle, animatedStyle]}
-    >
-      <LinearGradient
-        colors={colors}
-        style={{ width: '100%', height: '100%', borderRadius: size / 2 }}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-    </Animated.View>
-  );
-}
-
-// Floating badge component
-function FloatingBadge({ children, delay }: { children: React.ReactNode; delay: number }) {
-  const translateY = useSharedValue(0);
-
-  React.useEffect(() => {
-    translateY.value = withRepeat(
-      withSequence(
-        withTiming(-8, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 2000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  return (
-    <Animated.View entering={FadeInUp.delay(delay).springify().damping(12)} style={animatedStyle}>
-      {children}
-    </Animated.View>
-  );
-}
-
-// Scroll indicator with bounce animation
-function ScrollIndicator() {
-  const translateY = useSharedValue(0);
-
-  React.useEffect(() => {
-    translateY.value = withRepeat(
-      withSpring(12, { damping: 3, stiffness: 80 }),
-      -1,
-      true
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  return (
-    <Animated.View style={[styles.scrollIndicator, animatedStyle]}>
-      <View style={styles.scrollIndicatorInner}>
-        <View style={styles.scrollIndicatorDot} />
-      </View>
-      <Text style={styles.scrollIndicatorText}>Scroll to explore</Text>
-    </Animated.View>
-  );
-}
-
 // Feature card component
 function FeatureCard({ feature, index, isMobile }: { feature: Feature; index: number; isMobile: boolean }) {
   const theme = useTheme();
@@ -269,53 +151,8 @@ function FeatureCard({ feature, index, isMobile }: { feature: Feature; index: nu
   );
 }
 
-// Category card component
-function CategoryCard({ category, index, cardWidth, theme }: { category: typeof componentCategories[0]; index: number; cardWidth: number; theme: any }) {
-  const router = useRouter();
-
-  return (
-    <Animated.View
-      entering={FadeInRight.delay(100 + index * 100).springify().damping(14)}
-      style={[styles.categoryCard, { width: cardWidth }]}
-    >
-      <Pressable
-        onPress={() => router.push(category.route as any)}
-        style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.97 : 1 }], opacity: pressed ? 0.95 : 1 }]}
-      >
-        <Surface style={[styles.categorySurface, { backgroundColor: theme.colors.surface }]} elevation={3}>
-          <View style={styles.categoryHeader}>
-            <LinearGradient colors={category.gradient} style={styles.categoryIconBox}>
-              <Ionicons name={category.icon} size={28} color="#fff" />
-            </LinearGradient>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryBadgeText}>{category.count}</Text>
-            </View>
-          </View>
-          <Text variant="titleLarge" style={[styles.categoryTitle, { color: theme.colors.onSurface }]}>
-            {category.name}
-          </Text>
-          <View style={styles.categoryItems}>
-            {category.items.slice(0, 4).map((item, i) => (
-              <View key={item} style={styles.categoryItem}>
-                <View style={[styles.categoryDot, { backgroundColor: category.gradient[0] }]} />
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>{item}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.categoryFooter}>
-            <Text variant="labelLarge" style={{ color: category.gradient[0], fontWeight: '700' }}>
-              View all
-            </Text>
-            <Ionicons name="arrow-forward" size={18} color={category.gradient[0]} />
-          </View>
-        </Surface>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
 // Code preview component
-function CodePreview({ theme, isMobile }: { theme: any; isMobile: boolean }) {
+function CodePreview({ isMobile }: { isMobile: boolean }) {
   return (
     <Animated.View entering={FadeInUp.delay(400).springify().damping(14)} style={styles.codePreview}>
       <Surface style={[styles.codeSurface, { backgroundColor: '#1e1e1e' }]} elevation={4}>
@@ -349,8 +186,6 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const scrollY = useSharedValue(0);
-  const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
-  const carouselScrollRef = useRef<ScrollView>(null);
 
   const isMobile = width < 768;
   const isTablet = width >= 768 && width < 1024;
@@ -369,23 +204,6 @@ export default function HomeScreen() {
       scrollHandler(event);
     }
   }, [scrollHandler, scrollY]);
-
-  // Carousel scroll handler
-  const handleCarouselScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const cardWidth = isMobile ? width * 0.8 + 20 : isTablet ? 340 : 360;
-    const newIndex = Math.round(offsetX / cardWidth);
-    setActiveCarouselIndex(newIndex);
-  }, [isMobile, isTablet, width]);
-
-  // Scroll to specific carousel index
-  const scrollToCarouselIndex = useCallback((index: number) => {
-    const cardWidth = isMobile ? width * 0.8 + 20 : isTablet ? 340 : 360;
-    carouselScrollRef.current?.scrollTo({
-      x: index * cardWidth,
-      animated: true,
-    });
-  }, [isMobile, isTablet, width]);
 
   const headerStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [0, 100], [0, 1], Extrapolation.CLAMP);
@@ -636,7 +454,7 @@ export default function HomeScreen() {
             </Text>
           </Animated.View>
 
-          <CodePreview theme={theme} isMobile={isMobile} />
+          <CodePreview isMobile={isMobile} />
         </View>
 
         {/* Components Section */}

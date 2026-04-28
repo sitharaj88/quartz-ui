@@ -40,8 +40,6 @@ import {
   TextInput,
   Platform,
   PanResponder,
-  GestureResponderEvent,
-  PanResponderGestureState,
 } from 'react-native';
 import Animated, {
   FadeIn,
@@ -120,7 +118,7 @@ function ClockDial({
   }, [selectedValue, selectionMode]);
   
   // Calculate angle for the selector line
-  const getAngle = useCallback((value: number, isInner: boolean = false) => {
+  const getAngle = useCallback((value: number, _isInner: boolean = false) => {
     if (selectionMode === 'hours') {
       if (innerValues && innerValues.includes(value)) {
         // 24-hour inner ring (12-23 or 0)
@@ -395,7 +393,7 @@ function TimePickerImpl({
   // Minute values (0-55 in 5-minute increments shown, but any minute selectable)
   const minuteValues = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
-  const handleHoursChange = useCallback((newHours: number, fromDrag?: boolean) => {
+  const handleHoursChange = useCallback((newHours: number, _fromDrag?: boolean) => {
     let actualHours = newHours;
     if (!use24Hour) {
       if (period === 'PM' && newHours !== 12) {
@@ -411,7 +409,7 @@ function TimePickerImpl({
     // Don't auto-advance during drag, only on release (handled by onDragEnd)
   }, [period, use24Hour, minutes, onChange]);
 
-  const handleMinutesChange = useCallback((newMinutes: number, fromDrag?: boolean) => {
+  const handleMinutesChange = useCallback((newMinutes: number, _fromDrag?: boolean) => {
     setMinutes(newMinutes);
     onChange?.({ hours, minutes: newMinutes });
   }, [hours, onChange]);

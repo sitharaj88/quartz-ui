@@ -16,7 +16,6 @@ import {
   TextStyle,
   StyleProp,
   NativeSyntheticEvent,
-  TextInputFocusEventData,
   TextInputSubmitEditingEventData,
   Platform,
 } from 'react-native';
@@ -24,7 +23,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
@@ -115,17 +113,17 @@ const SearchBarImpl = forwardRef<SearchBarHandle, SearchBarProps>(function Searc
     elevation.value = withSpring(focused ? 2 : 0, springConfig.gentle);
   }, [focused, elevation]);
   
-  const handleFocus = useCallback((e: any) => {
+  const handleFocus = useCallback(() => {
     setInternalFocused(true);
     onFocus?.();
   }, [onFocus]);
-  
-  const handleBlur = useCallback((e: any) => {
+
+  const handleBlur = useCallback(() => {
     setInternalFocused(false);
     onBlur?.();
   }, [onBlur]);
-  
-  const handleSubmit = useCallback((e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
+
+  const handleSubmit = useCallback((_e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     if (theme.accessibility.hapticFeedback && Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }

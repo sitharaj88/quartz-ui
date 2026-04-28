@@ -22,7 +22,6 @@ export default function SelectionScreen() {
   // Radio Buttons
   const [deliveryMethod, setDeliveryMethod] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('card');
-  const [theme2, setTheme2] = useState('system');
 
   // Switches
   const [notifications, setNotifications] = useState(true);

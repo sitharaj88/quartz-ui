@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Surface, Button, Dialog, Snackbar, useTheme } from 'quartz-ui';
+import { Text, Button, Dialog, Snackbar, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DemoLayout, Section } from './_components/DemoLayout';
 

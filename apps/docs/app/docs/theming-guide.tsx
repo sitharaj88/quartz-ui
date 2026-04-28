@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Text, Surface, Button, useTheme, useQuartzTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from '../_components/DocLayout';
 import { CodePlayground } from '../_components/CodePlayground';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 
 // Lives inside the MobileFrame's nested QuartzProvider, so `useQuartzTheme`
 // here resolves to the inner provider — toggling flips only the preview.

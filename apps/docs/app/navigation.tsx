@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, AppBar, NavigationBar, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from './_components/DocLayout';

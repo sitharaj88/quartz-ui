@@ -163,7 +163,7 @@ export function extendTheme(
  */
 export function createCustomColorScheme(
   seedColor: string,
-  isDark: boolean = false
+  _isDark: boolean = false
 ): Partial<ColorScheme> {
   // For now, return a simple override
   // In production, use a color utilities library

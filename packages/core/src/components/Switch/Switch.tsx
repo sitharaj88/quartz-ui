@@ -29,13 +29,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 
 import { useTheme } from '../../theme/ThemeProvider';
 import { useInteractiveState } from '../../hooks/useInteractiveState';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
-import { duration, springConfig } from '../../tokens/motion';
+import { springConfig } from '../../tokens/motion';
 import { withAlpha } from '../../utils/color';
 
 export interface SwitchHandle {

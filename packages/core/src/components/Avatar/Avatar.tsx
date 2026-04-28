@@ -32,7 +32,6 @@ import {
     AvatarProps,
     AvatarBadgeProps,
     AvatarGroupProps,
-    AvatarSize,
     avatarSizes,
     avatarFontSizes,
 } from './Avatar.types';

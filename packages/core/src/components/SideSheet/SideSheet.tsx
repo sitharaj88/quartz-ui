@@ -14,7 +14,6 @@ import {
   StyleProp,
   ScrollView,
   I18nManager,
-  Platform,
 } from 'react-native';
 import Animated, {
   useSharedValue,

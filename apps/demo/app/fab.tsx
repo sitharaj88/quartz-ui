@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, FAB, useTheme } from 'quartz-ui';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,7 +7,6 @@ import { DemoLayout, Section } from './_components/DemoLayout';
 
 export default function FABScreen() {
   const theme = useTheme();
-  const [extended, setExtended] = useState(true);
 
   return (
     <DemoLayout

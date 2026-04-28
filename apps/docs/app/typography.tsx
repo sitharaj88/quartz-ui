@@ -109,7 +109,7 @@ export default function TypographyDocPage() {
 <Text variant="displaySmall">Display Small</Text>`}
                     preview={
                         <View style={styles.variantList}>
-                            {textVariants.display.map((item, index) => (
+                            {textVariants.display.map((item) => (
                                 <View key={item.variant} style={[styles.variantItem, { borderBottomColor: theme.colors.outlineVariant }]}>
                                     <Text variant={item.variant as any} style={{ color: theme.colors.onSurface }}>
                                         {item.variant}

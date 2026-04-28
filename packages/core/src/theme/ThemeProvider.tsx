@@ -19,7 +19,7 @@ import React, {
 } from 'react';
 import { useColorScheme, I18nManager, Platform } from 'react-native';
 import { QuartzTheme, ThemeContextValue, ThemeMode, TextDirection } from './types';
-import { createTheme, lightTheme, darkTheme } from './createTheme';
+import { lightTheme, darkTheme } from './createTheme';
 
 // Create the theme context
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -188,7 +188,7 @@ export function useSpacing() {
  * Hook to check if dark mode is active
  */
 export function useIsDarkMode(): boolean {
-  const { mode, theme } = useQuartzTheme();
+  const { mode } = useQuartzTheme();
   const systemColorScheme = useColorScheme();
   
   if (mode === 'system') {

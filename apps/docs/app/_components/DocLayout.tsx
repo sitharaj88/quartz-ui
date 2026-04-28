@@ -1,23 +1,16 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions, Platform, NativeSyntheticEvent, NativeScrollEvent, Linking, Share } from 'react-native';
-import { Text, Surface, useTheme, useQuartzTheme } from 'quartz-ui';
+import { Text, useTheme, useQuartzTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   FadeIn,
-  FadeInRight,
   FadeInDown,
-  FadeOut,
   SlideInLeft,
-  SlideOutLeft,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
-  withTiming,
-  interpolate,
   useAnimatedScrollHandler,
-  Extrapolation,
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { DocsSidebar } from './DocsSidebar';

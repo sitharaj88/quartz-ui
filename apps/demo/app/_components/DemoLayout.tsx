@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { View, StyleSheet, StatusBar, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, StatusBar, Pressable } from 'react-native';
 import { Text, Surface, useTheme } from 'quartz-ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -10,7 +10,6 @@ import Animated, {
   useSharedValue,
   interpolate,
   Extrapolation,
-  withSpring,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

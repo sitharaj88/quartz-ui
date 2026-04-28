@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback } from 'react';
-import { View, StyleSheet, StatusBar, ScrollView, Platform, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, StyleSheet, StatusBar, Platform, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Text, Surface, useTheme } from 'quartz-ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {

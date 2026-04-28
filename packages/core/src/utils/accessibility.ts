@@ -101,7 +101,7 @@ export const focusTrap = {
   /**
    * Trap focus within a container (web only)
    */
-  activate: (container: unknown) => {
+  activate: (_container: unknown) => {
     if (Platform.OS === 'web') {
       // Web-specific focus trap implementation
     }

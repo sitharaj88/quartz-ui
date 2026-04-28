@@ -15,8 +15,6 @@ import {
   StyleSheet,
   ViewStyle,
   StyleProp,
-  StatusBar,
-  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
