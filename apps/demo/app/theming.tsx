@@ -1,11 +1,24 @@
-import React from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
-import { Text, Surface, Button, useTheme, useQuartzTheme } from 'quartz-ui';
+import React, { useMemo, useState } from 'react';
+import { View, StyleSheet, StatusBar, Pressable } from 'react-native';
+import {
+  Text,
+  Surface,
+  Button,
+  Card,
+  Chip,
+  QuartzProvider,
+  useTheme,
+  useQuartzTheme,
+  createDynamicThemes,
+  createDynamicColorScheme,
+  generateTonalPalette,
+} from 'quartz-ui';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { 
-  FadeInDown, 
-  useAnimatedScrollHandler, 
-  useAnimatedStyle, 
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
   useSharedValue,
   interpolate,
   Extrapolation
@@ -14,6 +27,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HERO_HEIGHT = 160;
+
+const SEED_PRESETS = [
+  { name: 'Quartz Violet', color: '#6750A4' },
+  { name: 'Ocean Blue', color: '#1A73E8' },
+  { name: 'Evergreen', color: '#0F9D58' },
+  { name: 'Sunset Coral', color: '#F4511E' },
+  { name: 'Raspberry', color: '#D81B60' },
+  { name: 'Deep Teal', color: '#00897B' },
+];
+
+const TONES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99, 100] as const;
 
 const colorGroups = [
   {
@@ -146,6 +170,13 @@ export default function ThemingScreen() {
           </Section>
         </Animated.View>
 
+        {/* Dynamic Color (Material You) */}
+        <Animated.View entering={FadeInDown.delay(150).springify()}>
+          <Section title="Dynamic Color" subtitle="A complete Material You theme from one seed">
+            <DynamicColorShowcase isDark={isDark} />
+          </Section>
+        </Animated.View>
+
         {/* Color Palette */}
         {colorGroups.map((group, groupIndex) => (
           <Animated.View 
@@ -241,10 +272,10 @@ export default function ThemingScreen() {
           <Surface style={[styles.infoCard, { backgroundColor: theme.colors.tertiaryContainer }]} elevation={0}>
             <Ionicons name="sparkles" size={24} color={theme.colors.onTertiaryContainer} />
             <Text variant="titleSmall" style={{ color: theme.colors.onTertiaryContainer, marginTop: 8 }}>
-              Dynamic Color Ready
+              Dynamic Color Built In
             </Text>
             <Text variant="bodySmall" style={{ color: theme.colors.onTertiaryContainer, textAlign: 'center', marginTop: 4 }}>
-              Quartz UI supports dynamic color extraction from wallpaper on Android 12+
+              createDynamicThemes(seed) generates WCAG-AA verified light and dark themes — all 36 MD3 color roles from a single hex value
             </Text>
           </Surface>
         </Animated.View>
@@ -265,6 +296,163 @@ function Section({ title, subtitle, children }: { title: string; subtitle: strin
       </Text>
       {children}
     </View>
+  );
+}
+
+/**
+ * Interactive Material You showcase: pick a seed color and watch a complete
+ * MD3 scheme — tonal palette, color roles, and live components — regenerate.
+ * The mini component preview nests a QuartzProvider so real Quartz components
+ * render with the generated theme.
+ */
+function DynamicColorShowcase({ isDark }: { isDark: boolean }) {
+  const theme = useTheme();
+  const [seed, setSeed] = useState(SEED_PRESETS[0].color);
+
+  const mode = isDark ? 'dark' : 'light';
+  const scheme = useMemo(() => createDynamicColorScheme(seed, mode), [seed, mode]);
+  const dynamicThemes = useMemo(() => createDynamicThemes(seed), [seed]);
+  const tonalPalette = useMemo(() => generateTonalPalette(seed), [seed]);
+
+  const activePreset = SEED_PRESETS.find((p) => p.color === seed) ?? SEED_PRESETS[0];
+
+  const roleSwatches = [
+    { label: 'Primary', bg: scheme.primary, fg: scheme.onPrimary },
+    { label: 'Primary Container', bg: scheme.primaryContainer, fg: scheme.onPrimaryContainer },
+    { label: 'Secondary', bg: scheme.secondary, fg: scheme.onSecondary },
+    { label: 'Secondary Container', bg: scheme.secondaryContainer, fg: scheme.onSecondaryContainer },
+    { label: 'Tertiary', bg: scheme.tertiary, fg: scheme.onTertiary },
+    { label: 'Tertiary Container', bg: scheme.tertiaryContainer, fg: scheme.onTertiaryContainer },
+  ];
+
+  return (
+    <Surface style={[styles.dynamicCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
+      {/* Seed picker */}
+      <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>
+        Seed Color
+      </Text>
+      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2 }}>
+        Tap a swatch to regenerate the entire scheme
+      </Text>
+      <View style={styles.seedRow}>
+        {SEED_PRESETS.map((preset) => {
+          const selected = preset.color === seed;
+          return (
+            <Pressable
+              key={preset.color}
+              onPress={() => setSeed(preset.color)}
+              accessibilityRole="button"
+              accessibilityLabel={`Use ${preset.name} as seed color`}
+              accessibilityState={{ selected }}
+              style={({ pressed }) => [
+                styles.seedRing,
+                { borderColor: selected ? preset.color : 'transparent' },
+                pressed && { transform: [{ scale: 0.92 }] },
+              ]}
+            >
+              <View style={[styles.seedSwatch, { backgroundColor: preset.color }]}>
+                {selected && <Ionicons name="checkmark" size={18} color="#fff" />}
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={[styles.seedInfo, { backgroundColor: theme.colors.surfaceVariant }]}>
+        <View style={[styles.seedDot, { backgroundColor: seed }]} />
+        <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+          {activePreset.name} • {seed.toUpperCase()}
+        </Text>
+      </View>
+
+      {/* Tonal palette strip */}
+      <Animated.View key={`tonal-${seed}`} entering={FadeIn.duration(350)}>
+        <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '600', marginTop: 20 }}>
+          Tonal Palette
+        </Text>
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, marginBottom: 10 }}>
+          13 Oklab-derived stops from tone 0 to 100
+        </Text>
+        <View style={styles.tonalStrip}>
+          {TONES.map((tone) => (
+            <View key={tone} style={[styles.tonalStop, { backgroundColor: tonalPalette[tone] }]} />
+          ))}
+        </View>
+        <View style={styles.tonalLabels}>
+          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>0</Text>
+          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>50</Text>
+          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>100</Text>
+        </View>
+      </Animated.View>
+
+      {/* Generated color roles */}
+      <Animated.View key={`roles-${seed}-${mode}`} entering={FadeIn.duration(350)}>
+        <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '600', marginTop: 20 }}>
+          Generated Roles ({mode})
+        </Text>
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, marginBottom: 10 }}>
+          WCAG-AA verified pairs from createDynamicColorScheme
+        </Text>
+        <View style={styles.roleGrid}>
+          {roleSwatches.map((role) => (
+            <View key={role.label} style={[styles.roleSwatch, { backgroundColor: role.bg }]}>
+              <Text variant="titleSmall" style={{ color: role.fg, fontWeight: '700' }}>
+                Aa
+              </Text>
+              <Text variant="labelSmall" style={{ color: role.fg, opacity: 0.9 }} numberOfLines={2}>
+                {role.label}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </Animated.View>
+
+      {/* Live component preview — real components under a nested provider */}
+      <Animated.View key={`preview-${seed}-${mode}`} entering={FadeIn.duration(350)}>
+        <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '600', marginTop: 20 }}>
+          Live Preview
+        </Text>
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, marginBottom: 10 }}>
+          Real components themed by createDynamicThemes
+        </Text>
+        <QuartzProvider
+          initialMode={mode}
+          lightTheme={dynamicThemes.light}
+          darkTheme={dynamicThemes.dark}
+        >
+          <View style={[styles.previewCanvas, { backgroundColor: scheme.surfaceContainerLow }]}>
+            <Card variant="elevated" style={styles.previewCard}>
+              <View style={styles.previewCardContent}>
+                <View style={styles.previewHeader}>
+                  <View style={[styles.previewAvatar, { backgroundColor: scheme.primary }]}>
+                    <Ionicons name="color-wand" size={20} color={scheme.onPrimary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text variant="titleSmall" style={{ color: scheme.onSurface, fontWeight: '600' }}>
+                      {activePreset.name}
+                    </Text>
+                    <Text variant="bodySmall" style={{ color: scheme.onSurfaceVariant }}>
+                      36 roles from one seed
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.previewChips}>
+                  <Chip label="Dynamic" selected onPress={() => {}} />
+                  <Chip label="Material You" onPress={() => {}} />
+                </View>
+                <View style={styles.previewButtons}>
+                  <Button variant="filled" onPress={() => {}} style={{ flex: 1 }}>
+                    Primary
+                  </Button>
+                  <Button variant="tonal" onPress={() => {}} style={{ flex: 1 }}>
+                    Tonal
+                  </Button>
+                </View>
+              </View>
+            </Card>
+          </View>
+        </QuartzProvider>
+      </Animated.View>
+    </Surface>
   );
 }
 
@@ -388,5 +576,102 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',
+  },
+  // Dynamic Color showcase
+  dynamicCard: {
+    padding: 20,
+    borderRadius: 20,
+  },
+  seedRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
+  seedRing: {
+    borderWidth: 2,
+    borderRadius: 26,
+    padding: 3,
+  },
+  seedSwatch: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  seedDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  tonalStrip: {
+    flexDirection: 'row',
+    height: 36,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  tonalStop: {
+    flex: 1,
+  },
+  tonalLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+    paddingHorizontal: 2,
+  },
+  roleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  roleSwatch: {
+    width: '30.5%',
+    flexGrow: 1,
+    minHeight: 72,
+    borderRadius: 14,
+    padding: 10,
+    justifyContent: 'space-between',
+  },
+  previewCanvas: {
+    borderRadius: 20,
+    padding: 16,
+  },
+  previewCard: {
+    borderRadius: 16,
+  },
+  previewCardContent: {
+    padding: 16,
+    gap: 14,
+  },
+  previewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  previewAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewChips: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  previewButtons: {
+    flexDirection: 'row',
+    gap: 10,
   },
 });

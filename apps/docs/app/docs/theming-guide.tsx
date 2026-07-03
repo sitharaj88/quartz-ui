@@ -1,10 +1,87 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Surface, Button, useTheme, useQuartzTheme } from 'quartz-ui';
+import { Text, Surface, Button, useTheme, useQuartzTheme, generateTonalPalette } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { DocLayout } from '../_components/DocLayout';
 import { CodePlayground } from '../_components/CodePlayground';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+
+// MD3 tone stops rendered in the live tonal-palette strips below.
+const TONE_STOPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99, 100] as const;
+
+/**
+ * Live tonal-palette strip — calls the real `generateTonalPalette` at render
+ * time so the swatches always reflect what the library actually produces.
+ */
+function TonalPaletteStrip({ name, seed }: { name: string; seed: string }) {
+  const theme = useTheme();
+  const palette = useMemo(() => generateTonalPalette(seed), [seed]);
+
+  return (
+    <View style={{ gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <View style={[stripStyles.seedChip, { backgroundColor: seed, borderColor: theme.colors.outlineVariant }]} />
+        <Text variant="titleSmall" style={{ color: theme.colors.onSurface, fontWeight: '600' }}>
+          {name}
+        </Text>
+        <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, fontFamily: 'monospace' }}>
+          {seed}
+        </Text>
+      </View>
+      <View style={stripStyles.toneRow}>
+        {TONE_STOPS.map((tone, index) => (
+          <View
+            key={tone}
+            style={[
+              stripStyles.toneCell,
+              { backgroundColor: palette[tone] },
+              index === 0 && stripStyles.toneCellFirst,
+              index === TONE_STOPS.length - 1 && stripStyles.toneCellLast,
+            ]}
+          >
+            <Text
+              style={{
+                color: tone >= 60 ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.9)',
+                fontSize: 10,
+                fontWeight: '600',
+              }}
+            >
+              {tone}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const stripStyles = StyleSheet.create({
+  seedChip: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  toneRow: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  toneCell: {
+    flex: 1,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 6,
+  },
+  toneCellFirst: {
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  toneCellLast: {
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+});
 
 // Lives inside the MobileFrame's nested QuartzProvider, so `useQuartzTheme`
 // here resolves to the inner provider — toggling flips only the preview.
@@ -165,6 +242,92 @@ export default function App() {
 }`}
           </Text>
         </View>
+      </Animated.View>
+
+      {/* Dynamic Color (Material You) */}
+      <Animated.View entering={FadeInDown.delay(175).springify()} style={styles.section}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+            Dynamic Color (Material You)
+          </Text>
+          <View style={[styles.newPill, { backgroundColor: theme.colors.primary }]}>
+            <Text variant="labelSmall" style={{ color: theme.colors.onPrimary, fontWeight: '700', fontSize: 10, letterSpacing: 0.4 }}>
+              NEW
+            </Text>
+          </View>
+        </View>
+
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16, lineHeight: 26 }}>
+          Instead of hand-picking every color, derive a complete, matched light/dark theme pair from a
+          single seed color — Material-You style. Quartz UI maps the seed into Oklab/Oklch (perceptually
+          uniform color space, self-contained math with zero dependencies), builds MD3 tonal palettes,
+          and assembles all 36 color roles. Out-of-gamut colors are resolved by reducing chroma at
+          constant lightness so tones never shift hue, and core role pairs are verified for WCAG AA
+          contrast.
+        </Text>
+
+        <View style={[styles.codeBlock, { backgroundColor: theme.colors.surfaceVariant, marginBottom: 24 }]}>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontFamily: 'monospace', lineHeight: 20 }}>
+{`import { QuartzProvider, createDynamicThemes } from 'quartz-ui';
+
+// One seed color → a full matched light/dark theme pair
+const { light, dark } = createDynamicThemes('#1A73E8');
+
+export default function App() {
+  return (
+    <QuartzProvider
+      lightTheme={light}
+      darkTheme={dark}
+      initialMode="system"
+    >
+      <YourApp />
+    </QuartzProvider>
+  );
+}`}
+          </Text>
+        </View>
+
+        {/* Live tonal palettes */}
+        <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '600', marginBottom: 8 }}>
+          Live tonal palettes
+        </Text>
+        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16, lineHeight: 22 }}>
+          These 13-stop MD3 palettes are generated right on this page by calling{' '}
+          <Text style={{ fontFamily: 'monospace' }}>generateTonalPalette(seed)</Text> — each swatch is
+          the seed's hue rendered at a fixed tone (CIE lightness), which is what keeps dynamic themes
+          coherent across light and dark mode.
+        </Text>
+        <Surface style={[styles.paletteCard, { backgroundColor: theme.colors.surface, gap: 20 }]} elevation={1}>
+          <TonalPaletteStrip name="Ocean" seed="#1A73E8" />
+          <TonalPaletteStrip name="Grape" seed="#7C4DFF" />
+          <TonalPaletteStrip name="Fern" seed="#2E7D32" />
+        </Surface>
+
+        {/* Lower-level API */}
+        <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '600', marginTop: 24, marginBottom: 12 }}>
+          Lower-level API
+        </Text>
+        <Surface style={[styles.apiCard, { backgroundColor: theme.colors.surfaceVariant }]} elevation={0}>
+          {[
+            ['createDynamicThemes(seed, options?)', 'Matched { light, dark } QuartzTheme pair from one seed color'],
+            ["createDynamicColorScheme(seed, 'light' | 'dark')", 'Complete 36-role MD3 ColorScheme for one mode'],
+            ['generateTonalPalette(seed)', "13-stop MD3 tonal palette keeping the seed's hue and chroma"],
+            ['toneColor(hue, chroma, tone)', 'Gamut-safe sRGB hex for a hue/chroma pair at an MD3 tone'],
+            ['createCustomColorScheme(seed, isDark?)', 'Now returns a full dynamic scheme (previously only set primary)'],
+          ].map(([signature, description]) => (
+            <View key={signature} style={styles.apiRow}>
+              <Text
+                variant="bodyMedium"
+                style={{ color: theme.colors.primary, fontFamily: 'monospace', fontWeight: '700', fontSize: 13 }}
+              >
+                {signature}
+              </Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, lineHeight: 20, marginTop: 2 }}>
+                {description}
+              </Text>
+            </View>
+          ))}
+        </Surface>
       </Animated.View>
 
       {/* Color System */}
@@ -343,6 +506,19 @@ const styles = StyleSheet.create({
   codeBlock: {
     padding: 20,
     borderRadius: 12,
+  },
+  newPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  apiCard: {
+    padding: 20,
+    borderRadius: 16,
+    gap: 16,
+  },
+  apiRow: {
+    gap: 2,
   },
   colorPalettes: {
     gap: 16,

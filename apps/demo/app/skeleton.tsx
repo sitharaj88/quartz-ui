@@ -49,17 +49,17 @@ export default function SkeletonScreen() {
 
             {/* Text Skeleton */}
             <Section title="Text Skeleton" subtitle="Multi-line text placeholder" index={2}>
-                <SkeletonText lines={4} animated={loading} />
+                <SkeletonText lines={4} />
             </Section>
 
             {/* Avatar Skeleton */}
             <Section title="Avatar Skeleton" subtitle="User avatar placeholders" index={3}>
                 <View style={styles.row}>
-                    <SkeletonAvatar size={32} animated={loading} />
-                    <SkeletonAvatar size={40} animated={loading} />
-                    <SkeletonAvatar size={48} animated={loading} />
-                    <SkeletonAvatar size={56} animated={loading} />
-                    <SkeletonAvatar size={64} animated={loading} />
+                    <SkeletonAvatar size={32} />
+                    <SkeletonAvatar size={40} />
+                    <SkeletonAvatar size={48} />
+                    <SkeletonAvatar size={56} />
+                    <SkeletonAvatar size={64} />
                 </View>
             </Section>
 

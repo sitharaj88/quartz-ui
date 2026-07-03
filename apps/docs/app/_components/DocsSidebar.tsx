@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions, TextInput } from 'react-native';
 import { Text, useTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
+import { WebPressableState } from './webTypes';
 import { useRouter, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -23,7 +24,7 @@ const navigation: NavSection[] = [
   {
     title: 'Getting Started',
     items: [
-      { title: "What's new in 1.0", route: '/docs/whats-new', icon: 'sparkles', badge: 'NEW' },
+      { title: "What's new", route: '/docs/whats-new', icon: 'sparkles', badge: 'NEW' },
       { title: 'Introduction', route: '/docs/introduction', icon: 'book-outline' },
       { title: 'Installation', route: '/docs/installation', icon: 'download-outline' },
       { title: 'Quick Start', route: '/docs/quick-start', icon: 'flash-outline' },
@@ -61,6 +62,7 @@ const navigation: NavSection[] = [
     title: 'Navigation',
     items: [
       { title: 'App Bar & Nav Bar', route: '/navigation', icon: 'navigate-outline' },
+      { title: 'Bottom App Bar', route: '/bottom-app-bar', icon: 'browsers-outline', badge: 'NEW' },
       { title: 'Tabs & Search', route: '/tabs', icon: 'tablet-portrait-outline' },
       { title: 'Drawer & Rail', route: '/advanced-navigation', icon: 'menu-outline' },
     ],
@@ -69,6 +71,7 @@ const navigation: NavSection[] = [
     title: 'Data Display',
     items: [
       { title: 'Lists & Badges', route: '/lists', icon: 'list-outline' },
+      { title: 'Accordion', route: '/accordion', icon: 'chevron-expand-outline', badge: 'NEW' },
       { title: 'Carousel & Slider', route: '/carousel', icon: 'images-outline' },
       { title: 'Progress Indicators', route: '/progress', icon: 'sync-outline' },
     ],
@@ -146,7 +149,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
               Quartz UI
             </Text>
             <Text variant="bodySmall" style={{ color: onSurfaceVariant, fontSize: 12, marginTop: 1 }}>
-              v1.0.0
+              v1.1.0
             </Text>
           </View>
         </Pressable>
@@ -222,7 +225,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
                   key={item.route}
                   onPress={() => onNavigate(item.route)}
                   accessibilityRole="link"
-                  style={({ hovered, pressed }) => [
+                  style={({ hovered, pressed }: WebPressableState) => [
                     styles.navItem,
                     {
                       backgroundColor: isActive
@@ -306,7 +309,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
         <View style={[styles.footerPill, { backgroundColor: theme.colors.surfaceVariant + '70' }]}>
           <Ionicons name="cube-outline" size={14} color={onSurfaceVariant} />
           <Text variant="bodySmall" style={{ color: onSurfaceVariant, fontSize: 12, marginStart: 8 }}>
-            38 components · 218 tests
+            40 components · 218 tests
           </Text>
         </View>
       </View>

@@ -7,6 +7,68 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
+// ─── 1.1.0 — July 2026 ─────────────────────────────────────────────────────
+
+const latestHighlights = [
+  {
+    icon: 'chevron-expand',
+    title: 'New: Accordion',
+    description:
+      'Compound expansion panels (`Accordion` + `AccordionItem`) — single or multi-expand, controlled or uncontrolled, with animated chevrons, reduce-motion support, and full expanded-state a11y.',
+    gradient: ['#667eea', '#764ba2'] as const,
+  },
+  {
+    icon: 'browsers',
+    title: 'New: Bottom App Bar',
+    description:
+      'MD3 bottom app bar: up to four 48dp actions plus a trailing FAB slot. 80dp tall, surfaceContainer at elevation 2, safe-area aware, toolbar role for screen readers.',
+    gradient: ['#4facfe', '#00f2fe'] as const,
+  },
+  {
+    icon: 'color-palette',
+    title: 'Dynamic color engine',
+    description:
+      'Material-You theming from one seed: `createDynamicThemes(seed)` returns a matched light/dark pair. Self-contained Oklab math, gamut-safe tones, WCAG AA verified core role pairs.',
+    gradient: ['#f093fb', '#f5576c'] as const,
+  },
+  {
+    icon: 'time',
+    title: 'TimePicker on gesture-handler',
+    description:
+      'The clock dial now runs on react-native-gesture-handler for smoother, UI-thread dragging and better interop with scrolling containers.',
+    gradient: ['#43e97b', '#38f9d7'] as const,
+  },
+  {
+    icon: 'speedometer',
+    title: 'Performance memoization',
+    description:
+      'Card and TextInput memoize their style pipelines, cutting re-render work in list-heavy screens and forms.',
+    gradient: ['#fa709a', '#fee140'] as const,
+  },
+  {
+    icon: 'accessibility',
+    title: 'Accessibility fixes',
+    description:
+      'NavigationDrawer and SideSheet are screen-reader escapable, ListSection headers expose a header role, and DatePicker day labels now include the month and year.',
+    gradient: ['#a18cd1', '#fbc2eb'] as const,
+  },
+];
+
+const deprecations = [
+  {
+    title: '`useComponentStyles` hook toolkit deprecated for v2',
+    body:
+      'useComponentStyles, useStyle, useCachedStyles, createStyleHook, mergeComponentStyles, getStateLayerOpacity, and useStateLayer still work in 1.x but will be removed in 2.0. Migrate to `useTheme()` + `useMemo`, or `createVariants` for variant-driven styles.',
+  },
+  {
+    title: 'Legacy color helpers in tokens deprecated',
+    body:
+      'hexToRgb, rgbToHex, and withOpacity from the tokens entry are deprecated. Use `withAlpha` and the helpers in utils/color instead — same behavior, one canonical implementation.',
+  },
+];
+
+// ─── 1.0.0 ─────────────────────────────────────────────────────────────────
+
 const highlights = [
   {
     icon: 'sparkles',
@@ -92,9 +154,106 @@ export default function WhatsNewPage() {
 
   return (
     <DocLayout
-      title="What's new in 1.0"
-      description="Quartz UI 1.0.0 is a ground-up overhaul. Every component now satisfies the same world-class checklist."
+      title="What's new"
+      description="Release notes for Quartz UI — the latest features, fixes, and deprecations."
     >
+      {/* ─── 1.1.0 ─────────────────────────────────────────────────────── */}
+      <View style={styles.section}>
+        <View style={styles.releaseHeader}>
+          <View style={[styles.versionPill, { backgroundColor: theme.colors.primary }]}>
+            <Text variant="labelLarge" style={{ color: theme.colors.onPrimary, fontWeight: '800' }}>
+              v1.1.0
+            </Text>
+          </View>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600' }}>
+            July 2026
+          </Text>
+        </View>
+        <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginTop: 12, marginBottom: 8 }}>
+          Two new components and Material You theming
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 24, lineHeight: 26 }}>
+          1.1.0 adds the Accordion and Bottom App Bar components, a dynamic color engine that derives
+          complete light/dark themes from a single seed color, plus performance and accessibility
+          improvements across the board. No breaking changes — everything below is additive.
+        </Text>
+        <View style={styles.grid}>
+          {latestHighlights.map((h, i) => (
+            <Animated.View
+              key={h.title}
+              entering={FadeInDown.delay(i * 60).springify().damping(15)}
+              style={[styles.gridItem, isMobile ? styles.gridItemMobile : styles.gridItemDesktop]}
+            >
+              <Surface style={[styles.featureCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
+                <LinearGradient
+                  colors={h.gradient}
+                  style={styles.featureIcon}
+                >
+                  <Ionicons name={h.icon as any} size={28} color="#FFF" />
+                </LinearGradient>
+                <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700', marginTop: 16 }}>
+                  {h.title}
+                </Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8, lineHeight: 22 }}>
+                  {h.description}
+                </Text>
+              </Surface>
+            </Animated.View>
+          ))}
+        </View>
+      </View>
+
+      {/* 1.1.0 deprecations */}
+      <View style={styles.section}>
+        <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>
+          Deprecations
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 20, lineHeight: 26 }}>
+          Nothing is removed in 1.1.0, but two internal-style toolkits are now deprecated ahead of 2.0:
+        </Text>
+        {deprecations.map((d, i) => (
+          <Animated.View key={d.title} entering={FadeInDown.delay(i * 60).springify().damping(15)}>
+            <Surface
+              style={[
+                styles.breakingCard,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderLeftColor: theme.colors.tertiary,
+                },
+              ]}
+              elevation={1}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <Ionicons name="alert-circle" size={20} color={theme.colors.tertiary} />
+                <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+                  {d.title}
+                </Text>
+              </View>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, lineHeight: 22 }}>
+                {d.body}
+              </Text>
+            </Surface>
+          </Animated.View>
+        ))}
+      </View>
+
+      {/* ─── 1.0.0 ─────────────────────────────────────────────────────── */}
+      <View style={styles.section}>
+        <View style={styles.releaseHeader}>
+          <View style={[styles.versionPill, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <Text variant="labelLarge" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '800' }}>
+              v1.0.0
+            </Text>
+          </View>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600' }}>
+            The ground-up overhaul
+          </Text>
+        </View>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12, lineHeight: 26 }}>
+          Quartz UI 1.0.0 rebuilt every component to the same world-class checklist.
+        </Text>
+      </View>
+
       {/* Stats banner */}
       <View style={styles.section}>
         <Surface style={styles.statsCard} elevation={2}>
@@ -232,7 +391,7 @@ export default function WhatsNewPage() {
             Ready to upgrade?
           </Text>
           <Text variant="bodyLarge" style={{ color: theme.colors.onPrimaryContainer, marginTop: 8, textAlign: 'center', opacity: 0.9 }}>
-            Install 1.0.0 and read the migration notes if you depended on internal helpers.
+            Install 1.1.0 — it's fully additive over 1.0. Read the migration notes if you depended on internal helpers.
           </Text>
           <View style={styles.ctaButtons}>
             <Button variant="filled" onPress={() => router.push('/docs/installation' as any)}>
@@ -253,6 +412,12 @@ export default function WhatsNewPage() {
 
 const styles = StyleSheet.create({
   section: { marginBottom: 48 },
+  releaseHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  versionPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
   statsCard: { borderRadius: 24, overflow: 'hidden' },
   statsGradient: { padding: 32 },
   statsRow: { justifyContent: 'space-around', alignItems: 'center' },

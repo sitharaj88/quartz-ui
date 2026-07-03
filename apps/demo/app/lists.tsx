@@ -283,28 +283,28 @@ export default function ListsScreen() {
           <ListItem
             headline="Complete project proposal"
             supportingText="Due tomorrow"
-            leading={<Checkbox checked={checkedItems.includes('item1')} onCheckedChange={() => toggleCheckItem('item1')} />}
+            leading={<Checkbox checked={checkedItems.includes('item1')} onValueChange={() => toggleCheckItem('item1')} />}
             onPress={() => toggleCheckItem('item1')}
           />
           <Divider />
           <ListItem
             headline="Review design mockups"
             supportingText="High priority"
-            leading={<Checkbox checked={checkedItems.includes('item2')} onCheckedChange={() => toggleCheckItem('item2')} />}
+            leading={<Checkbox checked={checkedItems.includes('item2')} onValueChange={() => toggleCheckItem('item2')} />}
             onPress={() => toggleCheckItem('item2')}
           />
           <Divider />
           <ListItem
             headline="Update documentation"
             supportingText="Low priority"
-            leading={<Checkbox checked={checkedItems.includes('item3')} onCheckedChange={() => toggleCheckItem('item3')} />}
+            leading={<Checkbox checked={checkedItems.includes('item3')} onValueChange={() => toggleCheckItem('item3')} />}
             onPress={() => toggleCheckItem('item3')}
           />
           <Divider />
           <ListItem
             headline="Team sync meeting"
             supportingText="Friday 2:00 PM"
-            leading={<Checkbox checked={checkedItems.includes('item4')} onCheckedChange={() => toggleCheckItem('item4')} />}
+            leading={<Checkbox checked={checkedItems.includes('item4')} onValueChange={() => toggleCheckItem('item4')} />}
             onPress={() => toggleCheckItem('item4')}
           />
         </Surface>

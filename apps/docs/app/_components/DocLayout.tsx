@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions, Platform, NativeSyntheticEvent, NativeScrollEvent, Linking, Share } from 'react-native';
 import { Text, useTheme, useQuartzTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
+import { WebPressableState, webStyle } from './webTypes';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -42,7 +43,7 @@ function ThemeToggleButton() {
       onPress={() => setMode(next)}
       accessibilityRole="button"
       accessibilityLabel={`Theme: ${label}. Tap to switch.`}
-      style={({ pressed, hovered }) => [
+      style={({ pressed, hovered }: WebPressableState) => [
         styles.iconButton,
         {
           backgroundColor: pressed
@@ -129,7 +130,7 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
   const handleShare = useCallback(async () => {
     try {
       await Share.share({
-        message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 38 Material Design 3 components!\n\nhttps://sitharaj88.github.io/quartz-ui/',
+        message: '🎨 Check out Quartz UI - A modern, accessible component library for React Native & Expo with 40 Material Design 3 components!\n\nhttps://sitharaj88.github.io/quartz-ui/',
         url: 'https://sitharaj88.github.io/quartz-ui/',
         title: 'Quartz UI - React Native Component Library',
       });
@@ -563,7 +564,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
     position: 'relative',
     borderBottomWidth: 1,
-    backdropFilter: 'blur(20px)',
+    ...webStyle({ backdropFilter: 'blur(20px)' }),
   },
   topBarContent: {
     flexDirection: 'row',

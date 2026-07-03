@@ -56,7 +56,7 @@ export default function SelectionScreen() {
         <Surface style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={1}>
           <View style={styles.controlGroup}>
             <View style={styles.controlRow}>
-              <Checkbox checked={termsAccepted} onCheckedChange={setTermsAccepted} />
+              <Checkbox checked={termsAccepted} onValueChange={setTermsAccepted} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Accept terms and conditions
@@ -70,7 +70,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <Checkbox checked={newsletterSubscribed} onCheckedChange={setNewsletterSubscribed} />
+              <Checkbox checked={newsletterSubscribed} onValueChange={setNewsletterSubscribed} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Subscribe to newsletter
@@ -84,7 +84,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <Checkbox checked={marketingEmails} onCheckedChange={setMarketingEmails} />
+              <Checkbox checked={marketingEmails} onValueChange={setMarketingEmails} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Marketing emails
@@ -98,7 +98,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <Checkbox checked={productUpdates} onCheckedChange={setProductUpdates} />
+              <Checkbox checked={productUpdates} onValueChange={setProductUpdates} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Product updates
@@ -112,7 +112,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <Checkbox checked={false} onCheckedChange={() => {}} disabled />
+              <Checkbox checked={false} onValueChange={() => {}} disabled />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '500' }}>
                   Disabled option
@@ -134,7 +134,7 @@ export default function SelectionScreen() {
           </Text>
           <View style={styles.controlGroup}>
             <View style={styles.controlRow}>
-              <RadioButton checked={deliveryMethod === 'express'} onPress={() => setDeliveryMethod('express')} />
+              <RadioButton selected={deliveryMethod === 'express'} onPress={() => setDeliveryMethod('express')} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Express Delivery
@@ -148,7 +148,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <RadioButton checked={deliveryMethod === 'standard'} onPress={() => setDeliveryMethod('standard')} />
+              <RadioButton selected={deliveryMethod === 'standard'} onPress={() => setDeliveryMethod('standard')} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Standard Delivery
@@ -162,7 +162,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <RadioButton checked={deliveryMethod === 'pickup'} onPress={() => setDeliveryMethod('pickup')} />
+              <RadioButton selected={deliveryMethod === 'pickup'} onPress={() => setDeliveryMethod('pickup')} />
               <View style={styles.controlLabel}>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
                   Store Pickup
@@ -181,7 +181,7 @@ export default function SelectionScreen() {
           </Text>
           <View style={styles.controlGroup}>
             <View style={styles.controlRow}>
-              <RadioButton checked={paymentMethod === 'card'} onPress={() => setPaymentMethod('card')} />
+              <RadioButton selected={paymentMethod === 'card'} onPress={() => setPaymentMethod('card')} />
               <View style={styles.iconCircle}>
                 <Ionicons name="card" size={20} color={theme.colors.primary} />
               </View>
@@ -195,7 +195,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <RadioButton checked={paymentMethod === 'paypal'} onPress={() => setPaymentMethod('paypal')} />
+              <RadioButton selected={paymentMethod === 'paypal'} onPress={() => setPaymentMethod('paypal')} />
               <View style={styles.iconCircle}>
                 <Ionicons name="logo-paypal" size={20} color="#00457C" />
               </View>
@@ -209,7 +209,7 @@ export default function SelectionScreen() {
             <View style={styles.divider} />
 
             <View style={styles.controlRow}>
-              <RadioButton checked={paymentMethod === 'apple'} onPress={() => setPaymentMethod('apple')} />
+              <RadioButton selected={paymentMethod === 'apple'} onPress={() => setPaymentMethod('apple')} />
               <View style={styles.iconCircle}>
                 <Ionicons name="logo-apple" size={20} color="#000" />
               </View>
@@ -382,8 +382,8 @@ export default function SelectionScreen() {
               <Slider
                 value={volume}
                 onValueChange={setVolume}
-                minimumValue={0}
-                maximumValue={100}
+                min={0}
+                max={100}
                 step={1}
               />
             </View>
@@ -403,8 +403,8 @@ export default function SelectionScreen() {
               <Slider
                 value={brightness}
                 onValueChange={setBrightness}
-                minimumValue={0}
-                maximumValue={100}
+                min={0}
+                max={100}
                 step={5}
               />
             </View>
@@ -424,8 +424,8 @@ export default function SelectionScreen() {
               <Slider
                 value={fontSize}
                 onValueChange={setFontSize}
-                minimumValue={12}
-                maximumValue={24}
+                min={12}
+                max={24}
                 step={1}
               />
             </View>
@@ -445,8 +445,8 @@ export default function SelectionScreen() {
               <Slider
                 value={temperature}
                 onValueChange={setTemperature}
-                minimumValue={16}
-                maximumValue={30}
+                min={16}
+                max={30}
                 step={1}
               />
             </View>

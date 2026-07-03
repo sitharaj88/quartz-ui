@@ -6,7 +6,6 @@ import {
     AnimatedView,
     FadeIn,
     ScaleIn,
-    SlideIn,
     Stagger,
     Surface,
     useTheme
@@ -60,9 +59,9 @@ export default function AnimationsScreen() {
                             <Text style={{ color: theme.colors.onPrimaryContainer }}>scaleIn</Text>
                         </Surface>
                     </ScaleIn>
-                    <AnimatedView animation="scaleInUp" delay={100}>
+                    <AnimatedView animation="zoomIn" delay={100}>
                         <Surface style={[styles.box, { backgroundColor: theme.colors.secondaryContainer }]} elevation={1}>
-                            <Text style={{ color: theme.colors.onSecondaryContainer }}>scaleInUp</Text>
+                            <Text style={{ color: theme.colors.onSecondaryContainer }}>zoomIn</Text>
                         </Surface>
                     </AnimatedView>
                     <AnimatedView animation="bounceIn" delay={200}>
@@ -76,16 +75,16 @@ export default function AnimationsScreen() {
             {/* Slide Animations */}
             <Section title="Slide" subtitle="Position-based entry" index={3}>
                 <View style={styles.column} key={`slide-${key}`}>
-                    <SlideIn direction="left" delay={0}>
+                    <AnimatedView animation="slideInLeft" delay={0}>
                         <Surface style={[styles.wideBox, { backgroundColor: theme.colors.primaryContainer }]} elevation={1}>
                             <Text style={{ color: theme.colors.onPrimaryContainer }}>slideInLeft</Text>
                         </Surface>
-                    </SlideIn>
-                    <SlideIn direction="right" delay={100}>
+                    </AnimatedView>
+                    <AnimatedView animation="slideInRight" delay={100}>
                         <Surface style={[styles.wideBox, { backgroundColor: theme.colors.secondaryContainer }]} elevation={1}>
                             <Text style={{ color: theme.colors.onSecondaryContainer }}>slideInRight</Text>
                         </Surface>
-                    </SlideIn>
+                    </AnimatedView>
                 </View>
             </Section>
 

@@ -135,11 +135,27 @@ const components: ComponentItem[] = [
     count: 6,
   },
   {
+    title: 'Accordion',
+    description: 'Expandable panels & FAQ groups',
+    route: '/accordion',
+    icon: 'chevron-expand',
+    gradient: ['#11998e', '#38ef7d'],
+    count: 5,
+  },
+  {
     title: 'Navigation',
     description: 'App bars, tabs & nav bars',
     route: '/navigation',
     icon: 'navigate',
     gradient: ['#d4fc79', '#96e6a1'],
+    count: 5,
+  },
+  {
+    title: 'Bottom App Bar',
+    description: 'Bottom actions with FAB slot',
+    route: '/bottom-app-bar',
+    icon: 'browsers',
+    gradient: ['#2193b0', '#6dd5ed'],
     count: 5,
   },
   {
@@ -160,11 +176,11 @@ const components: ComponentItem[] = [
   },
   {
     title: 'Theming',
-    description: 'Colors, shapes & dark mode',
+    description: 'Dynamic color, shapes & dark mode',
     route: '/theming',
     icon: 'color-palette',
     gradient: ['#d299c2', '#fef9d7'],
-    count: 3,
+    count: 4,
   },
   {
     title: 'Banners',

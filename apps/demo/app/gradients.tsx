@@ -24,7 +24,7 @@ export default function GradientsScreen() {
             {/* Presets */}
             <Section title="Presets" subtitle="12 beautiful gradient presets" index={0}>
                 <View style={styles.grid}>
-                    {(['primary', 'secondary', 'tertiary', 'sunset', 'ocean', 'forest', 'purple', 'warm', 'cool', 'dark', 'light', 'rainbow'] as const).map((preset) => (
+                    {(['primary', 'secondary', 'tertiary', 'sunset', 'ocean', 'forest', 'purple', 'pink', 'success', 'warning', 'error', 'dark'] as const).map((preset) => (
                         <Gradient
                             key={preset}
                             preset={preset}
@@ -39,14 +39,14 @@ export default function GradientsScreen() {
             {/* Directions */}
             <Section title="Directions" subtitle="Control gradient angle" index={1}>
                 <View style={styles.grid}>
-                    {(['toRight', 'toLeft', 'toBottom', 'toTop', 'toBottomRight', 'toTopLeft'] as const).map((direction) => (
+                    {(['horizontal', 'vertical', 'diagonal', 'diagonalReverse'] as const).map((direction) => (
                         <Gradient
                             key={direction}
                             colors={[theme.colors.primary, theme.colors.tertiary]}
                             direction={direction}
                             style={styles.directionBox}
                         >
-                            <Text style={styles.directionLabel}>{direction.replace('to', '→')}</Text>
+                            <Text style={styles.directionLabel}>{direction}</Text>
                         </Gradient>
                     ))}
                 </View>
@@ -87,7 +87,11 @@ export default function GradientsScreen() {
             {/* Gradient Border */}
             <Section title="Gradient Border" subtitle="Elements with gradient borders" index={4}>
                 <View style={styles.column}>
-                    <GradientBorder preset="rainbow" borderWidth={2} borderRadius={16}>
+                    <GradientBorder
+                        colors={['#ff004d', '#ff9900', '#ffee00', '#00c853', '#2979ff', '#aa00ff']}
+                        borderWidth={2}
+                        borderRadius={16}
+                    >
                         <View style={[styles.borderContent, { backgroundColor: theme.colors.surface }]}>
                             <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>Rainbow Border</Text>
                             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>

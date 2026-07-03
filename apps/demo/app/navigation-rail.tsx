@@ -69,14 +69,19 @@ export default function NavigationRailScreen() {
     return dest?.label || 'Home';
   };
 
-  const getContentIcon = () => {
-    const dest = destinations.find(d => d.key === selectedKey);
-    return dest?.key || 'home';
+  const getContentIcon = (): keyof typeof Ionicons.glyphMap => {
+    switch (selectedKey) {
+      case 'search': return 'search';
+      case 'favorites': return 'heart';
+      case 'profile': return 'person';
+      case 'settings': return 'settings';
+      default: return 'home';
+    }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
-      <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      <StatusBar barStyle={theme.mode === 'dark' ? 'light-content' : 'dark-content'} />
 
       {/* Navigation Rail */}
       <NavigationRail

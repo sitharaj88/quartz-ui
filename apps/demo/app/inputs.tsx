@@ -120,7 +120,7 @@ export default function InputsScreen() {
               onChangeText={setSearch}
               placeholder="Search..."
               variant="filled"
-              leftIcon={<Ionicons name="search" size={20} color={theme.colors.onSurfaceVariant} />}
+              leadingIcon={<Ionicons name="search" size={20} color={theme.colors.onSurfaceVariant} />}
             />
             <TextInput
               label="Email"
@@ -129,7 +129,7 @@ export default function InputsScreen() {
               variant="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
-              leftIcon={<Ionicons name="mail" size={20} color={theme.colors.onSurfaceVariant} />}
+              leadingIcon={<Ionicons name="mail" size={20} color={theme.colors.onSurfaceVariant} />}
             />
             <TextInput
               label="Location"
@@ -137,7 +137,7 @@ export default function InputsScreen() {
               onChangeText={setLocation}
               placeholder="Enter your location"
               variant="filled"
-              leftIcon={<Ionicons name="location" size={20} color={theme.colors.onSurfaceVariant} />}
+              leadingIcon={<Ionicons name="location" size={20} color={theme.colors.onSurfaceVariant} />}
             />
           </View>
         </Surface>
@@ -154,7 +154,7 @@ export default function InputsScreen() {
               placeholder="Enter password"
               variant="outlined"
               secureTextEntry={!showPassword}
-              rightIcon={
+              trailingIcon={
                 <Ionicons
                   name={showPassword ? "eye" : "eye-off"}
                   size={20}
@@ -170,7 +170,7 @@ export default function InputsScreen() {
               placeholder="0.00"
               variant="filled"
               keyboardType="decimal-pad"
-              rightIcon={
+              trailingIcon={
                 <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600' }}>
                   USD
                 </Text>
@@ -183,7 +183,7 @@ export default function InputsScreen() {
               placeholder="1"
               variant="outlined"
               keyboardType="number-pad"
-              rightIcon={
+              trailingIcon={
                 <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '600' }}>
                   items
                 </Text>
@@ -204,16 +204,16 @@ export default function InputsScreen() {
               placeholder="1234 5678 9012 3456"
               variant="filled"
               keyboardType="number-pad"
-              leftIcon={<Ionicons name="card" size={20} color={theme.colors.primary} />}
-              rightIcon={<Ionicons name="checkmark-circle" size={20} color="#10b981" />}
+              leadingIcon={<Ionicons name="card" size={20} color={theme.colors.primary} />}
+              trailingIcon={<Ionicons name="checkmark-circle" size={20} color="#10b981" />}
             />
             <TextInput
               label="Search Products"
               value=""
               placeholder="Find what you need..."
               variant="outlined"
-              leftIcon={<Ionicons name="search" size={20} color={theme.colors.onSurfaceVariant} />}
-              rightIcon={<Ionicons name="options" size={20} color={theme.colors.onSurfaceVariant} />}
+              leadingIcon={<Ionicons name="search" size={20} color={theme.colors.onSurfaceVariant} />}
+              trailingIcon={<Ionicons name="options" size={20} color={theme.colors.onSurfaceVariant} />}
             />
             <TextInput
               label="Discount Code"
@@ -221,8 +221,8 @@ export default function InputsScreen() {
               placeholder="Enter code"
               variant="filled"
               autoCapitalize="characters"
-              leftIcon={<Ionicons name="pricetag" size={20} color={theme.colors.tertiary} />}
-              rightIcon={
+              leadingIcon={<Ionicons name="pricetag" size={20} color={theme.colors.tertiary} />}
+              trailingIcon={
                 <Text variant="labelMedium" style={{ color: theme.colors.primary, fontWeight: '700' }}>
                   APPLY
                 </Text>
@@ -244,7 +244,7 @@ export default function InputsScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               helperText="Email is valid and available"
-              leftIcon={<Ionicons name="checkmark-circle" size={20} color="#10b981" />}
+              leadingIcon={<Ionicons name="checkmark-circle" size={20} color="#10b981" />}
             />
             <TextInput
               label="Invalid Email"
@@ -255,7 +255,7 @@ export default function InputsScreen() {
               autoCapitalize="none"
               error
               helperText="Please enter a valid email address"
-              leftIcon={<Ionicons name="close-circle" size={20} color="#ef4444" />}
+              leadingIcon={<Ionicons name="close-circle" size={20} color="#ef4444" />}
             />
             <TextInput
               label="Phone Number"
@@ -289,7 +289,7 @@ export default function InputsScreen() {
               variant="outlined"
               multiline
               numberOfLines={4}
-              style={{ minHeight: 100 }}
+              inputStyle={{ minHeight: 100 }}
             />
             <TextInput
               label="Bio"
@@ -299,7 +299,7 @@ export default function InputsScreen() {
               variant="filled"
               multiline
               numberOfLines={3}
-              style={{ minHeight: 80 }}
+              inputStyle={{ minHeight: 80 }}
               helperText={`${bio.length}/200 characters`}
             />
             <TextInput
@@ -310,7 +310,7 @@ export default function InputsScreen() {
               variant="outlined"
               multiline
               numberOfLines={5}
-              style={{ minHeight: 120 }}
+              inputStyle={{ minHeight: 120 }}
             />
           </View>
         </Surface>
@@ -331,7 +331,7 @@ export default function InputsScreen() {
               value="ACC-2024-001234"
               variant="outlined"
               disabled
-              leftIcon={<Ionicons name="lock-closed" size={20} color={theme.colors.onSurfaceVariant} />}
+              leadingIcon={<Ionicons name="lock-closed" size={20} color={theme.colors.onSurfaceVariant} />}
             />
             <TextInput
               label="System Generated"

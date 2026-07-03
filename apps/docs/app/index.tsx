@@ -12,6 +12,7 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import { WebPressableState, webStyle } from './_components/webTypes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -82,7 +83,7 @@ function LandingThemeToggle() {
       onPress={() => setMode(next)}
       accessibilityRole="button"
       accessibilityLabel={`Theme: ${label}. Tap to switch.`}
-      style={({ pressed, hovered }) => [
+      style={({ pressed, hovered }: WebPressableState) => [
         {
           width: 40,
           height: 40,
@@ -334,7 +335,7 @@ export default function HomeScreen() {
             <Animated.View entering={FadeInUp.delay(300).duration(320)} style={[styles.ctaRowModern, { flexDirection: isMobile ? 'column' : 'row', marginTop: isMobile ? 28 : 36 }]}>
               <Pressable
                 onPress={() => router.push('/docs/installation' as any)}
-                style={({ pressed, hovered }) => [
+                style={({ pressed, hovered }: WebPressableState) => [
                   styles.ctaPrimaryModern,
                   {
                     backgroundColor: theme.colors.primary,
@@ -352,7 +353,7 @@ export default function HomeScreen() {
 
               <Pressable
                 onPress={() => router.push('/docs/whats-new' as any)}
-                style={({ pressed, hovered }) => [
+                style={({ pressed, hovered }: WebPressableState) => [
                   styles.ctaSecondaryModern,
                   {
                     borderColor: theme.colors.outline,
@@ -512,7 +513,7 @@ export default function HomeScreen() {
                 >
                   <Pressable
                     onPress={() => router.push(category.route as never)}
-                    style={({ pressed, hovered }) => [
+                    style={({ pressed, hovered }: WebPressableState) => [
                       styles.cleanCard,
                       {
                         backgroundColor: theme.colors.surface,
@@ -659,7 +660,7 @@ export default function HomeScreen() {
             >
               <Pressable
                 onPress={() => router.push('/docs/quick-start' as any)}
-                style={({ pressed, hovered }) => [
+                style={({ pressed, hovered }: WebPressableState) => [
                   styles.ctaPrimaryModern,
                   {
                     backgroundColor: theme.colors.primary,
@@ -677,7 +678,7 @@ export default function HomeScreen() {
 
               <Pressable
                 onPress={() => Linking.openURL('https://github.com/sitharaj88/quartz-ui')}
-                style={({ pressed, hovered }) => [
+                style={({ pressed, hovered }: WebPressableState) => [
                   styles.ctaSecondaryModern,
                   {
                     borderColor: theme.colors.outline,
@@ -1843,7 +1844,7 @@ const styles = StyleSheet.create({
 
   // Mobile Bottom Navigation
   mobileBottomNav: {
-    position: 'fixed',
+    ...webStyle({ position: 'fixed' }),
     bottom: 0,
     left: 0,
     right: 0,

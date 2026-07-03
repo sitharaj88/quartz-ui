@@ -103,18 +103,20 @@ export default function DialogsScreen() {
       </Dialog>
 
       {/* Snackbars */}
-      <Snackbar visible={simpleSnackbar} onDismiss={() => setSimpleSnackbar(false)} duration={3000}>
-        Message sent successfully
-      </Snackbar>
+      <Snackbar
+        visible={simpleSnackbar}
+        onDismiss={() => setSimpleSnackbar(false)}
+        duration={3000}
+        message="Message sent successfully"
+      />
 
       <Snackbar
         visible={actionSnackbar}
         onDismiss={() => setActionSnackbar(false)}
         action={{ label: 'Undo', onPress: () => {} }}
         duration={3000}
-      >
-        Item deleted
-      </Snackbar>
+        message="Item deleted"
+      />
     </DemoLayout>
   );
 }

@@ -47,7 +47,7 @@ const sampleItems: CarouselItem[] = [
         style={StyleSheet.absoluteFill}
       >
         <View style={itemInnerStyle}>
-          <Ionicons name="mountain" size={64} color="rgba(255,255,255,0.9)" />
+          <Ionicons name="trail-sign" size={64} color="rgba(255,255,255,0.9)" />
           <Text style={carouselItemTextStyle}>Mountain View</Text>
         </View>
       </LinearGradient>
