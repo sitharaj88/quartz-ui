@@ -3,7 +3,8 @@ import { View, StyleSheet, Pressable, ScrollView, useWindowDimensions, Platform,
 import { Text, useTheme, useQuartzTheme } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { WebPressableState, webStyle } from './webTypes';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
+import { accentForRoute, accentColor, accentTint, brandGradient, sweepGradient } from './accents';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   FadeIn,
@@ -117,6 +118,10 @@ function MobileBottomNav({ router, theme, onShare }: { router: any; theme: any; 
 export function DocLayout({ children, title, description, showSidebar = true }: DocLayoutProps) {
   const theme = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
+  const isDark = theme.mode === 'dark';
+  const pageAccent = accentForRoute(pathname);
+  const pageAccentColor = accentColor(pageAccent, isDark);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -211,7 +216,9 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
                 ]}
               >
                 <LinearGradient
-                  colors={['#667eea', '#764ba2']}
+                  colors={[brandGradient[0], brandGradient[1]]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   style={styles.logoBox}
                 >
                   <Ionicons name="layers" size={24} color="#FFFFFF" />
@@ -311,13 +318,33 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
           {/* Page header — calm, modern, restrained */}
           <Animated.View
             entering={FadeInDown.duration(280)}
-            style={[styles.pageHeader, { marginTop: isMobile ? 24 : 56, paddingHorizontal: isMobile ? 4 : 8 }]}
+            style={[
+              styles.pageHeader,
+              {
+                marginTop: isMobile ? 24 : 56,
+                paddingHorizontal: isMobile ? 20 : 32,
+                paddingVertical: isMobile ? 24 : 36,
+              },
+            ]}
           >
+            {/* Soft accent wash behind the header region */}
+            <LinearGradient
+              colors={[
+                accentTint(pageAccent, isDark, 0.14),
+                accentTint(pageAccent, isDark, 0.05),
+                accentTint(pageAccent, isDark, 0),
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+
             {/* Eyebrow */}
             <Text
               variant="labelSmall"
               style={{
-                color: theme.colors.primary,
+                color: pageAccentColor,
                 fontSize: 12,
                 fontWeight: '700',
                 letterSpacing: 1.2,
@@ -340,11 +367,19 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
               {title}
             </Text>
 
+            {/* Accent gradient underline */}
+            <LinearGradient
+              colors={[pageAccent.main, pageAccent.light]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.titleUnderline}
+            />
+
             {description && (
               <Text
                 style={{
                   color: theme.colors.onSurfaceVariant,
-                  marginTop: 12,
+                  marginTop: 14,
                   lineHeight: isMobile ? 24 : 28,
                   fontSize: isMobile ? 16 : 18,
                   fontWeight: '400',
@@ -354,15 +389,6 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
                 {description}
               </Text>
             )}
-
-            {/* Subtle bottom accent */}
-            <View
-              style={{
-                height: 1,
-                backgroundColor: theme.colors.outlineVariant + '50',
-                marginTop: isMobile ? 24 : 36,
-              }}
-            />
           </Animated.View>
 
           {/* Page Content */}
@@ -377,7 +403,7 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
           <View style={[styles.footer, { backgroundColor: theme.mode === 'dark' ? '#0a0a0f' : '#fafafa', marginTop: 64 }]}>
             {/* Top gradient accent */}
             <LinearGradient
-              colors={['#667eea', '#764ba2', '#a855f7']}
+              colors={[sweepGradient[0], sweepGradient[1], sweepGradient[2]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ height: 3, width: '100%' }}
@@ -390,7 +416,9 @@ export function DocLayout({ children, title, description, showSidebar = true }: 
                 <View style={[styles.footerBrand, { flex: isMobile ? undefined : 1.2, alignItems: isMobile ? 'center' : 'flex-start' }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                     <LinearGradient
-                      colors={['#667eea', '#764ba2']}
+                      colors={[brandGradient[0], brandGradient[1]]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
                       style={styles.footerLogo}
                     >
                       <Ionicons name="layers" size={24} color="#fff" />
@@ -638,8 +666,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   pageHeader: {
-    borderRadius: 32,
+    borderRadius: 24,
     overflow: 'hidden',
+  },
+  titleUnderline: {
+    height: 4,
+    width: 72,
+    borderRadius: 2,
+    marginTop: 18,
   },
   headerSurface: {
     borderRadius: 32,
@@ -706,7 +740,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#667eea',
+    shadowColor: brandGradient[0],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

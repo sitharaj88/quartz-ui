@@ -16,6 +16,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MobileFrame } from './MobileFrame';
+import { WebPressableState } from './webTypes';
+import { brandGradient } from './accents';
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -49,6 +51,12 @@ interface CodePlaygroundProps {
    *     Drawer, BottomSheet, Dialog, and other full-bleed components
    */
   frameContentLayout?: 'center' | 'top' | 'full';
+  /**
+   * Optional app-bar title rendered inside the frame above the preview
+   * content (back chevron + title, themed) so the example reads as a real
+   * app screen. Off by default.
+   */
+  frameAppBar?: string;
 }
 
 // Token types for syntax highlighting
@@ -653,7 +661,7 @@ function TabButton({
         </View>
         {isActive && (
           <LinearGradient
-            colors={['#667eea', '#764ba2']}
+            colors={[brandGradient[0], brandGradient[1]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.activeIndicator}
@@ -723,6 +731,49 @@ function CopyButton({
   );
 }
 
+// Sun/moon toggle for the preview color scheme. Shows the scheme you'd
+// switch TO (moon while light, sun while dark) — the familiar docs pattern.
+function PreviewThemeToggle({
+  previewDark,
+  onToggle,
+  theme,
+  isMobile,
+}: {
+  previewDark: boolean;
+  onToggle: () => void;
+  theme: any;
+  isMobile: boolean;
+}) {
+  const size = isMobile ? 44 : 38;
+  return (
+    <Pressable
+      onPress={onToggle}
+      accessibilityRole="button"
+      accessibilityLabel={
+        previewDark ? 'Switch preview to light mode' : 'Switch preview to dark mode'
+      }
+      style={({ pressed, hovered }: WebPressableState) => [
+        styles.previewToggle,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderColor: theme.colors.outlineVariant,
+          backgroundColor:
+            pressed || hovered ? theme.colors.surfaceContainerHigh : theme.colors.surface + '80',
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
+    >
+      <Ionicons
+        name={previewDark ? 'sunny-outline' : 'moon-outline'}
+        size={isMobile ? 20 : 18}
+        color={theme.colors.onSurfaceVariant}
+      />
+    </Pressable>
+  );
+}
+
 export function CodePlayground({
   code,
   preview,
@@ -734,14 +785,24 @@ export function CodePlayground({
   frameWidth = 360,
   frameMinHeight = 640,
   frameContentLayout = 'center',
+  frameAppBar,
 }: CodePlaygroundProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const hasPreview = preview !== undefined;
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>(hasPreview ? 'preview' : 'code');
   const [copied, setCopied] = useState(false);
+  // Preview color scheme override. `null` = follow the site theme (default).
+  const [previewMode, setPreviewMode] = useState<'light' | 'dark' | null>(null);
 
   const isMobile = width < 768;
+
+  // The site theme resolves to 'light' | 'dark' on `theme.mode`.
+  const siteDark = theme.mode === 'dark';
+  const previewDark = previewMode ? previewMode === 'dark' : siteDark;
+  const handleTogglePreviewMode = useCallback(() => {
+    setPreviewMode(previewDark ? 'light' : 'dark');
+  }, [previewDark]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -849,6 +910,14 @@ export function CodePlayground({
               isMobile={isMobile}
             />
           </View>
+          {hasPreview && framed && activeTab === 'preview' && (
+            <PreviewThemeToggle
+              previewDark={previewDark}
+              onToggle={handleTogglePreviewMode}
+              theme={theme}
+              isMobile={isMobile}
+            />
+          )}
         </View>
 
         {/* Content area */}
@@ -865,6 +934,8 @@ export function CodePlayground({
                   width={frameWidth}
                   minHeight={frameMinHeight}
                   contentLayout={frameContentLayout}
+                  mode={previewMode ?? undefined}
+                  appBarTitle={frameAppBar}
                 >
                   {preview}
                 </MobileFrame>
@@ -960,6 +1031,12 @@ const styles = StyleSheet.create({
   header: {},
   tabs: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   tabsLeft: { flexDirection: 'row', gap: 8, flex: 1 },
+  previewToggle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    marginRight: 2,
+  },
   tab: { flex: 1, borderRadius: 16, overflow: 'hidden' },
   tabContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, paddingHorizontal: 16 },
   tabActive: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4 },

@@ -12,7 +12,14 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, ViewStyle, useWindowDimensions, Platform } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  ViewStyle,
+  useWindowDimensions,
+  Platform,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   QuartzProvider,
@@ -22,6 +29,7 @@ import {
   useTheme,
 } from 'quartz-ui';
 import { Ionicons } from '@expo/vector-icons';
+import { webStyle } from './webTypes';
 
 interface MobileFrameProps {
   children: React.ReactNode;
@@ -42,6 +50,17 @@ interface MobileFrameProps {
    *     (AppBar, NavigationBar) and full-bleed components (Drawer, Sheet)
    */
   contentLayout?: 'center' | 'top' | 'full';
+  /**
+   * Force the preview's color scheme, independent of the docs site theme.
+   * When omitted (default), the frame follows the site theme.
+   */
+  mode?: 'light' | 'dark';
+  /**
+   * Optional app-bar title. When set, the content renders under a simple
+   * app-bar header (back chevron + title, themed) so the preview reads as a
+   * real app screen. Off by default.
+   */
+  appBarTitle?: string;
   /** Outer wrapper style override. */
   style?: ViewStyle;
 }
@@ -56,6 +75,7 @@ interface FramedScreenProps {
   screenBackground?: string;
   screenWidth: number;
   minHeight: number;
+  appBarTitle?: string;
 }
 
 /**
@@ -71,6 +91,7 @@ function FramedScreen({
   screenBackground,
   screenWidth,
   minHeight,
+  appBarTitle,
 }: FramedScreenProps) {
   const theme = useTheme();
   const screenBg = screenBackground || theme.colors.background;
@@ -108,19 +129,52 @@ function FramedScreen({
         </View>
       )}
 
-      {/* Content */}
+      {/* Optional app bar — makes examples read as real app screens */}
+      {appBarTitle ? (
+        <View
+          style={[
+            styles.appBar,
+            {
+              backgroundColor: theme.colors.surface,
+              borderBottomColor: theme.colors.outlineVariant,
+            },
+          ]}
+        >
+          <Ionicons name="chevron-back" size={22} color={theme.colors.primary} />
+          <Text
+            variant="titleMedium"
+            numberOfLines={1}
+            style={[styles.appBarTitle, { color: theme.colors.onSurface }]}
+          >
+            {appBarTitle}
+          </Text>
+          {/* Spacer mirrors the chevron so the title stays optically centered */}
+          <View style={styles.appBarSpacer} />
+        </View>
+      ) : null}
+
+      {/* Content — 'full' fills the screen edge-to-edge; 'center'/'top' live
+          inside a ScrollView so tall previews scroll like a phone instead of
+          stretching the bezel. */}
       <QuartzViewportProvider
         width={screenWidth}
         height={minHeight}
         isContained
-        style={[
-          styles.screenContentBase,
-          contentLayout === 'full' && styles.screenContentFull,
-          contentLayout === 'top' && styles.screenContentTop,
-          contentLayout === 'center' && styles.screenContentCenter,
-        ]}
+        style={styles.screenContentBase}
       >
-        {children}
+        {contentLayout === 'full' ? (
+          <View style={styles.screenContentFull}>{children}</View>
+        ) : (
+          <ScrollView
+            style={styles.screenScroll}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={
+              contentLayout === 'center' ? styles.screenContentCenter : styles.screenContentTop
+            }
+          >
+            {children}
+          </ScrollView>
+        )}
       </QuartzViewportProvider>
 
       {/* Home indicator */}
@@ -129,6 +183,9 @@ function FramedScreen({
           <View style={[styles.homeIndicator, { backgroundColor: theme.colors.onSurface }]} />
         </View>
       )}
+
+      {/* Slight inset highlight so the screen reads as glass under the bezel */}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.screenInsetHighlight]} />
     </View>
   );
 }
@@ -140,12 +197,16 @@ export function MobileFrame({
   screenBackground,
   showChrome = true,
   contentLayout = 'center',
+  mode,
+  appBarTitle,
   style,
 }: MobileFrameProps) {
   // Read the OUTER docs-level theme mode purely to seed the inner provider.
   // Anything inside the frame runs under its own QuartzProvider, so toggling
   // the theme inside a preview doesn't affect the rest of the docs site.
   const { mode: outerMode } = useQuartzTheme();
+  // Explicit `mode` prop pins the preview scheme; otherwise follow the site.
+  const innerMode = mode ?? outerMode;
   const { width: viewportWidth } = useWindowDimensions();
 
   // Scale down on narrow viewports — never wider than 92% of the viewport,
@@ -200,13 +261,14 @@ export function MobileFrame({
               affect this frame. The `key` resets the inner mode whenever
               the outer site theme changes, keeping the preview visually
               consistent with the docs by default. */}
-          <QuartzProvider key={outerMode} initialMode={outerMode}>
+          <QuartzProvider key={innerMode} initialMode={innerMode}>
             <FramedScreen
               showChrome={showChrome}
               contentLayout={contentLayout}
               screenBackground={screenBackground}
               screenWidth={screenWidth}
               minHeight={minHeight}
+              appBarTitle={appBarTitle}
             >
               {children}
             </FramedScreen>
@@ -346,7 +408,11 @@ const styles = StyleSheet.create({
   screenContentBase: {
     flex: 1,
   },
+  screenScroll: {
+    flex: 1,
+  },
   screenContentCenter: {
+    flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 16,
     justifyContent: 'center',
@@ -354,6 +420,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   screenContentTop: {
+    flexGrow: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 24,
@@ -362,6 +429,29 @@ const styles = StyleSheet.create({
   },
   screenContentFull: {
     // Edge-to-edge — for nav bars, drawers, sheets, dialogs.
+    flex: 1,
+  },
+  appBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 48,
+    paddingHorizontal: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 4,
+  },
+  appBarTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  appBarSpacer: {
+    width: 22,
+  },
+  screenInsetHighlight: {
+    borderRadius: 37,
+    ...webStyle({
+      boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.07), inset 0 0 6px rgba(0,0,0,0.18)',
+    }),
   },
   homeIndicatorWrap: {
     paddingTop: 6,

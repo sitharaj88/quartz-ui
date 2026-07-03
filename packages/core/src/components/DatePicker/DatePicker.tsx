@@ -471,8 +471,10 @@ function DatePickerImpl({
                   </Text>
                   <IconButton
                     icon={
-                      <Text style={{ fontSize: 20 }}>
-                        {mode === 'calendar' ? '✏️' : '📅'}
+                      // Text-presentation glyphs (︎) so the icon takes the
+                      // theme color instead of rendering as a fixed-color emoji.
+                      <Text style={{ fontSize: 18, color: theme.colors.onSurfaceVariant }}>
+                        {mode === 'calendar' ? '✎︎' : '▦'}
                       </Text>
                     }
                     onPress={toggleMode}
@@ -494,7 +496,7 @@ function DatePickerImpl({
                       <Text variant="labelLarge" style={{ color: theme.colors.onSurfaceVariant }}>
                         {MONTHS[month]} {year}
                       </Text>
-                      <Text style={{ fontSize: 16, marginStart: 4 }}>▾</Text>
+                      <Text style={{ fontSize: 16, marginStart: 4, color: theme.colors.onSurfaceVariant }}>▾</Text>
                     </Pressable>
                     <View style={styles.navButtons}>
                       <IconButton
@@ -516,7 +518,7 @@ function DatePickerImpl({
                       <View key={index} style={styles.dayLabelCell}>
                         <Text
                           variant="bodySmall"
-                          style={{ color: theme.colors.onSurface }}
+                          style={{ color: theme.colors.onSurfaceVariant }}
                         >
                           {day}
                         </Text>
@@ -569,9 +571,7 @@ function DatePickerImpl({
                 />
               )}
 
-              <Divider />
-
-              {/* Actions */}
+              {/* Actions — MD3 date pickers have no divider above the action row */}
               <View style={styles.actions}>
                 <Button variant="text" onPress={handleCancel}>
                   {cancelLabel}
@@ -711,7 +711,9 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    padding: 8,
+    paddingHorizontal: 12,
+    paddingTop: 4,
+    paddingBottom: 12,
     gap: 8,
   },
 });

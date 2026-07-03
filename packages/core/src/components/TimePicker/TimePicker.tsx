@@ -624,7 +624,7 @@ function TimePickerImpl({
                         {
                           backgroundColor: period === 'AM'
                             ? theme.colors.tertiaryContainer
-                            : theme.colors.surfaceContainerHighest,
+                            : 'transparent',
                           borderColor: theme.colors.outline,
                         },
                       ]}
@@ -648,7 +648,7 @@ function TimePickerImpl({
                         {
                           backgroundColor: period === 'PM'
                             ? theme.colors.tertiaryContainer
-                            : theme.colors.surfaceContainerHighest,
+                            : 'transparent',
                           borderColor: theme.colors.outline,
                         },
                       ]}
@@ -691,7 +691,13 @@ function TimePickerImpl({
               {/* Actions */}
               <View style={styles.actions}>
                 <IconButton
-                  icon={<Text style={{ fontSize: 20 }}>{inputMode === 'dial' ? '⌨️' : '🕐'}</Text>}
+                  icon={
+                    // Text-presentation glyphs (︎) so the icon takes the
+                    // theme color instead of rendering as a fixed-color emoji.
+                    <Text style={{ fontSize: 18, color: theme.colors.onSurfaceVariant }}>
+                      {inputMode === 'dial' ? '⌨︎' : '◷'}
+                    </Text>
+                  }
                   onPress={toggleInputMode}
                   accessibilityLabel={inputMode === 'dial' ? 'Switch to keyboard input' : 'Switch to dial'}
                 />
@@ -794,7 +800,7 @@ const styles = StyleSheet.create({
   periodButtonTop: {
     borderTopStartRadius: 8,
     borderTopEndRadius: 8,
-    borderBottomWidth: 0,
+    // Keep the bottom border — it forms the MD3 divider between AM and PM.
   },
   periodButtonBottom: {
     borderBottomStartRadius: 8,

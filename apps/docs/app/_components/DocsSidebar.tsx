@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { WebPressableState } from './webTypes';
 import { useRouter, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { accentForRoute, accentColor, accentTint, brandGradient } from './accents';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -129,8 +131,8 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
 
   const onSurface = theme.colors.onSurface;
   const onSurfaceVariant = theme.colors.onSurfaceVariant;
-  const accent = theme.colors.primary;
   const subtleBorder = theme.colors.outlineVariant + '40';
+  const isDark = theme.mode === 'dark';
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface, paddingTop: isMobile ? insets.top : 0 }]}>
@@ -141,9 +143,14 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
           style={({ pressed }) => [styles.brandPressable, { opacity: pressed ? 0.7 : 1 }]}
           accessibilityRole="link"
         >
-          <View style={[styles.brandMark, { backgroundColor: accent }]}>
-            <Ionicons name="layers" size={18} color={theme.colors.onPrimary} />
-          </View>
+          <LinearGradient
+            colors={[brandGradient[0], brandGradient[1]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.brandMark}
+          >
+            <Ionicons name="layers" size={18} color="#FFFFFF" />
+          </LinearGradient>
           <View>
             <Text variant="titleMedium" style={{ color: onSurface, fontWeight: '700', fontSize: 17 }}>
               Quartz UI
@@ -220,6 +227,8 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
             </Text>
             {section.items.map((item) => {
               const isActive = pathname === item.route;
+              const itemAccent = accentForRoute(item.route);
+              const itemColor = accentColor(itemAccent, isDark);
               return (
                 <Pressable
                   key={item.route}
@@ -229,7 +238,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
                     styles.navItem,
                     {
                       backgroundColor: isActive
-                        ? theme.colors.primaryContainer
+                        ? accentTint(itemAccent, isDark, 0.14)
                         : (hovered as boolean)
                           ? theme.colors.surfaceVariant + '70'
                           : 'transparent',
@@ -237,19 +246,19 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
                     },
                   ]}
                 >
-                  {isActive && <View style={[styles.activeBar, { backgroundColor: accent }]} />}
+                  {isActive && <View style={[styles.activeBar, { backgroundColor: itemColor }]} />}
                   {item.icon && (
                     <Ionicons
                       name={item.icon}
                       size={16}
-                      color={isActive ? theme.colors.onPrimaryContainer : onSurfaceVariant}
+                      color={itemColor}
                       style={{ marginEnd: 10 }}
                     />
                   )}
                   <Text
                     variant="bodyMedium"
                     style={{
-                      color: isActive ? theme.colors.onPrimaryContainer : onSurface,
+                      color: onSurface,
                       fontWeight: isActive ? '600' : '500',
                       fontSize: 14,
                       flex: 1,
@@ -264,22 +273,15 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
                         {
                           backgroundColor:
                             item.badge === 'NEW'
-                              ? accent
-                              : isActive
-                                ? theme.colors.onPrimaryContainer + '22'
-                                : theme.colors.surfaceVariant,
+                              ? accentTint(itemAccent, isDark, 0.16)
+                              : theme.colors.surfaceVariant,
                         },
                       ]}
                     >
                       <Text
                         variant="labelSmall"
                         style={{
-                          color:
-                            item.badge === 'NEW'
-                              ? theme.colors.onPrimary
-                              : isActive
-                                ? theme.colors.onPrimaryContainer
-                                : onSurfaceVariant,
+                          color: item.badge === 'NEW' ? itemColor : onSurfaceVariant,
                           fontWeight: '700',
                           fontSize: 10,
                           letterSpacing: 0.4,
@@ -309,7 +311,7 @@ export function DocsSidebar({ onClose }: DocsSidebarProps) {
         <View style={[styles.footerPill, { backgroundColor: theme.colors.surfaceVariant + '70' }]}>
           <Ionicons name="cube-outline" size={14} color={onSurfaceVariant} />
           <Text variant="bodySmall" style={{ color: onSurfaceVariant, fontSize: 12, marginStart: 8 }}>
-            40 components · 218 tests
+            40 components · 540 tests
           </Text>
         </View>
       </View>
