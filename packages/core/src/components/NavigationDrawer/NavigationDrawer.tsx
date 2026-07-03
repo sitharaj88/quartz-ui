@@ -30,6 +30,7 @@ import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
 import { useViewportDimensions } from '../../hooks/useViewportDimensions';
+import { withAlpha } from '../../utils/color';
 import { Text } from '../Text';
 import { Divider } from '../Divider';
 
@@ -148,7 +149,7 @@ function DrawerItemComponent({
           style={[
             styles.itemLabel,
             {
-              color: item.disabled ? theme.colors.onSurface + '61' : textColor,
+              color: item.disabled ? withAlpha(theme.colors.onSurface, 0.38) : textColor,
             },
           ]}
           numberOfLines={1}
@@ -383,6 +384,9 @@ function NavigationDrawerImpl({
           ]}
           accessibilityRole="menu"
           accessibilityViewIsModal={true}
+          // Screen-reader escape (iOS two-finger Z) — the scrim is hidden from
+          // AT by accessibilityViewIsModal, so this is the SR close affordance.
+          onAccessibilityEscape={onClose}
         >
           {header && <View style={styles.header}>{header}</View>}
           

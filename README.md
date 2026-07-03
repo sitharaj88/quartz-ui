@@ -109,6 +109,13 @@ function MyScreen() {
 - **Surface** - Themed container with elevation support
 - **Card** - Elevated, filled, and outlined cards
 - **Divider** - Horizontal and vertical dividers
+- **Accordion** - Expandable panels with single or multiple expansion
+
+### Navigation
+- **AppBar** - Top app bar (center-aligned, small, medium, large)
+- **BottomAppBar** - Bottom-anchored bar with actions and a FAB slot
+- **NavigationBar / NavigationRail / NavigationDrawer** - Adaptive navigation
+- **Tabs** - Tab navigation
 
 ### Media & Display
 - **Avatar** - Image, initials, or icon with badge and group support
@@ -184,6 +191,37 @@ function App() {
 }
 ```
 
+### Dynamic Color (Material You)
+
+Generate a complete, WCAG-AA-compliant color system from a single brand color.
+All 36 Material 3 color roles — tonal palettes, containers, surfaces, outlines —
+are derived from the seed's hue and chroma using perceptually uniform (Oklab)
+color math:
+
+```tsx
+import { QuartzProvider, createDynamicThemes } from 'quartz-ui';
+
+const { light, dark } = createDynamicThemes('#1A73E8');
+
+function App() {
+  return (
+    <QuartzProvider lightTheme={light} darkTheme={dark}>
+      <YourApp />
+    </QuartzProvider>
+  );
+}
+```
+
+Lower-level utilities are exported too:
+
+```tsx
+import {
+  createDynamicColorScheme, // seed → full ColorScheme for 'light' | 'dark'
+  generateTonalPalette,     // seed → 13-stop MD3 tonal palette
+  toneColor,                // (hue, chroma, tone) → hex at an exact MD3 tone
+} from 'quartz-ui';
+```
+
 ## 🎯 Design Tokens
 
 Access design tokens directly for custom styling:
@@ -205,6 +243,32 @@ const styles = StyleSheet.create({
     gap: spacing.sm,               // 8
   },
 });
+```
+
+### Variant Utility
+
+For your own components, `createVariants` gives you a type-safe, CVA-style
+variant map:
+
+```tsx
+import { createVariants } from 'quartz-ui';
+
+const badgeVariants = createVariants({
+  base: { paddingHorizontal: 12, borderRadius: 999 },
+  variants: {
+    tone: {
+      info: { backgroundColor: '#E3F2FD' },
+      success: { backgroundColor: '#E8F5E9' },
+    },
+    size: {
+      sm: { paddingVertical: 2 },
+      md: { paddingVertical: 6 },
+    },
+  },
+  defaultVariants: { tone: 'info', size: 'md' },
+});
+
+<View style={badgeVariants({ tone: 'success' })} />
 ```
 
 ## ♿ Accessibility

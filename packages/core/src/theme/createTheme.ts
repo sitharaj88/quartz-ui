@@ -5,6 +5,7 @@
  */
 
 import { lightColorScheme, darkColorScheme, ColorScheme } from '../tokens/colors';
+import { createDynamicColorScheme } from './dynamicColor';
 import { defaultTypeScale } from '../tokens/typography';
 import { spacing, borderRadius } from '../tokens/spacing';
 import { getElevationStyle, ElevationLevel } from '../tokens/elevation';
@@ -157,19 +158,37 @@ export function extendTheme(
 }
 
 /**
- * Create a custom color scheme from a seed color
- * This is a simplified version - full implementation would use
- * color utilities for proper tonal palette generation
+ * Create a complete color scheme from a seed color (Material-You-style
+ * dynamic color). All 36 MD3 roles are derived from the seed's hue and
+ * chroma via tonal palettes — see `theme/dynamicColor.ts`.
  */
 export function createCustomColorScheme(
   seedColor: string,
-  _isDark: boolean = false
-): Partial<ColorScheme> {
-  // For now, return a simple override
-  // In production, use a color utilities library
+  isDark: boolean = false
+): ColorScheme {
+  return createDynamicColorScheme(seedColor, isDark ? 'dark' : 'light');
+}
+
+/**
+ * Create a matched light/dark theme pair from a seed color.
+ *
+ * @example
+ *   const { light, dark } = createDynamicThemes('#1A73E8');
+ *   <QuartzProvider lightTheme={light} darkTheme={dark}>…</QuartzProvider>
+ */
+export function createDynamicThemes(
+  seedColor: string,
+  options: ThemeOptions = {}
+): { light: QuartzTheme; dark: QuartzTheme } {
   return {
-    primary: seedColor,
-    // Other colors would be generated from the seed
+    light: createTheme('light', {
+      ...options,
+      colors: { ...createDynamicColorScheme(seedColor, 'light'), ...options.colors },
+    }),
+    dark: createTheme('dark', {
+      ...options,
+      colors: { ...createDynamicColorScheme(seedColor, 'dark'), ...options.colors },
+    }),
   };
 }
 

@@ -39,14 +39,20 @@ import {
   Modal,
   TextInput,
   Platform,
-  PanResponder,
 } from 'react-native';
 import Animated, {
   FadeIn,
+  runOnJS,
 } from 'react-native-reanimated';
+import {
+  GestureDetector,
+  Gesture,
+  State,
+} from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { withAlpha } from '../../utils/color';
 import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { Text } from '../Text';
 import { Button } from '../Button';
@@ -174,166 +180,167 @@ function ClockDial({
     }
   }, [selectionMode, innerValues]);
 
-  // Create panResponder with current callbacks
-  const panResponder = useMemo(() => 
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt) => {
-        isDragging.current = false;
-        const { locationX, locationY } = evt.nativeEvent;
-        const newValue = calculateValueFromTouch(locationX, locationY);
-        if (newValue !== null && newValue !== lastValue.current) {
-          lastValue.current = newValue;
-          onValueChange(newValue, false);
-          if (Platform.OS !== 'web') {
-            Haptics.selectionAsync();
-          }
-        }
-      },
-      onPanResponderMove: (evt) => {
-        isDragging.current = true;
-        const { locationX, locationY } = evt.nativeEvent;
-        const newValue = calculateValueFromTouch(locationX, locationY);
-        if (newValue !== null && newValue !== lastValue.current) {
-          lastValue.current = newValue;
-          onValueChange(newValue, true);
-          if (Platform.OS !== 'web') {
-            Haptics.selectionAsync();
-          }
-        }
-      },
-      onPanResponderRelease: () => {
-        // When gesture ends, notify parent
-        onDragEnd?.();
-        isDragging.current = false;
-      },
-      onPanResponderTerminate: () => {
-        isDragging.current = false;
-      },
-    }), [calculateValueFromTouch, onValueChange, onDragEnd]
-  );
+  // Handle a touch point on the dial (runs on the JS thread via runOnJS)
+  const handleDialTouch = useCallback((x: number, y: number, fromDrag: boolean) => {
+    isDragging.current = fromDrag;
+    const newValue = calculateValueFromTouch(x, y);
+    if (newValue !== null && newValue !== lastValue.current) {
+      lastValue.current = newValue;
+      onValueChange(newValue, fromDrag);
+      if (Platform.OS !== 'web') {
+        Haptics.selectionAsync();
+      }
+    }
+  }, [calculateValueFromTouch, onValueChange]);
+
+  // Handle the end of a dial gesture (release vs. termination)
+  const handleDialFinalize = useCallback((released: boolean) => {
+    if (released) {
+      // When gesture ends, notify parent
+      onDragEnd?.();
+    }
+    isDragging.current = false;
+  }, [onDragEnd]);
+
+  // Pan gesture for dial interaction (handles both taps and drags)
+  const panGesture = Gesture.Pan()
+    .minDistance(0)
+    .onBegin((event) => {
+      'worklet';
+      runOnJS(handleDialTouch)(event.x, event.y, false);
+    })
+    .onUpdate((event) => {
+      'worklet';
+      runOnJS(handleDialTouch)(event.x, event.y, true);
+    })
+    .onFinalize((event, success) => {
+      'worklet';
+      // FAILED means the finger lifted before the pan activated (a tap),
+      // which PanResponder treated as a release; CANCELLED maps to terminate
+      runOnJS(handleDialFinalize)(success || event.state === State.FAILED);
+    });
 
   // Calculate the midpoint between center and selector position for track positioning
   const trackCenterX = selectorX / 2;
   const trackCenterY = selectorY / 2;
 
   return (
-    <View
-      ref={clockRef}
-      style={[
-        styles.clockFace,
-        { backgroundColor: theme.colors.surfaceContainerHighest },
-      ]}
-      {...panResponder.panHandlers}
-    >
-      {/* Selector track (line from center to selected) */}
+    <GestureDetector gesture={panGesture}>
       <View
+        ref={clockRef}
         style={[
-          styles.selectorTrack,
-          {
-            backgroundColor: theme.colors.primary,
-            height: selectorRadius,
-            left: CLOCK_RADIUS + trackCenterX - 1,
-            top: CLOCK_RADIUS + trackCenterY - selectorRadius / 2,
-            transform: [
-              { rotate: `${selectorAngle + 90}deg` },
-            ],
-          },
+          styles.clockFace,
+          { backgroundColor: theme.colors.surfaceContainerHighest },
         ]}
-      />
-      
-      {/* Selector handle */}
-      <View
-        style={[
-          styles.selectorHandle,
-          {
-            backgroundColor: theme.colors.primary,
-            left: CLOCK_RADIUS + selectorX - SELECTOR_SIZE / 2,
-            top: CLOCK_RADIUS + selectorY - SELECTOR_SIZE / 2,
-          },
-        ]}
-      />
-
-      {/* Center dot */}
-      <View
-        style={[
-          styles.centerDot,
-          { backgroundColor: theme.colors.primary },
-        ]}
-      />
-
-      {/* Clock numbers with fade animation */}
-      <Animated.View 
-        key={selectionMode}
-        entering={FadeIn.duration(150)}
-        style={StyleSheet.absoluteFill}
       >
-        {/* Outer ring numbers */}
-        {values.map((val, index) => {
-          const total = values.length;
-          const angle = (index * 360) / total - 90;
-          const x = Math.cos((angle * Math.PI) / 180) * CLOCK_OUTER_RADIUS;
-          const y = Math.sin((angle * Math.PI) / 180) * CLOCK_OUTER_RADIUS;
-          const isSelected = val === selectedValue;
+        {/* Selector track (line from center to selected) */}
+        <View
+          style={[
+            styles.selectorTrack,
+            {
+              backgroundColor: theme.colors.primary,
+              height: selectorRadius,
+              left: CLOCK_RADIUS + trackCenterX - 1,
+              top: CLOCK_RADIUS + trackCenterY - selectorRadius / 2,
+              transform: [
+                { rotate: `${selectorAngle + 90}deg` },
+              ],
+            },
+          ]}
+        />
 
-          return (
-            <View
-              key={`outer-${val}`}
-              style={[
-                styles.clockNumber,
-                {
-                  left: CLOCK_RADIUS + x - 20,
-                  top: CLOCK_RADIUS + y - 20,
-                },
-              ]}
-            >
-              <Text
-                variant="bodyLarge"
-                style={{
-                  color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface,
-                  fontWeight: isSelected ? '500' : '400',
-                }}
+        {/* Selector handle */}
+        <View
+          style={[
+            styles.selectorHandle,
+            {
+              backgroundColor: theme.colors.primary,
+              left: CLOCK_RADIUS + selectorX - SELECTOR_SIZE / 2,
+              top: CLOCK_RADIUS + selectorY - SELECTOR_SIZE / 2,
+            },
+          ]}
+        />
+
+        {/* Center dot */}
+        <View
+          style={[
+            styles.centerDot,
+            { backgroundColor: theme.colors.primary },
+          ]}
+        />
+
+        {/* Clock numbers with fade animation */}
+        <Animated.View
+          key={selectionMode}
+          entering={FadeIn.duration(150)}
+          style={StyleSheet.absoluteFill}
+        >
+          {/* Outer ring numbers */}
+          {values.map((val, index) => {
+            const total = values.length;
+            const angle = (index * 360) / total - 90;
+            const x = Math.cos((angle * Math.PI) / 180) * CLOCK_OUTER_RADIUS;
+            const y = Math.sin((angle * Math.PI) / 180) * CLOCK_OUTER_RADIUS;
+            const isSelected = val === selectedValue;
+
+            return (
+              <View
+                key={`outer-${val}`}
+                style={[
+                  styles.clockNumber,
+                  {
+                    left: CLOCK_RADIUS + x - 20,
+                    top: CLOCK_RADIUS + y - 20,
+                  },
+                ]}
               >
-                {selectionMode === 'hours' ? val : val.toString().padStart(2, '0')}
-              </Text>
-            </View>
-          );
-        })}
+                <Text
+                  variant="bodyLarge"
+                  style={{
+                    color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface,
+                    fontWeight: isSelected ? '500' : '400',
+                  }}
+                >
+                  {selectionMode === 'hours' ? val : val.toString().padStart(2, '0')}
+                </Text>
+              </View>
+            );
+          })}
 
-        {/* Inner ring numbers (24-hour mode) */}
-        {innerValues?.map((val, index) => {
-          const total = innerValues.length;
-          const angle = (index * 360) / total - 90;
-          const x = Math.cos((angle * Math.PI) / 180) * CLOCK_INNER_RADIUS;
-          const y = Math.sin((angle * Math.PI) / 180) * CLOCK_INNER_RADIUS;
-          const isSelected = val === selectedValue;
+          {/* Inner ring numbers (24-hour mode) */}
+          {innerValues?.map((val, index) => {
+            const total = innerValues.length;
+            const angle = (index * 360) / total - 90;
+            const x = Math.cos((angle * Math.PI) / 180) * CLOCK_INNER_RADIUS;
+            const y = Math.sin((angle * Math.PI) / 180) * CLOCK_INNER_RADIUS;
+            const isSelected = val === selectedValue;
 
-          return (
-            <View
-              key={`inner-${val}`}
-              style={[
-                styles.clockNumber,
-                {
-                  left: CLOCK_RADIUS + x - 20,
-                  top: CLOCK_RADIUS + y - 20,
-                },
-            ]}
-          >
-            <Text
-              variant="bodySmall"
-              style={{
-                color: isSelected ? theme.colors.onPrimary : theme.colors.onSurfaceVariant,
-                fontWeight: isSelected ? '500' : '400',
-              }}
-            >
-              {val.toString().padStart(2, '0')}
-            </Text>
-          </View>
-        );
-      })}
-      </Animated.View>
-    </View>
+            return (
+              <View
+                key={`inner-${val}`}
+                style={[
+                  styles.clockNumber,
+                  {
+                    left: CLOCK_RADIUS + x - 20,
+                    top: CLOCK_RADIUS + y - 20,
+                  },
+                ]}
+              >
+                <Text
+                  variant="bodySmall"
+                  style={{
+                    color: isSelected ? theme.colors.onPrimary : theme.colors.onSurfaceVariant,
+                    fontWeight: isSelected ? '500' : '400',
+                  }}
+                >
+                  {val.toString().padStart(2, '0')}
+                </Text>
+              </View>
+            );
+          })}
+        </Animated.View>
+      </View>
+    </GestureDetector>
   );
 }
 
@@ -463,7 +470,7 @@ function TimePickerImpl({
 
   const pickerContent = (
       <Pressable
-        style={[styles.overlay, { backgroundColor: theme.colors.scrim + '52' }]}
+        style={[styles.overlay, { backgroundColor: withAlpha(theme.colors.scrim, 0.32) }]}
         onPress={handleCancel}
       >
         <Pressable onPress={(e) => e.stopPropagation()}>

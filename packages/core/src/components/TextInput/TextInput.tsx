@@ -13,6 +13,7 @@ import React, {
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
@@ -156,7 +157,7 @@ const TextInputImpl = forwardRef<RNTextInput, TextInputProps>(function TextInput
   );
 
   // Resolve colors. Disabled overrides everything; error overrides default.
-  const colors = (() => {
+  const colors = useMemo(() => {
     if (disabled) {
       return {
         container: variant === 'filled' ? withAlpha(theme.colors.onSurface, 0.04) : 'transparent',
@@ -185,7 +186,7 @@ const TextInputImpl = forwardRef<RNTextInput, TextInputProps>(function TextInput
       support: theme.colors.onSurfaceVariant,
       indicator: theme.colors.primary,
     };
-  })();
+  }, [disabled, showError, isFocused, variant, theme]);
 
   const animatedLabelStyle = useAnimatedStyle(() => {
     const restingTop = 18;
@@ -210,39 +211,66 @@ const TextInputImpl = forwardRef<RNTextInput, TextInputProps>(function TextInput
     };
   });
 
-  const containerStyles: ViewStyle = {
-    width: fullWidth ? '100%' : undefined,
-    opacity: disabled ? 0.6 : 1,
-    ...containerStyle,
-  };
-
-  const inputContainerStyles: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 56,
-    paddingHorizontal: 16,
-    backgroundColor: colors.container,
-    ...(variant === 'filled' && {
-      borderTopLeftRadius: 4,
-      borderTopRightRadius: 4,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
+  const containerStyles: ViewStyle = useMemo(
+    () => ({
+      width: fullWidth ? '100%' : undefined,
+      opacity: disabled ? 0.6 : 1,
+      ...containerStyle,
     }),
-    ...(variant === 'outlined' && {
-      borderWidth: isFocused ? 2 : 1,
-      borderColor: colors.border,
-      borderRadius: 4,
-    }),
-  };
+    [fullWidth, disabled, containerStyle]
+  );
 
-  const indicatorStyles: ViewStyle = {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: isFocused ? 2 : 1,
-    backgroundColor: isFocused ? colors.indicator : colors.border,
-  };
+  const inputContainerStyles: ViewStyle = useMemo(
+    () => ({
+      flexDirection: 'row',
+      alignItems: 'center',
+      minHeight: 56,
+      paddingHorizontal: 16,
+      backgroundColor: colors.container,
+      ...(variant === 'filled' && {
+        borderTopLeftRadius: 4,
+        borderTopRightRadius: 4,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+      }),
+      ...(variant === 'outlined' && {
+        borderWidth: isFocused ? 2 : 1,
+        borderColor: colors.border,
+        borderRadius: 4,
+      }),
+    }),
+    [colors, variant, isFocused]
+  );
+
+  const indicatorStyles: ViewStyle = useMemo(
+    () => ({
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: isFocused ? 2 : 1,
+      backgroundColor: isFocused ? colors.indicator : colors.border,
+    }),
+    [isFocused, colors]
+  );
+
+  const inputStyles = useMemo(
+    () => [
+      {
+        flex: 1,
+        paddingTop: label ? (variant === 'filled' ? 24 : 16) : 16,
+        paddingBottom: label ? 8 : 16,
+        color: colors.input,
+        fontSize: 16,
+        lineHeight: 24,
+      },
+      Platform.OS === 'web'
+        ? ({ outlineStyle: 'none', outlineWidth: 0 } as unknown as TextStyle)
+        : null,
+      inputStyle,
+    ],
+    [label, variant, colors, inputStyle]
+  );
 
   // Build the label that screen readers will read. Append "required" hint.
   const a11yLabel = accessibilityLabel ?? label;
@@ -276,20 +304,7 @@ const TextInputImpl = forwardRef<RNTextInput, TextInputProps>(function TextInput
           defaultValue={defaultValue}
           maxLength={maxLength}
           editable={!disabled}
-          style={[
-            {
-              flex: 1,
-              paddingTop: label ? (variant === 'filled' ? 24 : 16) : 16,
-              paddingBottom: label ? 8 : 16,
-              color: colors.input,
-              fontSize: 16,
-              lineHeight: 24,
-            },
-            Platform.OS === 'web'
-              ? ({ outlineStyle: 'none', outlineWidth: 0 } as unknown as TextStyle)
-              : null,
-            inputStyle,
-          ]}
+          style={inputStyles}
           placeholder={isFocused || hasValue ? inputProps.placeholder : ''}
           placeholderTextColor={theme.colors.onSurfaceVariant}
           onFocus={handleFocus as unknown as RNTextInputProps['onFocus']}

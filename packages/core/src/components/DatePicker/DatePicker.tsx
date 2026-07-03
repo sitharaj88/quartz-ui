@@ -39,6 +39,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { withAlpha } from '../../utils/color';
 import { QuartzViewportPortal, useViewportDimensions } from '../../hooks/useViewportDimensions';
 import { Text } from '../Text';
 import { Button } from '../Button';
@@ -117,6 +118,7 @@ interface CalendarDayProps {
  */
 function CalendarDay({
   day,
+  date,
   selected,
   today,
   disabled,
@@ -152,8 +154,13 @@ function CalendarDay({
     : today
     ? theme.colors.primary
     : disabled
-    ? theme.colors.onSurface + '38'
+    ? withAlpha(theme.colors.onSurface, 0.38)
     : theme.colors.onSurface;
+
+  // Month + year context so screen-reader users know which "Day 15" this is.
+  const dayLabel = date
+    ? `Day ${day}, ${MONTHS[date.getMonth()]} ${date.getFullYear()}`
+    : `Day ${day}`;
 
   return (
     <Animated.View style={[styles.dayCell, animatedStyle]}>
@@ -172,7 +179,7 @@ function CalendarDay({
         ]}
         accessibilityRole="button"
         accessibilityState={{ selected, disabled }}
-        accessibilityLabel={`Day ${day}`}
+        accessibilityLabel={dayLabel}
       >
         <Text
           variant="bodyMedium"
@@ -439,7 +446,7 @@ function DatePickerImpl({
 
   const pickerContent = (
       <Pressable
-        style={[styles.overlay, { backgroundColor: theme.colors.scrim + '52' }]}
+        style={[styles.overlay, { backgroundColor: withAlpha(theme.colors.scrim, 0.32) }]}
         onPress={handleCancel}
       >
         <Pressable onPress={(e) => e.stopPropagation()}>

@@ -4,7 +4,6 @@
 
 export * from './types';
 export * from './createTheme';
+export * from './dynamicColor';
+// `QuartzProvider` and `useQuartzTheme` are exported here via the star export.
 export * from './ThemeProvider';
-
-// Backward compatibility aliases
-export { QuartzProvider as QuartzProvider, useQuartzTheme as useQuartzTheme } from './ThemeProvider';

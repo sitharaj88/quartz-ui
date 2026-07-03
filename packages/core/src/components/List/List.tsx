@@ -25,6 +25,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '../../theme/ThemeProvider';
+import { withAlpha } from '../../utils/color';
 import { Text } from '../Text';
 
 export interface ListItemProps {
@@ -143,7 +144,7 @@ function ListItemImpl({
             variant="labelSmall"
             style={[
               styles.overline,
-              { color: disabled ? theme.colors.onSurface + '61' : theme.colors.onSurfaceVariant },
+              { color: disabled ? withAlpha(theme.colors.onSurface, 0.38) : theme.colors.onSurfaceVariant },
             ]}
             numberOfLines={1}
           >
@@ -155,7 +156,7 @@ function ListItemImpl({
           variant="bodyLarge"
           style={[
             styles.headline,
-            { color: disabled ? theme.colors.onSurface + '61' : theme.colors.onSurface },
+            { color: disabled ? withAlpha(theme.colors.onSurface, 0.38) : theme.colors.onSurface },
           ]}
           numberOfLines={1}
         >
@@ -167,7 +168,7 @@ function ListItemImpl({
             variant="bodyMedium"
             style={[
               styles.supportingText,
-              { color: disabled ? theme.colors.onSurface + '61' : theme.colors.onSurfaceVariant },
+              { color: disabled ? withAlpha(theme.colors.onSurface, 0.38) : theme.colors.onSurfaceVariant },
             ]}
             numberOfLines={lines === 3 ? 2 : 1}
           >
@@ -200,9 +201,10 @@ function ListSectionImpl({ title, children, style }: ListSectionProps) {
   const theme = useTheme();
 
   return (
-    <View style={[styles.section, style]} accessibilityRole="header">
+    <View style={[styles.section, style]}>
       <Text
         variant="titleSmall"
+        accessibilityRole="header"
         style={[styles.sectionTitle, { color: theme.colors.primary }]}
       >
         {title}

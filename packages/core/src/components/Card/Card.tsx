@@ -13,6 +13,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from 'react';
 import {
@@ -131,29 +132,29 @@ const CardImpl = forwardRef<CardHandle, CardProps>(function Card(
       : withTiming(target, { duration: duration.short3 });
   }, [pressed, focused, hovered, reduceMotion, stateLayerProgress, isInteractive]);
 
-  const radiusValue =
-    typeof radius === 'number'
-      ? radius
-      : radius === 'small'
-        ? theme.shape.small
-        : radius === 'large'
-          ? theme.shape.large
-          : theme.shape.medium;
+  const radiusValue = useMemo(
+    () =>
+      typeof radius === 'number'
+        ? radius
+        : radius === 'small'
+          ? theme.shape.small
+          : radius === 'large'
+            ? theme.shape.large
+            : theme.shape.medium,
+    [radius, theme]
+  );
 
-  const paddingValue =
-    padding === 'none'
-      ? 0
-      : padding === 'sm'
-        ? theme.spacing.sm
-        : padding === 'lg'
-          ? theme.spacing.lg
-          : theme.spacing.md;
-
-  const backgroundColor = disabled
-    ? withAlpha(theme.colors.surfaceContainerHighest, 0.38)
-    : variant === 'filled'
-      ? theme.colors.surfaceContainerHighest
-      : theme.colors.surface;
+  const paddingValue = useMemo(
+    () =>
+      padding === 'none'
+        ? 0
+        : padding === 'sm'
+          ? theme.spacing.sm
+          : padding === 'lg'
+            ? theme.spacing.lg
+            : theme.spacing.md,
+    [padding, theme]
+  );
 
   // MD3 elevation: elevated rests at 1, presses to 2; filled/outlined rest at 0, press to 1.
   const elevationLevel: ElevationLevel =
@@ -167,24 +168,32 @@ const CardImpl = forwardRef<CardHandle, CardProps>(function Card(
           ? 1
           : 0;
 
-  const containerStyles: StyleProp<ViewStyle> = [
-    {
-      backgroundColor,
-      borderRadius: radiusValue,
-      padding: paddingValue,
-      overflow: 'hidden',
-      ...(variant === 'outlined' && {
-        borderWidth: 1,
-        borderColor: disabled
-          ? withAlpha(theme.colors.outline, 0.12)
-          : theme.colors.outlineVariant,
-      }),
-      ...(variant === 'elevated' || elevationLevel > 0
-        ? theme.elevation(elevationLevel)
-        : null),
-    },
-    style,
-  ];
+  const containerStyles: StyleProp<ViewStyle> = useMemo(() => {
+    const backgroundColor = disabled
+      ? withAlpha(theme.colors.surfaceContainerHighest, 0.38)
+      : variant === 'filled'
+        ? theme.colors.surfaceContainerHighest
+        : theme.colors.surface;
+
+    return [
+      {
+        backgroundColor,
+        borderRadius: radiusValue,
+        padding: paddingValue,
+        overflow: 'hidden' as const,
+        ...(variant === 'outlined' && {
+          borderWidth: 1,
+          borderColor: disabled
+            ? withAlpha(theme.colors.outline, 0.12)
+            : theme.colors.outlineVariant,
+        }),
+        ...(variant === 'elevated' || elevationLevel > 0
+          ? theme.elevation(elevationLevel)
+          : null),
+      },
+      style,
+    ];
+  }, [disabled, variant, theme, radiusValue, paddingValue, elevationLevel, style]);
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -224,22 +233,28 @@ const CardImpl = forwardRef<CardHandle, CardProps>(function Card(
     [disabled, onPress]
   );
 
-  const focusRingStyle: ViewStyle = {
-    position: 'absolute',
-    top: -3,
-    left: -3,
-    right: -3,
-    bottom: -3,
-    borderRadius: radiusValue + 3,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-  };
+  const focusRingStyle: ViewStyle = useMemo(
+    () => ({
+      position: 'absolute',
+      top: -3,
+      left: -3,
+      right: -3,
+      bottom: -3,
+      borderRadius: radiusValue + 3,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+    }),
+    [radiusValue, theme]
+  );
 
-  const stateLayerBaseStyle: ViewStyle = {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: theme.colors.onSurface,
-    borderRadius: radiusValue,
-  };
+  const stateLayerBaseStyle: ViewStyle = useMemo(
+    () => ({
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: theme.colors.onSurface,
+      borderRadius: radiusValue,
+    }),
+    [theme, radiusValue]
+  );
 
   const webHoverProps =
     Platform.OS === 'web' && isInteractive

@@ -162,7 +162,7 @@ function IndicatorDot({
     <Pressable
       onPress={onPress}
       hitSlop={6}
-      accessibilityRole="button"
+      accessibilityRole="tab"
       accessibilityLabel={`Go to slide ${index + 1} of ${total}`}
       accessibilityState={{ selected: active }}
     >

@@ -24,6 +24,7 @@ export * from './TextInput';
 export * from './SearchBar';
 
 // Layout & Containment
+export * from './Accordion';
 export * from './Surface';
 export * from './Card';
 export * from './Divider';
@@ -33,6 +34,7 @@ export * from './SideSheet';
 
 // Navigation
 export * from './AppBar';
+export * from './BottomAppBar';
 export * from './NavigationBar';
 export * from './NavigationDrawer';
 export * from './NavigationRail';

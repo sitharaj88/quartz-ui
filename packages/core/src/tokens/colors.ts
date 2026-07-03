@@ -8,6 +8,8 @@
  * - Semantic color mapping
  */
 
+import { withAlpha } from '../utils/color';
+
 // Base color palette types
 export interface ColorPalette {
   0: string;
@@ -296,7 +298,13 @@ export const darkColorScheme: ColorScheme = {
   scrim: defaultNeutralPalette[0],
 };
 
-// Color utility functions
+// Color utility functions (legacy — see src/utils/color.ts for robust versions)
+
+/**
+ * @deprecated Use the color utilities in `../utils/color` instead (e.g.
+ * `withAlpha`), which handle shorthand hex, 8-digit hex, and rgb()/rgba()
+ * inputs. This legacy helper only supports 6-digit hex.
+ */
 export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
@@ -308,6 +316,10 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } | nul
     : null;
 }
 
+/**
+ * @deprecated Use the color utilities in `../utils/color` instead. Kept only
+ * for backward compatibility.
+ */
 export function rgbToHex(r: number, g: number, b: number): string {
   return '#' + [r, g, b].map(x => {
     const hex = x.toString(16);
@@ -315,10 +327,12 @@ export function rgbToHex(r: number, g: number, b: number): string {
   }).join('');
 }
 
+/**
+ * @deprecated Use `withAlpha` from `../utils/color` instead. This now
+ * delegates to it, so behavior is consistent across the library.
+ */
 export function withOpacity(color: string, opacity: number): string {
-  const rgb = hexToRgb(color);
-  if (!rgb) return color;
-  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+  return withAlpha(color, opacity);
 }
 
 // State layer opacities

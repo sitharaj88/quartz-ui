@@ -253,6 +253,9 @@ function SideSheetImpl({
             style,
           ]}
           accessibilityViewIsModal={true}
+          // Screen-reader escape (iOS two-finger Z) — the scrim is hidden from
+          // AT by accessibilityViewIsModal.
+          onAccessibilityEscape={onClose}
         >
           {/* Header */}
           {showHeader && (

@@ -1,7 +1,14 @@
 /**
  * Quartz UI - useComponentStyles Hook
- * 
+ *
  * Centralized style computation hook for consistent component styling.
+ *
+ * @deprecated This entire toolkit is deprecated and will be removed in v2.
+ * No Quartz UI component uses it, and its memoization keys on object
+ * identity, so the `useMemo` inside never hits when callers pass inline
+ * props/state objects. Prefer `useTheme()` + your own `useMemo` (the pattern
+ * every Quartz UI component uses — see Button), or `createVariants` from
+ * 'quartz-ui' for CVA-style variant maps.
  */
 
 import { useMemo } from 'react';
@@ -67,6 +74,8 @@ type StyleFactories<P, K extends string> = Record<K, StyleFactory<P>>;
  *   return <View style={styles.container} />;
  * }
  * ```
+ *
+ * @deprecated Will be removed in v2 — memoization keys on object identity and never hits with inline objects. Use `useTheme()` + `useMemo` directly.
  */
 export function useComponentStyles<P extends Record<string, any>, K extends string>(
     props: P,
@@ -82,6 +91,8 @@ export function useComponentStyles<P extends Record<string, any>, K extends stri
 
 /**
  * Hook for computing a single style value
+ *
+ * @deprecated Will be removed in v2. Use `useTheme()` + `useMemo` directly.
  */
 export function useStyle<P extends Record<string, any>>(
     props: P,
@@ -97,6 +108,8 @@ export function useStyle<P extends Record<string, any>>(
 
 /**
  * Hook for computing styles with caching key
+ *
+ * @deprecated Will be removed in v2 — ignores `props`/`state` changes unless `cacheKey` changes, which silently serves stale styles. Use `useTheme()` + `useMemo` with real dependencies.
  */
 export function useCachedStyles<P extends Record<string, any>, K extends string>(
     cacheKey: string,
@@ -127,6 +140,8 @@ export function useCachedStyles<P extends Record<string, any>, K extends string>
  *   }),
  * });
  * ```
+ *
+ * @deprecated Will be removed in v2. Use `createVariants` from quartz-ui or `useTheme()` + `useMemo`.
  */
 export function createStyleHook<P extends Record<string, any>>() {
     return <K extends string>(factories: StyleFactories<P, K>) => {
@@ -146,6 +161,8 @@ export function createStyleHook<P extends Record<string, any>>() {
 
 /**
  * Merge styles with proper handling of undefined values
+ *
+ * @deprecated Will be removed in v2 — duplicate of `mergeStyles` from quartz-ui utils. Use that instead.
  */
 export function mergeComponentStyles(...styles: StyleValue[]): Style {
     return StyleSheet.flatten(styles.filter(Boolean) as Style[]);
@@ -153,6 +170,8 @@ export function mergeComponentStyles(...styles: StyleValue[]): Style {
 
 /**
  * Get state layer opacity based on component state
+ *
+ * @deprecated Will be removed in v2. Use the `stateLayerOpacity` token from quartz-ui tokens.
  */
 export function getStateLayerOpacity(state: ComponentState): number {
     if (state.disabled) return 0;
@@ -164,6 +183,8 @@ export function getStateLayerOpacity(state: ComponentState): number {
 
 /**
  * Get state layer style for a component
+ *
+ * @deprecated Will be removed in v2. Compose `stateLayerOpacity` tokens with your own style instead.
  */
 export function useStateLayer(
     color: string,

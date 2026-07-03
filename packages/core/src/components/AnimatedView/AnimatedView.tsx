@@ -70,7 +70,13 @@ const AnimatedViewImpl = forwardRef<View, AnimatedViewProps>(function AnimatedVi
 
     // Start animation on mount
     useEffect(() => {
-        if (animate && animateOnMount) {
+        if (!animate) {
+            // Animation disabled — settle at the final ("to") state so
+            // content is never stuck invisible at the preset's "from" state.
+            progress.value = 1;
+            return;
+        }
+        if (animateOnMount) {
             const animationFn = easing === 'spring'
                 ? withSpring(1, springConfig, (finished) => {
                     if (finished && onAnimationComplete) {
@@ -114,12 +120,21 @@ const AnimatedViewImpl = forwardRef<View, AnimatedViewProps>(function AnimatedVi
             ? from.scale + (to.scale - from.scale) * progress.value
             : 1;
 
+        const interpolateDeg = (fromDeg?: string, toDeg?: string): string => {
+            if (fromDeg === undefined || toDeg === undefined) return '0deg';
+            const f = parseFloat(fromDeg);
+            const t = parseFloat(toDeg);
+            return `${f + (t - f) * progress.value}deg`;
+        };
+
         return {
             opacity,
             transform: [
                 { translateX },
                 { translateY },
                 { scale },
+                { rotateX: interpolateDeg(from.rotateX, to.rotateX) },
+                { rotateY: interpolateDeg(from.rotateY, to.rotateY) },
             ],
         };
     });
